@@ -1,0 +1,13 @@
+#!/bin/csh	-f
+
+# This C-shell script turns files with procedure names "Aedxxx"
+# into files with names "Grxxx".  This is needed for other modules
+# to lint against (the names "Grxxx" are actually macros).
+
+# rcsid = $Header: :makeforlint,v 1.5 89/08/09 13:16:04 mayo Exp $
+
+foreach i ($argv)
+	set new=`echo $i | sed s/grAed/grLint/`
+	rm -f $new
+	sed "s/^Aed/Gr/g" < $i > $new
+end

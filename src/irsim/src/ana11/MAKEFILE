@@ -1,0 +1,121 @@
+SRCS = analyzer.c base.c convert.c coords.c deltaT.c event.c defaults.c graphics.c icon.c menu.c movetot.c movetrace.c namelen.c postscript.c setsteps.c scrollbar.c textwind.c update.c window.c wm.c zoom.c
+OBJS = analyzer.o base.o convert.o coords.o deltaT.o event.o defaults.o graphics.o icon.o menu.o movetrace.o movetot.o namelen.o postscript.o setsteps.o scrollbar.o textwind.o update.o window.o wm.o zoom.o
+HDSR = ../include/net.h
+SYSF =
+CSW = -O
+CDIRS = -I../include
+CFLAGS = $(CDIRS) $(CSW) $(SYSF)
+ana.o : $(OBJS)
+	ld -r -o ana.o $(OBJS) 
+anXhelper : anXhelper.c
+	cc $(CSW) $(SYSF) -o anXhelper anXhelper.c
+$(SRCS) : 
+	co $@
+zoom.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+wm.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+window.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+update.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+textwind.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+scrollbar.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+setsteps.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+postscript.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+namelen.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+movetrace.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+movetot.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+menu.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+icon.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h \
+	Bitmaps/opus
+graphics.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h \
+	Bitmaps/gray \
+	Bitmaps/xpat \
+	Bitmaps/left_arrows \
+	Bitmaps/right_arrows \
+	Bitmaps/left_curs \
+	Bitmaps/left_mask \
+	Bitmaps/right_curs \
+	Bitmaps/right_mask \
+	Bitmaps/chk \
+	Bitmaps/iconbox \
+	Bitmaps/sizebox \
+	Bitmaps/select
+defaults.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+event.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h \
+	helper.h
+deltaT.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+coords.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+convert.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h
+base.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h \
+	graphics.h
+analyzer.o: \
+	ana.h \
+	../include/net.h \
+	../include/defs.h

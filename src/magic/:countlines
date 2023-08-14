@@ -1,0 +1,11 @@
+# A shell script to count source lines in each underlying directory
+#
+# rcsid $Header: :countlines,v 1.1 89/04/03 16:15:20 mayo Exp $
+#
+
+foreach i ($argv)
+echo $i
+pushd $i
+wc *.c *.h
+popd
+end

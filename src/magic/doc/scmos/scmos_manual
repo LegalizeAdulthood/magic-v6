@@ -1,0 +1,604 @@
+[Note:  This is the technology manual for SCMOS provided by MOSIS on
+September 5, 1990.  It may have changed since then!  Order a new copy as
+described in the file ~cad/src/magic/doc/scmos/text.]
+
+---------------------------------------------------------------------------
+
+Magic Technology Manual for MOSIS' Scalable CMOS
+
+Shih-Lien Lu
+
+the MOSIS Service
+Information Sciences Institute
+University of Southern California
+4676 Admiralty Way
+Marina del Rey, CA 90292
+
+July 31, 1990
+
+
+This manual corresponds to Revision 6 of the MOSIS scalable rules with low 
+noise analog layers.
+
+1.   Introduction
+
+     This document describes the Magic (v6 and v4.10) technology corresponding 
+to the MOSIS scalable CMOS design rules.  It includes information about the 
+layers, design  rules, routing, CIF generation, and extraction. The Magic name 
+for this technology is scmos: if it isn't the default technology at your site, 
+you may have to type the switch -T scmos when running Magic from the shell.
+
+     The most important characteristic of the SCMOS technology  is  that  it  
+is  flavor-less  and  scalable:  layouts designed using the SCMOS rules may be 
+fabricated  in  either N-well or P-well technology at a variety of feature 
+sizes (with the exception of low noise analog layers). The lambda units used in 
+Magic are dimensionless:  MOSIS currently supports fabrication at .6 
+microns/lambda, .8 microns/lambda, 1.0 microns/lambda and 1.5 microns/lambda, 
+and other scale factors will become available in the future.  In order for 
+SCMOS designs to be fabricated with either N-well or P-well technology,  both 
+p-well and n-well contacts must be placed, and where wells and rings are 
+specified explicitly (e.g. in pads)  both  flavors must  be  specified.  When 
+the circuit is fabricated, one of the flavors of wells, rings, and substrate 
+contacts will be ignored.
+
+    The SCMOS technology provides two levels of metal.  All contacts  are  to 
+first-level metal. There are no buried or stacked contacts (mushroom contacts).
+
+    Remember that the layers you draw in Magic are ``abstract  layers''  or  
+``logs'', and do not correspond exactly to the mask patterns be used to 
+fabricate your circuit.  In fact, Magic layers must be translated into CIF (or 
+calma) layers before submitting to MOSIS.  In general, the interconnect layers 
+(metal2, metal1, poly, diffusions) will come out as you draw them here. 
+Implants will be generated automatically by Magic from bloated or shrunk 
+versions of the various  contacts  and  diffusions.  However, wells can either 
+be painted explicitly or left for Magic to generate. The final wells will be 
+the OR of painted wells and automatically generated wells from 
+bloating/shrinking of the diffusions and contacts.  You  draw contacts in terms 
+of the total overlap area between the layers being  connected,  not in terms of 
+the via holes.
+
+
+2.   Layers and Design Rules
+
+    Again,  layers you draw in Magic are ``abstract  layers''  or  ``logs'', 
+and do not correspond exactly to the mask patterns be used to fabricate your 
+circuit. As a result, following rules may have different numbers when compared 
+with MOSIS CMOS Scalable Rules which is specified for CIF layers.
+
+
+ 2. 1.   Second-level Metal
+
+
+     The top level of metal is drawn in a purple color,  and has  the names 
+metal2 or m2 or purple.  It must always be at least 3 units wide, and metal2 
+areas must be separated from each other by at least 4 units.
+
+ 2. 2.   First-level Metal
+
+     The lower level of metal is drawn in blue and  has  the names metal1 or  
+m1  or blue.  It has a minimum width of 3 units and a minimum spacing of 3 
+units.
+
+ 2. 3.   Polysilicon
+
+     Polysilicon is drawn in red, and can be referred to in Magic as either 
+polysilicon or red or poly or p.  It has a minimum width of 2 units and a 
+minimum spacing of 2 units.
+
+ 2. 4    Electrode
+
+     Electrode (or Second Poly) is drawn in yellow cross patterns, and can be 
+referred to in Magic as either poly2 or electrode or el or p2.  It has a 
+minimum width of 2 units and a minimum spacing of 3 units.
+
+ 2. 5.   Diffusion
+
+     In the SCMOS technology, it is unnecessary (however it is recommended) for 
+ you  to specify  wells  and  implant  selection  layers  explicitly. Instead, 
+there are four different layers that correspond  to the two kinds of diffusion 
+in the two kinds of wells.  Based on these four layers,  Magic automatically 
+generates the masks for active, wells, and implant select.
+
+     The most common kinds of diffusion are  p-diffusion in an n-well 
+(n-substrate) and  n-diffusion in a p-well (p-substrate); they are used for 
+creating p-type and n-type transistors, respectively.  P-diffusion in an n-well 
+is drawn with a light brown color;  Magic accepts the names pdiffusion, pdiff,  
+and brown for this  layer.  N-diffusion in a p-well is drawn in green, and can 
+be referred to as ndiffusion, ndiff, or green.
+
+     The other two kinds of diffusion are used for  generating  well 
+(substrate) contacts and guard  rings;   they consist of a strongly implanted 
+diffusion area in a  well of the same type.  P-diffusion  in a p-well is drawn 
+with a light brown color and has stippled holes in it.  It goes by the names 
+psubstratepdiff,  psd, ppdiff, ppd, or pohmic.  N-diffusion in an n-well is 
+drawn in a light green color with stippled holes  in it,  and goes by the names 
+nsubstratendiff, nsd, nndiff,  nnd or nohmic.
+
+     The basic design rules for the first two kinds of diffusion are the same:  
+they must be at least 3 units wide and have a spacing (to the same kind of 
+diffusion) of at least 3 units. The second kinds of diffusion used as substrate 
+(well) contacts must be at least 4 units wide and have a spacing (to the same 
+kind of diffusion) of at least 3 units. Spacing rules between diffusions of 
+different types are discussed below.
+
+ 2. 6.   Metal 2 Contacts
+
+     All contacts involve the metal1 layer.  In Magic, contacts aren't drawn as 
+two areas of overlapping material with a via hole in the middle.  Instead, you 
+just draw a single large area of a special contact type, m2contact in the case 
+of metal2 contacts.  This corresponds to the area where the two wiring layers 
+overlap (metal and metal2 in the case of metal2 contacts). Magic will 
+automatically  output  metal1, metal2  when it generates CIF or Calma output 
+and will also generate the small via hole in the  center of the contact area.  
+For large contact areas Magic will automatically generate many small via holes 
+in CIF or Calma output.  All contacts must be rectangular:  two contacts of the 
+same type may not abut. Contacts from metal1 to metal2 are called m2contact, 
+m2cut,  m2c, via, or v.  They appear on the screen as an area of metal1 
+overlapping an  area  of metal2,  with a black waffle pattern over the contact 
+area.  Metal2 contacts must be at least 4 units wide. It is recommended that 
+metal2 contacts be sized in the following quantized values : 4, 9, 14, 19, 24 
+... (or 1+1+2+5k  where k=0, 1, 2, ,3 4, ...). This is to assure that metal2 
+contacts are always on the lambda grid.
+
+     There is an additional special  rule  for  metal2  contacts:  there must 
+not be any polysilicon or diffusion edges underneath the area of the contact or 
+within 1 unit of the contact.  This rule is present because it is hard to 
+fabricate a metal2 contact over the sharp rise of a poly or diffusion edge.  It 
+is acceptable for poly or diffusion to lie under a m2contact area, as long as 
+it completely covers the area of the m2contact with an additional 1-unit 
+surround.
+
+ 2. 7.   Polysilicon, Electrode and Diffusion Contacts
+
+     Contacts between metal1 and polysilicon go by the names polycontact,  
+pcontact,  polycut, and  pc.  As with all contacts, you only draw the outer 
+boundary of the overlapping area of poly and  metal1;  Magic fills in the 
+contact cut(s) at mask generation time.  Pcontact areas must be at least 4 
+units  wide and  must  be separated from unrelated polysilicon and pcontact by 
+at least 3 units.  This is one unit  more  than  the normal  poly-poly  
+separation, and is required because MOSIS bloats the polysilicon around 
+pcontacts. Pcontacts must be 1 away from diffusions.
+
+   Contacts between metal1 and electrode (or poly2) go by the names 
+electrodecontact,  econtact, ec, poly2contact and  p2c.  As with all contacts, 
+you only draw the outer boundary of the overlapping area of electrode and  
+metal1;  Magic fills in the contact cut(s) at mask generation time.  Econtact 
+areas must be at least 4 units  wide and  must  be overlapped by 1 lambda with 
+the layer electrode.  This guarantees the total overlap of electrode over the 
+real cut to be at least 2 lambda. Therefore there is no spacing rule governs 
+the econtact layers. Econtacts must be at least 3 units away from polycontacts 
+even if they are connected electrically by metal1. There is another type of 
+electrode contact to metal1 layer, capcontact. This layer has different design 
+rules. It is used in making electrode contacts for poly/electrode capacitors. 
+Its properties will be describe in more detail in section 2.9.
+
+     In digital design there are four kinds of  contacts  between  metal1  and 
+diffusion, one for each of the kinds of diffusion.  There are other diffusion 
+contacts used only to build analog (NPN) devices. These layers will be detailed 
+in section 2.13. Contacts between metal1 and ndiffusion are called ndcontact, 
+ndiffcut or ndc. Contacts  betwen  metal1 and pdiffusion are called pdcontact, 
+pdiffcut or pdc. Contacts between metal1 and  nsubstratendiff  are called  
+nsubstratencontact or nncontact or nsc or nnc or nohmic. Lastly, contacts  
+between  metal1  and  psubstratepdiff  are called  psubstratepcontact or 
+ppcontact or psc or ppc or pohmic.  All diffusion contacts must be at least 4 
+units wide,  and  must be  separated  from unrelated diffusion by 4 units, one 
+unit more than the normal diffusion-diffusion separation. It is recommended 
+that contacts to poly or diffusion be sized by multiple of 4. It is to warrant 
+the cuts to be on the lambda grid.
+
+     Both poly, electrode and diffusion contacts appear on  the  screen as  an  
+overlap  between  the two constituent layers, with a cross over the contact 
+area.  All contacts must be rectangular  in  shape.   Pdc may abut nsc and and 
+ndc may abut psc; all other contact abutments are illegal.  Pcontact  must  be 
+at least 2 units from any diffusion contact, even if the two contacts are 
+electrically connected as on the top/right  of  the figure.   Electrodes must 
+be at least 2 units away from any diffusion contact. Econtacts, with the 1 
+lambda overlap of electrode, will be at least 3 lambda away from and diffusion 
+contacts, as a result. See  Section  2.10 for more rules on substrate contacts.
+
+ 2. 8.   Transistors
+
+     
+P-type transistors are drawn as an area of  poly over-lapping  pdiffusion,  
+with brown stripes in the transistor area.  Magic accepts the names pfet or 
+ptransistor for  this layer.   N-type  transistors  are  drawn  as an area of 
+poly overlapping ndiffusion, with green stripes in the transistor area.   The 
+names  nfet, and ntransistor may  be  used. Transistors of each type can be  
+generated  by  painting polysilicon and diffusion on top of each other, or by 
+painting the transistor layer explicitly.  The design  rules  are the  same for 
+both types of transistor:  transistors must be at least 2 units long and 3 
+units wide.  Polysilicon used as gate must overhung transistor by at least 2 
+units. Diffusion (ndiff or pdiff) must overhung transistor by at least 3 units. 
+They must be separated from nearby poly contacts by at least 1 unit.  
+Polysilicon must be at least 1 unit away from diffusion, except where it is 
+forming a transistor. Transistors must be at least 2 units away from each 
+other.
+
+Electrode layer can also be used to create transistors by over-lapping 
+electrode over pdiffusion or ndiffusion. Magic accepts the names epfet and 
+eptransistors or enfet and entransistor respectively. Transistors of each type 
+can be  generated  by  painting polysilicon and diffusion on top of each other, 
+or by painting the transistor layer explicitly.  The design  rules  are the  
+same for both types of transistor:  transistors must be at least 2 units long 
+and 3 units wide.  Electrode used as gate must overhung transistor by at least 
+2 units. Diffusion (ndiff or pdiff) must overhung transistor by at least 3 
+units. They must be separated from nearby electrodes/econtacts by at least 1 
+unit.  Eelctrode must be at least 1 unit away from diffusion, except where it 
+is forming a transistor. Transistors must be at least 3 units away from each 
+other.
+
+    With two layers of polysilicon, you may overlap them with diffusion to get 
+floating gate devices and buried channeled CCD's. You may also use the two 
+polysilicon to make capacitors. Rules on buried CCD and capacitors will be 
+discussed in the following sections. In making floating gate devices, Magic 
+accepts the names doubleptransistor, pfloating-gate, pfloatg, pffet, or pfg for 
+P-type floating gate devices. It accepts the names doublentransistor, 
+nfloating-gate, nfloatg, nffet, or nfg for N-type floating gate devices. 
+Floating gate devices must be at least 2 unit in length and 3 unit wide.
+    Since Magic has no way of knowing the overlapping two polysilicon layers 
+are used for floating gates, it will flag rule violations. It basically treat 
+the overlap of two polysilicon as capacitors and insists that poly must overlap 
+electrode by 2. In general, if you are doing floating gate devices you should 
+ignore these design rule violations.
+
+
+ 2. 9.   Polysilicon/Electrode Capacitors
+
+
+Over-lapping polysilicon with electrode will give you precision capacitors for 
+analog designs. Since regular electrode layers must be 2 units away from 
+polysilicon a special magic layer is created for capacitor. It accepts the 
+names capacitor, poly cap, pcap or just cap. In making a capacitor, the 
+electrode layer must be overlapped by 2 units of poly. The electrode layers 
+must be 2 units away from wells and polycontacts. When making a electrode 
+contact on a capacitor the electrode must overlap the composite contact layer, 
+capcaontact, by 2. This capcontact layer can also be called ccontact or capc or 
+cc. Magic will try to extract capacitor as a two terminal fet. (At MOSIS we 
+have made some modification to ext2sim and sim2spice which allows the automatic 
+extraction of capacitors. You may obtain these by sending an ATTN message to 
+MOSIS.) It is recommended that you make the capacitor layer larger enough to 
+compensate fabrication variations.
+
+
+ 2. 10.   Substrate Contacts
+
+       There are several additional  rules  besides  those  in Section  2.6  
+that  apply  to substrate contacts.  Substrate contacts are used to maintain 
+proper substrate voltages  and prevent  latchup.  Nncontact is used to supply a 
+Vdd voltage level to the n-wells (or n-substrate) around  p-transistors, and  
+ppcontact  is used to supply a GND voltage level to the p-wells (or 
+p-substrate)  around  n-transistors.   Nncontact must  be separated from 
+p-transistors by at least 3 units to ensure that the n+ implant doesn't  affect 
+ the  transistor. Nncontact  may be placed next to pdcontact in order to tie a 
+transistor terminal to Vdd at the  same  time.   Because  of diode  formation,  
+nncontact  will  not connect to adjoining pdiffusion unless there are contacts 
+to metal1 to strap them together.  Similar rules apply to ppcontact.
+
+     There is a special technology file written by prof. Fred Rosenberger of 
+Washington University at Saint Louis which will check if you have placed enough 
+substrate contacts in a well. This technology file and accompany program is 
+distributed by MOSIS User Group (MUG). Please contact prof. Don Bouldin at 
+University of Tennesse to obtain a copy of the program and technology file. It 
+is recommended that you place plenty of well and substrate contacts in your 
+layout, however.  If you place too few,  you  risk  latch-up in your circuit, 
+so a good rule of thumb is to place one nncontact for each ptransistor that has 
+its  source  tied  to  Vdd,  and one pwcontact for each ntransistor that has 
+its drain tied to GND. To avoid having wells floating (especially 
+auto-generated wells), it is recommended that you put a well (substrate) 
+contacts for every cluster of transistors.
+
+
+
+ 2. 11.   Spacings between P and N
+
+     Ndiffusion, ntransistor, ndcontact, and ppcontact  must be  kept  far  
+away from pdiffusion, ptransistor, pdcontact, and nncontact, in order to leave 
+room for wells.  Ndiffusion and  pdiffusion  must be 10 units apart.  Substrate 
+contacts can be 2 units closer to material of the opposite type  (the wells  
+needn't surround them by as many units), so nncontact need only be 8 units from 
+ndiffusion, ppcontact need only be
+
+8  units  from  pdiffusion, and nncontact and ppcontact need only be 6 units 
+apart.
+
+ 2. 12.   Wells and Rings
+
+ 
+     For the most part, you should not need to draw explicit wells.  However it 
+is recommended that you use painting explicit well as a mean to plan for your 
+layout topology. When  writing  out  CIF or Calma files, Magic generates them 
+automatically.  Nwell is generated around  pdiffusion,  ptransistor,  
+pdcontact,  and  nncontact.  Pwell is generated around  ndiffusion,  
+ntransistor,  ndcontact,  and ppcontact.  Magic merges nearby well areas into 
+single large wells when possible.  For example, two ndiffusion or pdiffusion  
+areas  will  share a single well if they are within 10 units of each other.  If 
+you're curious about  exactly  what Magic will use as the well areas, you can 
+use the Magic command :cif see along with the CIF layer  names  described  in 
+Section  5.   There  may  be a few cases where you'd like to guarantee that 
+certain areas are covered  with  wells,  e.g. pads.   For  these  cases  you 
+may paint the explicit layers nwell and pwell.  Nwell appears on the  screen  
+as  diagonal green  stripes, and pwell appears as diagonal brown stripes. The 
+explicit well layers that you paint will supplement  the 
+automatically-generated wells.  Pwell must be at least five units from 
+pdiffusion, ptransistor, or pdcontact, and  three units  from  nncontact.   
+Nwell  must be at least five units from ndiffusion, ntransistor, or ndcontact, 
+and three  units from  ppcontact.   Nwell  and pwell may abut but not overlap 
+(if you paint one well on top of  the  other,  the  new  one replaces  the  old 
+one).  All nwell and pwell areas that you paint must be at least 10 units wide 
+and are separated from other wells of the same type by at least nine units.
+
+     Guard rings may be created using  the  nndiffusion  and ppdiffusion  
+layers.   Nncontacts  and  ppcontacts should be used to strap  the  rings  to  
+Vdd  and  GND,  respectively. Nndiffusion  must  be  at  least 3 units from 
+pwell, 6 units from ppdifffusion or ppcontact, and 8 units from  ndiffusion or  
+ndcontact  (these  are the same rules as for nncontact). Similar rules apply to 
+ppdiffusion.  Guard rings  are  probably  the  only things that nndiffusion and 
+ppdiffusion will be used for.
+
+
+ 2. 13.   NPN Transistors
+
+
+ 
+   An extra p- base diffusion layer is allowed on selected MOSIS runs. This 
+layers allows the design of (1) in well isolated NPN bipolar transistor; (2) 
+higher voltage P-channel MOSFETs; (3) in well P and N-channel junction FETs; 
+(4) in well higher threshold nMOS devices; (5) in well isolated photoreceptors; 
+(6) in well metal semiconductor Schottky diodes (assuming nwell process). 
+
+    There are two different styles in designing the NPN bipolar transistors - 
+SCEA and SCGA. Magic accepts the SCEA style of designs. In SCEA style, the 
+drawn PBASE (CBA) layer (eg. P- in NWELL) is bloated by 2 lambda per side to 
+give the PBASE IMPLANT mask by MOSIS. Moreover, the PBASE (CBA) layer is orred 
+with the drawn ACTIVE layer (CAA) and then biased by an appropriate amount to 
+become the ACTIVE mask. Please remember that the PBASE (CBA), therefore, is a 
+composite layer.
+
+    The base layer in Magic used to build NPN bipolar transistors is named 
+pbase or pb. Pbase contact to metal1 is named pbasecontact, pbcontact or pbc. 
+The emitter layer is named emitter, emit or em. Its contact to metal1 is 
+emittercontact, emitcontact or emc. The collector layer is named collector, 
+col,co, cl. Its contact layer to metal1 is named collectorcontact, colcontact, 
+colc, coc or clc. Pbc and emc must be at least 7 units away from each other. 
+This is because Magic bloats emc by 2 to get the N+ select layer, and it bloats 
+pbc by 1 to obtain the P+ select layer. Moreover the N+ select and P+ select 
+must be at least 4 units away. The total distance, thus, is 4+2+1=7. Pbc must 
+be overlapped by pbase by 1 unit. Clc must be 5 units away from pbase. Again 
+this is because Magic bloats clc by 1 to get the active layer layer and 
+collector active bloated must be 4 away from pbase. Well (NWELL) do not have to 
+be painted explicitly. However, we strongly recommend you paint your own well 
+for NPN bipolar transistors.
+
+At the present time we have no way to extract NPN bipolar transistor 
+automatically.
+
+ 2. 14.   Buried CCD Layers
+
+
+
+    Three extra layers are used in Magic to accept designs for BCCD's. The 
+first layer is named bccdiffusion or bd for short. The second layer is named 
+nbccdusion or nbd for short. The last layer is named nbccdiffcontact or nbdc 
+for short. The nbd and nbdc layers are used to create input/output nodes. The 
+overlapping rules of Nselect and BCCD implant are guarantee by the CIF 
+generation. However the user has the responsibility to assure that the first 
+and the last gates overlap the input/output nodes (nbd) by 2. There is no Magic 
+rule checking on bd, nbd and nbdc, since they are created on a different plane.
+
+ 2. 15.   Overglass and Pads
+
+     Normally, everything in the layout is covered by  overglass in order to 
+protect the circuitry.  If you do not wish to have overglass in certain areas 
+of the layout, there  are two  Magic layers you can use for this.  The Magic 
+layer pad should be used for drawing pads.  It generates a hole in the 
+overglass  covering  and also automatically includes metal1, metal2, and via.  
+Pad  is  displayed  as  metal2  over metal1,  with  additional  diagonal  
+stripes.  The rules for pads are in absolute microns, not  lambda  units:   the 
+ pad layer  must always be at least 100 microns on a side.  Since this rule is 
+in absolute units, it is  not  checked  by  the Magic  design-rule  checker.  
+Pads will generally need to be modified in order to fabricate at different 
+scale factors or for different flavors of CMOS.
+
+     An  additional  layer  glass  is  provided  to  allow designers  to  make 
+unusual glass cuts anywhere on the chip for probing or other purposes. This 
+layer is drawn in dark diagonal stripes.   Probe  areas should generally be at 
+least 75 microns wide, but Magic does not check this rule.
+
+ 2. 16.   Hierarchical Constraints
+
+     The design-rule checker enforces several constraints on how subcells may 
+overlap.  The general rule is that overlaps may be used to connect portions of 
+cells, but  the  overlaps must  not  change  the  structure of the circuit.  
+Thus, for example, it is acceptable for poly in one  cell  to  overlap pcontact 
+ in another cell, but it is not acceptable for poly in one cell to overlap 
+ndiffusion  in  another,  since  that would form an ntransistor.
+
+     For contacts, there  are  additional  restrictions.   A contact  in  one 
+cell may not overlap a contact in any other cell unless the two contacts have 
+same type and they  occupy exactly  the same area.  Partial overlaps are not 
+permitted, nor are abutting contacts of the same type (contacts of different  
+types  may  abut,  as  long  as the abutment doesn't violate any other design 
+rules).  The  contact  restrictions are  necessary  to  guarantee  that the CIF 
+via holes can be generated correctly in a hierarchical fashion.
+
+3.   Flavor Changes
+
+     The painting tables have been set up in the SCMOS technology  to  make  it 
+ easy for you to turn n-flavored things into p-flavor, and vice versa.  If you 
+paint nwell  over  an area, any ndiffusion in the area will be turned into 
+pdiffusion, nfet into pfet, ndc into pdc, psd into  nsd,  and  psc into  nsc.   
+Similarly, if you paint pwell over an area, any pdiff in the area will be 
+turned into ndiff, pfet into nfet, pdc  into  ndc,  nsd  into  psd, and nsc 
+into psc.  Thus, if you'd like to make a symmetrical copy of  something,  
+except for  the  opposite well, you can copy it, paint the opposite well over 
+it, then erase the well to leave  just  the  basic layers.
+
+4.   Routing in CMOS
+
+     If you use Magic's automatic routing tools on an  SCMOS design,  the  
+routing  will  be  run  in metal1 and metal2. Metal1 is the primary routing 
+layer and will be  used  wherever  possible.   In  order for Magic to route to 
+terminals, they will have to be on layers that connect to either metal1 or  
+metal2.   For  example, terminals may be on the pcontact layer (since it 
+connects to metal1) but not on the polysilicon  layer.   In  this technology, 
+the router will use an 8-unit grid.
+
+5.   Reading and Writing CIF and Calma
+
+     The SCMOS technology provides several styles of CIF and Calma output, 
+corresponding to different flavors of CMOS and different scale factors.  All 
+possible layers that can be generaetd from any of the output styles are:
+
+CMS	(Calma layer number 51) Corresponds to the metal2 and m2c Magic layers.
+
+CMF	(Calma layer number 49) Corresponds  to  the  metal1 Magic layer, plus 
+all contacts.
+
+CPG	(Calma layer number 46) Corresponds to the polysilicon and pcontact 
+layers.
+
+CAA	(Calma layer number 43) This is the active mask.  It is  generated  
+over the areas of Magic's four diffusion layers, plus  transistors  and  
+diffusion  contacts.
+
+CVA	(Calma layer number 50) This layer is  generated  as one  or  more  
+small  squares  in the center of each m2contact.
+
+CCP	(Calma layer number 47) Generated  as  one  or more small squares in 
+the center of each pcontact.
+
+CCA	(Calma layer number 48) Generated  as  one or more small  squares in 
+the center of each contact to diffusion.
+
+CWP	(Calma layer number 41) P-well.  This layer is  generated  
+automatically  by  bloating the ndiff, nfet,  ndc, psd, and psc layers, and 
+OR-ing  in  the  pwell layer.
+
+CWN	(Calma layer number 42) N-well.  This layer is  generated  by  bloating 
+ the pdiff, pfet, pdc, nsd, and  nsc layers, and OR-ing in the nwell layer.
+
+CSP	(Calma layer number 44) P-plus implant  mask.   This layer is generated 
+by bloating the pdiff, pfet, pdc,  psd, and psc layers.
+
+CSN	(Calma layer number 45) N-plus implant  mask.   This layer is generated 
+by bloating the ndiff, nfet, ndc,  nsd, and nsc layers.
+
+COG	(Calma layer number 52) Overglass  holes:  generated from the pad and 
+overglass layers.
+
+CCE	(Calma layer number 55) Electrode (Poly 2) layer contact to first level 
+metal.
+
+CEL	(Calma layer number 56) Electrode layer (Second poly layer).
+
+CBA	(Calma layer number 57) P-base layer for the NPN transistors.
+
+CCD	(Calma layer number 58) Buried CCD implant.
+
+     If you're curious to see exactly where these layers get generated  for  a 
+particular design, read about the :cif see command in the Magic tutorials or 
+man page.
+
+     There are currently 20 output styles supported  for  CIF and Calma.  They 
+are:
+
+lambda=1.5(pwell)	Generates CIF (or Calma) for  the  MOSIS  SCP 
+technology,  which uses p-wells and 3.0-micron feature sizes.
+
+lambda=1.0(pwell)	Generates CIF  for  the  MOSIS  SCP technology,  which 
+uses p-wells and 2.0-micron feature sizes.
+
+lambda=0.8(pwell)	Generates CIF  for  the  MOSIS  SCP  technology,  using 
+p-wells and 1.2-micron feature sizes.
+
+lambda=0.6(pwell)	Generates CIF  for  the  MOSIS  SCP  technology,  using 
+p-wells and 1.0-micron feature sizes.
+
+lambda=1.5(nwell)	Generates CIF  for  the  MOSIS  SCN  technology,  using 
+n-wells and 3.0-micron feature sizes. Both selects layers are presented.
+
+lambda=1.0(nwell)	Generates CIF  for  the  MOSIS  SCN  technology,  using 
+n-wells and 2.0-micron feature sizes. Both selects layers are presented.
+
+lambda=0.8(nwell)	Generates CIF  for  the  MOSIS  SCN  technology,  using 
+n-wells and 1.2-micron feature sizes. Both selects layers are presented.
+
+lambda=0.6(nwell)	Generates CIF  for  the  MOSIS  SCN  technology,  using 
+n-wells and 1.0-micron feature sizes. Both selects layers are presented.
+
+lambda=1.5(oldnwell)
+
+lambda=1.0(oldnwell)
+
+lambda=0.8(oldnwell)
+
+lambda=0.6(oldnwell) These styles are the same as the 4 styles above except 
+they generate only N-select layer not p_select.
+
+lambda=1.5(gen)	Generates CIF  for  the  MOSIS  SCE  technology,  which 
+includes both p-wells  and  n-wells  and  has  3.0-micron minimum feature 
+sizes.
+
+lambda=1.0(gen)	Generates CIF  for  the  MOSIS  SCE technology,  which includes 
+both p-wells  and  n-wells  and  has  2.0-micron minimum feature sizes.
+
+lambda=0.8(gen)	Generates CIF  for  the  MOSIS  SCE  technology,  which 
+includes both p-wells  and  n-wells  and  has  1.2-micron minimum feature 
+sizes.
+
+lambda=0.6(gen)	Generates CIF  for  the  MOSIS  SCE  technology,  which 
+includes both p-wells  and  n-wells  and  has  1.0-micron minimum feature 
+sizes.
+
+lambda=1.5(error)	Generates only the error layers with lambda=1.5
+
+lambda=1.0(error)	Generates only the error layers with lambda=1.0
+
+lambda=0.8(error)	Generates only the error layers with lambda=0.8
+
+lambda=0.6(error)	Generates only the error layers with lambda=0.6
+
+The default style is ``lambda=1.5(pwell)''.  Other styles may be selected with 
+the Magic command :cif ostyle.
+
+     For reading CIF or Calma (stream) file, there are twenty-two styles.  
+Twenty of  them correspond  exactly  to  the styles listed above for output. 
+The remaining two are ``cbpm3u'' and "oldcbpm3u";  they can be used to read in 
+cells  designed under the old MOSIS 3-micron rules.  Designs converted using 
+style  ``cbpm3u'' or "oldcbpm3u" will  probably have numerous design-rule  
+violations.   Whenever  CIF  is read, explicit wells are generated and left in  
+the  Magic  files. You'll  have  to  go in by hand and delete them if you don't 
+want them, or modify  the  technology  file  locally  so it doesn't generate 
+them on read-in.
+
+     Be careful to select the  correct  style  when  reading CIF:   if  you use 
+the wrong style you're likely to get many errors in the resulting Magic file, 
+with very little warning from the CIF reader.
+
+6.   Extraction
+
+     The SCMOS technology extracts four types  of  transistor: pfet, nfet, 
+epfet and enet.  All of them must have at least two diffusion terminals.  A 
+diffusion terminal is a contiguous region along the perimeter  of the 
+transistor channel that connects to diffusion, as shown below: 
+    At the present time capacitors (poly/poly2) are also extracted as a special 
+type of fet. With modified ext2sim and sim2spice, the special fet will be 
+converted to capacitance. Floating gates can not be extract at this time.
+
+    A transistor may have more than two diffusion terminals,  in which  case  
+it  is modeled as a collection of two-terminal transistors.  If only one 
+diffusion terminal is present, the the  extractor flags this as an error and 
+outputs a transistor with the source and drain shorted together.
+
+    At the present time bipolar transistors are extracted into 2 diodes in 
+Magic version 6.0. We need to modify the programs : ext2sim and sim2spice in 
+order to convert thse diodes into transistors. These modification have not been 
+finish and will be supplied in later time through MOSIS. Magic 4.10 cannot 
+extract bipolar transistors..
+
+7. Installing the Technology file
+
+     Please follow the instructions given in the comment section at the 
+beginning of the scmos.tech file.
+
+

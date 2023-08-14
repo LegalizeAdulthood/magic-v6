@@ -1,0 +1,220 @@
+#
+# This file describes the various display styles that are available
+# in Magic.  This new file is relatively technology-independent: it
+# contains enough different styles to support both nMOS and CMOS
+# without any changes.  Each display style describes a particular
+# way of drawing things on the display.  See "Magic Maintainer's
+# Manual #3: The Display Style and Glyph Files" for details on the
+# file format.
+#
+# rcsid $Header: mos.bw.dstyle,v 4.13 89/04/06 16:34:09 mayo Exp $
+
+#
+# This display style file is designed for black-and-white displays
+# (only one bit per pixel).  Because there's no color, all of the
+# information is displayed with different stipple patterns.  Needless
+# to say, it's pretty hard to see things on the screen, but it's
+# better than nothing.
+#
+
+
+display_styles 1
+#
+# Poly-diff styles:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+1	001	001	000	stipple	1	-	polysilicon
+2	001	001	000	stipple	20	-	ndiffusion
+3	001	001	000	stipple	17	-	ndiff_in_nwell
+4	001	001	000	stipple	16	-	pdiffusion
+5	001	001	000	stipple 16	-	pdiff_in_pwell
+6	001	001	000	stipple	25	-	ntransistor
+7	001	001	000	stipple 24	-	ntransistor_stripes
+8	001	001	000	stipple	26	-	ptransistor
+9	001	001	000	stipple 9	-	ptransistor_stripes
+10	001	001	000	stipple 9	-	dfet_stripes
+11	001	001	000	stipple 8	-	dcap_stripes
+12	001	001	000	stipple 28	-	nwell
+13	001	001	000	stipple 27	-	pwell
+#
+# Metal styles:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+20	001	001	000	stipple	18	-	metal1
+21	001	001	000	stipple	7	-	metal2
+#
+# Opaque stipples and such for mask display:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+32	001	001	377	cross	0	-	contact_X'es
+33	001	001	377	stipple 2	-	contact_waffle
+34	001	001	377	stipple 5	-	overglass
+35	001	001	000	stipple 1	-	die boundary
+#
+37	001	001	000	stipple	14	-	rotate
+38	001	001	070	stipple 3	-	fence
+39	001	001	000	stipple 12	-	magnet
+#
+40	001	001	000	stipple 5	-	check_paint
+41	001	001	000	stipple 7	-	check_subcells
+42	001	001	000	stipple 4	-	error_waffle
+#
+#------------------------------------------------------
+# Versions of previous layers to use in non-edit cells:
+#------------------------------------------------------
+#
+# Poly-diff styles:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+65	001	001	000	stipple	1	-	polysilicon
+66	001	001	000	stipple	20	-	ndiffusion
+67	001	001	000	stipple	17	-	ndiff_in_nwell
+68	001	001	000	stipple	16	-	pdiffusion
+69	001	001	000	stipple 16	-	pdiff_in_pwell
+70	001	001	000	stipple	25	-	ntransistor
+71	001	001	000	stipple 24	-	ntransistor_stripes
+72	001	001	000	stipple	26	-	ptransistor
+73	001	001	000	stipple 9	-	ptransistor_stripes
+74	001	001	000	stipple 9	-	dfet_stripes
+75	001	001	000	stipple 8	-	dcap_stripes
+76	001	001	000	stipple 28	-	nwell
+77	001	001	000	stipple 27	-	pwell
+#
+# Metal styles:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+84	001	001	000	stipple	18	-	metal1
+85	001	001	000	stipple	7	-	metal2
+#
+# Opaque stipples and such for mask display:
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+96	001	001	377	cross	0	-	contact_X'es
+97	001	001	377	stipple 2	-	contact_waffle
+98	001	001	377	stipple 5	-	overglass
+99	001	001	000	stipple 1	-	die boundary
+#
+101	001	001	000	stipple 14	-	rotate
+102	001	001	070	stipple	3	-	fence
+103	001	001	000	stipple 12	-	magnet
+#
+104	001	001	000	stipple 5	-	check_paint
+105	001	001	000	stipple 7	-	check_subcells
+106	001	001	000	stipple 4	-	error_waffle
+#
+#----------------------------------------------------------------------
+# All of the styles above this point are used by the technology file,
+# and the style numbers in the technology file must match.  All of the
+# styles below this point are used internally by Magic for things
+# like menus, drawing the box, etc.  The style numbers must match the
+# definitions in style.h.
+#----------------------------------------------------------------------
+#
+# General-purpose opaque colors.  These entries define a whole
+# bunch of generally-useful colors.  Although all of the fill
+# styles here are solid, the same colors are used in many other
+# places with different fill and outline styles.
+#
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+129	001	000	000	solid	0	W	white
+130	001	001	000	stipple	21	-	gray1 (pale)
+131	001	001	000	stipple	6	-	gray2 (dark)
+132	001	001	000	solid	0	K	black
+133	001	001	000	stipple	20	r	red1 (pale)
+134	001	001	000	stipple	22	-	red2 (medium)
+135	001	001	000	stipple	6	R	red3 (dark)
+136	001	001	000	stipple	20	g	green1 (pale)
+137	001	001	000	stipple	22	-	green2 (medium)
+138	001	001	000	stipple	6	G	green3 (dark)
+139	001	001	000	stipple	20	b	blue1
+140	001	001	000	stipple	22	-	blue2
+141	001	001	000	stipple	6	B	blue3
+142	001	001	000	stipple	21	p	purple1
+143	001	001	000	stipple	6	P	purple2
+144	001	001	000	stipple	19	y	yellow1
+145	001	001	000	stipple	21	Y	yellow2
+146	001	001	000	stipple	19	o	orange1
+147	001	001	000	stipple	21	O	orange2
+148	001	001	000	stipple	21	-	brown1
+149	001	001	000	stipple	6	-	brown2
+150	001	001	000	stipple	22	-	magenta
+151	001	001	000	stipple	22	-	cyan
+#
+# Opaque styles used for drawing and erasing highlights, window borders,
+# etc.  Most of them use the color numbers defined above, in order
+# to conserve colors.
+#				       stipple  short    long
+# num   mask    color   outline  fill  number   name     name
+# ----+------+--------+--------+------+-------+------+--------------
+160	001	001	000	solid	0	-	solid_highlights
+161	001	001	000	stipple 1	-	medium_highlights
+162	001	001	000	stipple 20	-	pale_highlights
+163	001	001	000	stipple 10	-	horiz_highlights
+164	001	001	000	stipple 11	-	vert_highlights
+165	001	001	377	outline	0	-	outline_highlights
+166	001	001	314	outline 0	-	dotted_highlights
+#
+167	001	000	377	outline	0	-	erase_box
+168	001	000	000	solid	0	-	erase_highlights
+169	001	000	000	solid	0	-	erase_everything
+170	001	000	000	solid	0	-	erase_all_but_highl
+#
+171	001	001	377	outline	0	-	labels
+172	001	001	377	outline	0	-	bounding_boxes
+173	001	001	252	grid	0	-	dotted_grid
+174	001	001	377	grid	0	-	solid_grid
+175	001	001	000	solid	0	-	origin_square
+176	001	001	377	outline	0	-	draw_tile_details
+#
+177	001	001	000	stipple	0	w	window_border
+178	001	001	377	stipple 1	-	window_elevator
+179	001	000	000	solid	0	-	window_caption
+180	001	000	000	solid	0	b	window_background
+#
+181	001	001	000	solid	0	-	color_editing
+#
+# The style below means "no color at all".  It is special, in that
+# it is used by cursors to indicate transparency.
+#
+182	001	001	000	solid	0	-	no_color_at_all
+
+stipples
+#		bit pattern		description
+#-----------------------------------+---------------------------
+1  210 042 210 042 210 042 210 042	knight's move
+2  360 360 360 360 000 000 000 000	coarse knight's move (waffle)
+3  000 000 000 000 000 000 000 377	sparse horizontal stripes
+4  000 000 000 000 360 360 360 360	offset waffle
+4  000 000 314 314 000 000 314 314	offset waffle
+5  100 040 020 010 004 002 001 200	sparse diagonal stripes, ll to ur
+6  252 125 252 125 252 125 252 125	half 'n half (checkerboard)
+7  002 004 010 020 040 100 200 001	sparse diagonal stripes, lr to ul
+8  201 102 044 030 030 044 102 201	sparse diagnoal crosses.
+9  003 201 300 140 060 030 014 006	wide sparse diagonal stripes, ll to ur
+10 000 000 000 377 000 000 000 377	horizontal stripes
+11 104 104 104 104 104 104 104 104	vertical stripes
+12 125 252 125 252 125 252 125 252	complement of half `n half
+13 063 063 777 777 314 314 777 777	complement of #2 (coarse knight's move)
+14 000 000 000 030 030 000 000 000	sparse dots.
+15 167 335 167 335 167 335 167 335	complement of #1 (knight's move)
+16 104 356 104 000 104 356 104 000	pluses
+17 300 014 300 014 300 014 300 014	minuses
+18 034 203 160 016 301 700 007 340	lines, sloped 1/3
+19 210 000 000 000 210 000 000 000	4/64ths
+20 000 021 000 104 000 021 000 104	8/64ths
+21 000 042 210 104 000 042 210 104	12/64ths
+22 104 210 042 021 104 210 042 021	16/64ths
+23 314 210 021 063 314 210 021 063	24/64ths
+24 300 201 003 006 014 030 060 140	wide sparse diagonal stripes (lr to ul)
+25 210 063 210 146 210 063 210 146	OR of 1&20
+26 314 352 314 042 314 356 314 042	OR of 1&16
+27 200 000 200 000 010 000 010 000	4/64ths:  vertical pairs
+28 000 012 000 000 000 240 000 000	4/64ths: horizontal pairs

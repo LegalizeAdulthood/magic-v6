@@ -1,0 +1,5 @@
+94 Vdd 1350 0 ndc;
+94 GND 1350 2400 green;
+94 right/Vdd 8850 0 ndc;
+94 right/GND 8850 2400 green;
+94 Phi1 900 1950 p;

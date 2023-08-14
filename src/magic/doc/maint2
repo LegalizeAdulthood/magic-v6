@@ -1,0 +1,2772 @@
+.tr ~\(ap
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+.\" sccsid "@(#)maint2	4.5 (Berkeley) 11/21/85"
+.\"
+.\" ----- Centered captions
+.\"
+.de (c
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.DS C
+..
+.de )c
+.sp .5c
+.DE
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.\"
+.\" ----- Indented captions
+.\"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+.sp
+..
+.\"
+.\" ----- Floating table
+.\"
+.de (T
+.KF
+.sp
+.RS
+..
+.de )T
+.RE
+.sp
+.KE
+..
+.\"
+.\" ----- Indented example
+.\"
+.de (X
+.DS L
+.in +1i
+..
+.de )X
+.in -1i
+.DE
+..
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Maintainer's Manual #2: The Technology File\fR
+.rm CH
+.ds LH Magic Maintainer's Manual #2: The Technology File
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIWalter Scott\fR
+.sp 
+Special Studies Program
+Lawrence Livermore National Laboratory
+PO Box 808, L-270
+Livermore, CA 94550
+wss@mordor.s1.gov
+.sp 1c
+\fIJohn Ousterhout\fR
+.sp
+Computer Science Division
+Electrical Engineering and Computer Sciences
+University of California
+Berkeley, CA  94720
+.sp 1c
+\fI(Updated by various folks.)\fR
+.sp
+.SM
+This tutorial corresponds to Magic version 6; technology suffix ``.tech26''
+
+.DE
+.SM
+.LP
+\fBTutorials to read first:\fR
+.IP
+Magic Tutorial #1: Getting Started
+.br
+Magic Tutorial #2: Basic Painting and Selection
+.br
+Magic Tutorial #6: Design-Rule Checking
+.IP
+You should also read at least the first, and probably all four,
+of the papers on Magic that appeared in the \fIACM IEEE 21st
+Design Automation Conference\fR, and the paper ``Magic's Circuit Extractor'',
+which appeared in the \fIACM IEEE 22nd Design
+Automation Conference\fP.  The overview paper from the
+DAC was also reprinted in \fIIEEE Design and Test\fR magazine in
+the February 1985 issue.
+The circuit extractor paper also appeared in the
+February 1986 issue of \fIIEEE Design and Test\fR magazine. 
+.DE
+.LP
+\fBCommands covered in this tutorial:\fR
+.IP
+:*watch
+.LP
+\fBMacros covered in this tutorial:\fR
+.IP
+\fInone\fR
+.R
+.LP
+\fBChanges since Magic version 4:\fR
+.IP
+Support for stacked contacts and more than two metal layers, causing
+slight changes in the semantics of \fBcontact\fR definitions
+.IP
+Support for new Magic maze router, \fIMzrouter\fR (see Tutorial #10)
+.IP
+Support for new gate-array router, \fIGarouter\fR (see Tutorial #12)
+.IP
+Support for extractor extensions (see Tutorial #8)
+.IP
+Chunk sizes can now be specified explicitly for DRC and CIF output
+.IP
+Unlike CIF, calma scalefactors needn't be multiples of 2 any more
+.br
+.NL
+.sp 1c
+.NH 1
+Introduction
+.PP
+Magic is a technology independent layout editor.
+All technology-specific information\(emmask layers, design
+rules, etc.\(emcomes from a \fItechnology file\fR.
+There is a different technology file for each technology supported by Magic.
+You can run Magic with a different technology by
+specifying the \fB-T\fItechfile\fR flag on the command line
+you use to start Magic, where
+\fItechfile\fR is the name of a file of the form
+\fItechname\fB.tech\fIn\fR in either the current directory,
+or the library directory ~cad/lib/magic/sys.
+(The \fIn\fR is a numeric suffix to identify the version
+of the technology file, which is currently \fB26\fR).
+.PP
+This tutorial describes the contents of a technology file,
+and gives hints for building a new one.
+It assumes that your current working directory is the Magic
+source directory, either \fB~cad/src/magic\fR or \fB${CAD_HOME}/src/magic\fR.
+.PP
+A technology file is organized into sections, each of which
+begins with a line containing a single keyword
+and ends with a line containing the single word \fBend\fR.
+If you examine one of the Magic technology files in the
+directory \fB~cad/src/magic/tech\fR,
+e.g, \fBscmos.tech\fR,
+you can see that it contains the following sections:
+\fBtech\fR, \fBplanes\fR, \fBtypes\fR, \fBstyles\fR,
+\fBcontact\fR, \fBcompose\fR, \fBconnect\fR, \fBcifoutput\fR,
+\fBcifinput\fR, \fBmzrouter\fR, \fBdrc\fR, \fBextract\fR, \fBwiring\fR,
+\fBrouter\fB, \fBplowing\fR, and \fBplot\fR.  These sections must appear
+in this order in all technology files.  Every technology file
+must have all of the sections, although the sections need not
+have any lines between the section header and the \fBend\fR line.
+.PP
+A technology file can contain comments, which are
+blocks of text beginning with the characters
+``\fB/*\fR'' and ending with the characters ``\fB*/\fR''.
+Comments are ignored when processing a technology file.
+In \fBscmos.tech\fR you can see several lines just before the
+\fBconnect\fR section (near the beginning of the technology file) that are of
+the form ``\fB#define\fR ...''.
+These lines are definitions of macros that may be
+used in subsequent lines in the technology file.
+.PP
+The form of comments and macro definitions should look familiar
+to ``C'' programmers, for good reason: the ``C'' macro preprocessor
+is used to expand macros and eliminate comments.
+Technology files cannot be read directly
+by Magic in their ``raw'' form; the ``C'' preprocessor is
+run to produce a Magic-readable version of the technology
+file.  The last section in this tutorial describes how to install
+technology files.
+.PP
+Each section in a technology file consists of a series of lines.
+Each line consists of a series of words, separated by spaces or tabs.
+If a line ends with the character ``\e'', the ``\e'' is ignored
+and the following newline is treated as an ordinary blank.
+For example,
+.(X
+\fBwidth	allDiff	2 \e
+``Diffusion width must be at least 2''\fR
+.)X
+is treated as though it had all appeared on a single line
+with no intervening ``\e''.
+The rest of this part of the tutorial will describe
+each of the technology file sections in turn.
+
+.NH 1
+Tech section
+.PP
+Magic stores the technology of a cell in the cell's file on disk.
+When reading a cell back in to Magic from disk, the cell's
+technology must match the name of the current technology,
+which appears as a single word in the \fBtech\fR section
+of the technology file.  See Table 1 for an example.
+.(T
+.TS
+center box;
+lp10.
+\fBtech\fR
+scmos
+\fBend\fR
+.TE
+.(c
+Table 1.  \fBTech\fR section
+.)c
+.)T
+.PP
+It may seem that storing the technology name as part of the
+technology file is redundant, since the name of the file is
+probably the same as the name of the technology.
+(e.g., ``scmos.tech26'' for technology \fBscmos\fR,
+or ``nmos.tech26'' for technology \fBnmos\fR).  This feature
+is leftover from olden days when slight variants of a
+technology would be created by having a new technology file
+with a different file name but the same ``official'' name
+given in the \fBtech\fR section.
+This has the advantage that
+cells designed with one variant could be edited
+with any of the other files implementing the same technology
+without having to modify the technology names in the \fB.mag\fR
+files.  The disadvantage of this approach, however, is that
+it defeats Magic technology-defaulting mechanism:  if no explicit
+technology is specified when Magic starts up, it reads the technology
+from the \fB.mag\fR file being edited and looks for a technology
+file by this name.  If there are several variants of the same
+technology, Magic will pick the one with the desired technology
+file name.  Anyhow, we recommend that the internal names of technologies
+should always match the file names.
+
+.NH 1
+Planes, types, and contact sections
+.PP
+The \fBplanes\fR, \fBtypes\fR, and \fBcontact\fR sections
+are used to define the layers used in the technology.
+Magic uses a new data structure,
+called \fIcorner-stitching\fR, to represent layouts.
+Corner-stitching represents mask information
+as a collection of non-overlapping rectangular \fItiles\fR.
+Each tile has a type that corresponds to a single Magic layer.
+An individual corner-stitched data structure is referred to as a \fIplane\fR.
+.PP
+Magic allows you to see the corner-stitched planes it uses to store a layout.
+We'll use this facility to see how several corner-stitched planes
+are used to store the layers of a layout.
+Enter Magic to edit the cell \fBm2a\fR.
+Type the command \fB:*watch active demo\fR.
+You are now looking at the \fBactive\fR plane.
+Each of the boxes outlined in black is a tile.
+(The arrows are \fIstitches\fR, but are unimportant to this discussion.)
+You can see that some tiles contain layers
+(polysilicon, ndiffusion, ndcontact, polycontact, and ntransistor),
+while others contain empty space.
+Corner-stitching is unusual in that it represents empty space explicitly.
+Each tile contains exactly one type of material, or space.
+.PP
+You have probably noticed that metal1 does not seem to have
+a tile associated with it, but instead appears right in the middle
+of a space tile.
+This is because metal1 is stored on a different plane, the \fBmetal1\fR plane.
+Type the command \fB:*watch metal1 demo\fR.
+Now you can see that there are metal1 tiles,
+but the polysilicon, diffusion, and transistor tiles have disappeared.
+The two contacts, polycontact and ndcontact,
+still appear to be tiles.
+.PP
+The reason Magic uses several planes to store mask information
+is that corner-stitching can only represent non-overlapping rectangles.
+If a layout were to consist of only a single layer, such
+as polysilicon, then only two types of tiles would be necessary:
+polysilicon and space.
+As more layers are added, overlaps can be
+represented by creating a special tile type for
+each kind of overlap area.
+For example, when polysilicon overlaps
+ndiffusion, the overlap area is marked with the tile type
+ntransistor.
+.PP
+Although some overlaps correspond to actual electrical constructs
+(e.g., transistors), other overlaps have little electrical significance.
+For example, metal1 can overlap polysilicon without changing the
+connectivity of the circuit or creating any new devices.
+The only consequence of the overlap is possibly a change in
+parasitic capacitance.
+To create new tile types for all possible overlapping combinations of metal1
+with polysilicon, diffusion, transistors, etc.
+would be wasteful, since these new overlapping combinations
+would have no electrical significance.
+.PP
+Instead, Magic partitions the layers into separate planes.
+Layers whose overlaps have electrical significance must be
+stored in a single plane.
+For example, polysilicon, diffusion, and their overlaps (transistors)
+are all stored in the \fBactive\fR plane.
+Metal1 does not interact with any of these tile types, so it is stored
+in its own plane, the \fBmetal1\fR plane.
+Similarly, in the scmos technology, metal2 doesn't interact with either
+metal1 or the active layers, so is stored in yet another plane, \fBmetal2\fR.
+.PP
+Contacts between layers in one plane and layers in another are a special
+case and are represented on \fIboth\fR planes.
+This explains why the pcontact and ndcontact
+tiles appeared on both the
+\fBactive\fR plane and on the \fBmetal1\fR plane.
+Later in this section, when the \fBcontacts\fR section of the
+technology file is introduced, we'll see how to define contacts
+and the layers they connect.
+.PP
+The \fBplanes\fR
+section of the technology file specifies how many planes will be
+used to store tiles in a given technology, and gives each plane
+a name.
+Each line in this section
+defines a plane by giving a comma-separated
+list of the names by which it is known.
+Any name may be used in referring to the plane in later
+sections, or in commands like the
+\fB:*watch\fR command you used earlier.
+Table 2 gives the \fBplanes\fR section from the scmos technology file.
+.(T
+.TS
+center box;
+lp10.
+\fBplanes\fR
+well,w
+active,diffusion,polysilicon,a
+metal1,m1
+metal2,m2
+oxide,ox
+\fBend\fR
+.TE
+.(c
+Table 2.  \fBPlanes\fR section
+.)c
+.)T
+.PP
+Magic uses six other planes internally.
+The \fBsubcell\fR
+plane is used for storing cell instances rather than storing
+mask layers.
+The \fBdesignRuleCheck\fR and \fBdesignRuleError\fR
+planes are used by the design rule checker to store
+areas to be reverified, and areas containing design rule
+violations, respectively.
+Finally, the \fBmhint\fR, \fBfhint\fR, and \fBrhint\fR  planes are
+used for by the interactive
+router (the \fB:iroute\fR command) for designer-specified graphic hints.
+.PP
+There is a limit on the maximum
+number of planes in a technology, including the internal planes.
+This limit is currently 15.
+To increase the limit, it is necessary to change \fBMAXPLANES\fP
+in the file
+\fBdatabase/database.h\fP and then recompile all
+of Magic as described in ``Maintainer's Manual\ #1''.  Each additional
+plane involves additional storage space in every cell and some additional
+processing time for searches, so we recommend that you keep the number
+of planes as small as you can do cleanly.
+.(T
+.TS
+center box;
+lp10 s
+lp10 ap10.
+\fBtypes\fR
+active	polysilicon,red,poly,p
+active	ndiffusion,green,ndiff
+active	pdiffusion,brown,pdiff
+metal1	metal1,m1,blue
+metal2	metal2,m2,purple
+well	pwell,pw
+well	nwell,nw
+active	polycontact,pcontact,pc
+active	ndcontact,ndc
+active	pdcontact,pdc
+metal1	m2contact,m2c,via,v
+active	ntransistor,nfet
+active	ptransistor,pfet
+active	psubstratepcontact,ppcontact,ppcont,psc,ppc,pwc,pwcontact
+active	nsubstratencontact,nncontact,nncont,nsc,nnc,nwc,nwcontact
+active	psubstratepdiff,psd,ppdiff,ppd,pohmic
+active	nsubstratendiff,nsd,nndiff,nnd,nohmic
+metal2	pad
+oxide	glass
+\fBend\fR
+.TE
+.(c
+Table 3.  \fBTypes\fR section
+.)c
+.)T
+.PP
+The \fBtypes\fR section identifies the technology-specific
+tile types used by Magic.
+Table 3 gives this section for the scmos technology file.
+Each line in this section is of the following form:
+.(X
+.I
+plane names
+.R
+.)X
+.PP
+Each type defined in this section is allowed to appear on exactly
+one of the planes defined in the \fBplanes\fR section, namely
+that given by the \fIplane\fR field above.
+For contacts types such as \fBpcontact\fR, the plane
+listed is considered to be the contact's \fIhome\fR plane.
+Other tile types will be used to represent the contact on the other
+planes it connects; this is described later in this section.
+.PP
+The \fInames\fR field is a comma-separated list of names.
+The first name in the list is the ``long'' name for the type;
+it appears in the \fB.mag\fR file and whenever error messages involving
+that type are printed.
+Any unique abbreviation of any of a type's names is sufficient
+to refer to that type, both from within the technology file
+and in any commands such as
+\fB:paint\fR or \fB:erase\fR.
+.(T
+.TS
+center box;
+l | l.
+Tile type	Plane
+=
+.T&
+lBp10 | lBp10.
+space	\fIall\fR
+_	_
+error_p, EP	designRuleError
+_	_
+error_s, ES	designRuleError
+_	_
+error_ps, EPS	designRuleError
+_	_
+checkpaint, CP	designRuleCheck
+_	_
+checksubcell, CS	designRuleCheck
+_	_
+magnet, mag	mhint
+_	_
+fence, f	fhint
+_	_
+rotate, r	rhint
+.TE
+.(c
+Table 4.  Built-in Magic types.
+.)c
+.)T
+.PP
+Magic has certain built-in types as shown in Table 4.
+Empty space (\fBspace\fR)
+is special in that it can appear on any plane.
+The types \fBerror_p\fR, \fBerror_s\fR, and \fBerror_ps\fR
+record design rule violations.
+The types \fBcheckpaint\fR and \fBchecksubcell\fR
+record areas still to be design-rule checked.
+\fBMagnet\fR, \fBfence\fR, and \fBrotate\fR are the types
+used by designers to indicate hints for the irouter.
+.PP
+There is a limit on the maximum
+number of types in a technology, including all the built-in
+types.
+Currently, the limit is 80 tile types.
+To increase the limit, you'll have to
+change \fBTT_MAXTYPES\fP in the file
+\fBdatabase/database.h\fP and then recompile all
+of Magic as described in ``Maintainer's Manual\ #1''.
+A number of macros in \fBdatabase.h\fP
+also depend on the value of \fBTT_MAXTYPES\fP/32.
+They are currently set up assuming that \fBTT_MAXTYPES\fR is between 65
+and 96; if \fBTT_MAXTYPES\fR is changed to lie outside this region
+they should be changed.  See the comments in \fBdatabase.h\fP
+for more information.
+Because there are a number of tables whose size is determined by
+the square of \fBTT_MAXTYPES\fR, it is very expensive to increase
+\fBTT_MAXTYPES\fR much beyond the current limit.
+.(T
+.TS
+center box;
+lp10 s s s
+lp10 ap10 ap10 ap10.
+\fBcontact\fR
+pcontact	poly	metal1
+ndcontact	ndiff	metal1
+pdcontact	pdiff	metal1
+ppcontact	ppdiff	metal1
+nncontact	nndiff	metal1
+m2contact	metal2	metal1
+pad	metal1	metal2	glass
+\fBend\fR
+.TE
+.(c
+Table 5.  \fBContact\fR section
+.)c
+.)T
+.PP
+As mentioned above, contacts in Magic are represented on each
+plane containing material connected by the contact.
+Also mentioned above, though, each tile type defined in the
+\fBtypes\fR section appears on exactly one plane.
+This seeming conflict is resolved by having Magic automatically
+generate new tile types for each of the planes on which a contact
+appears.
+The \fBcontact\fR
+section lets Magic know which types are contacts,
+and the adjacent planes and component types to which they are connected.
+.PP
+Each line in the \fBcontact\fR
+section begins with a tile type, \fIbase\fR, which is thereby
+defined to be a contact.
+This type is also referred to as a contact's \fIbase type\fR.
+The remainder of each line is a list of two or three non-contact
+tile types that are connected by the contact.
+These tile types are referred to as the \fIcomponent\fR
+types of the contact, and
+are the layers that would be present if there were no
+electrical connection (\fIi.e.\fR, no via hole).
+In Table 5, for example, the type
+\fBpcontact\fR is the base type of a contact connecting
+the component layers
+\fBpolysilicon\fR on the active plane with \fBmetal1\fR on the metal1 plane.
+.PP
+The home plane of one of the component types should be the same
+as that of the base type (\fBactive\fR in the case of \fBpcontact\fR),
+and the other type(s) must be
+on planes adjacent to that of the base.
+(If two planes appear on subsequent lines in the \fBplanes\fR
+section, then they are considered to be adjacent.  Hence the
+\fBactive\fR plane is adjacent to the \fBwell\fR and \fBmetal1\fR
+planes, but not to the \fBmetal2\fR plane.)
+.KF
+.GS C
+file maint2.1.g
+height 2i
+st cf
+.GE
+.(C
+\fBFigure 1\fR.
+A different tile type is used to represent a contact on each
+plane that it connects.  Here, a contact between poly on the
+\fBactive\fP plane and metal1 on the \fBmetal1\fP plane
+is stored as two tile types.  One, \fBpcontact\fP,
+is specified in the technology file as residing on the \fBactive\fP
+plane; the other is automatically-generated for the \fBmetal1\fP plane.
+.)C
+.KE
+.PP
+The above scheme allows you to define contacts that connect at most
+three layers together.  For example, if the scmos technology supported
+stacked contacts (it doesn't),
+you could define a contact (the type \fBpm12c\fR)
+that connected polysilicon, metal1, and metal2 as:
+.(X
+\fB
+contact pm12c polysilicon metal1 metal2
+\fR
+.)X
+but it wouldn't be possible to define directly a contact that
+connected four layers, such as pwell, ndiffusion, metal1, and metal2.
+To define this latter type of contact, you'd have to define two
+different contact tile types, \fBwndc\fR and \fBnm12c\fR, and
+use two \fBcontact\fR lines, each of which connects only three layers.
+.(X
+\fB
+contact wndc pwell ndiffusion metal1
+contact nm12c ndiffusion metal1 metal2
+\fR
+.)X
+Magic will automatically generate the appropriate paint and erase
+rules to allow painting, for example, \fBnm12c\fR over \fBwndc\fR
+to give the four-layer stacked contact.
+In order for Magic to do this, however, you must be certain never to
+define two types of contacts with identical component types.
+This is the reason why, in the scmos technology file, the
+\fBpad\fR contact is shown as connecting three layers
+(\fBmetal1\fR, \fBmetal2\fR, and \fBglass\fR) instead of
+just \fBmetal1\fR and \fBmetal2\fR as it used to with version
+4 of Magic.
+.PP
+Each contact has an \fIimage\fR tiletype on all the planes it connects.
+Normally, this means that Magic has to generate a new tiletype
+for all the planes of a contact other than its base plane.
+In the first example, this means that a new tile type will be generated
+to represent \fBpcontact\fR on the metal1 plane.
+The type used to represent the contact on the active
+plane is \fBpcontact\fR itself.
+Figure 1 depicts the situation graphically.  In later sections of
+the technology file, it is sometimes useful to refer
+separately to the various images of contact.  A special
+notation using a ``/'' is used for this.  If a tile type
+\fIaaa/bbb\fR is specified in the technology file, this refers
+to the image of contact \fIaaa\fR on plane \fIbbb\fR.  For example,
+\fBpcontact/metal1\fR refers to the image of the pcontact that
+lies on the metal1 plane, and \fBpcontact/active\fR refers to the
+image on the active plane, which is the same as \fBpcontact\fR.
+.PP
+Sometimes, however, there is already an existing contact that
+has the required connectivity to be an image of a new contact.
+For example, the \fBpad\fR type connects \fBmetal1\fR, \fBmetal2\fR,
+and \fBglass\fR.
+Its home plane is \fBmetal2\fR, which implies that we need images
+on the \fBmetal1\fR and \fBoxide\fR planes that have the required
+connectivity.
+There's no existing contact between \fBglass\fR and \fBmetal2\fR,
+so the image on the \fBoxide\fR plane must be generated automatically
+by Magic.
+However, there is already a contact that connects the component
+types \fBmetal1\fR and \fBmetal2\fR, namely \fBm2c\fR, so this
+is used as the image of \fBpad\fR on the \fBmetal1\fR plane.
+
+.NH 1
+Specifying Type-lists
+.PP
+In several places in the technology file you'll need to specify
+groups of tile types.  For example, in the \fBconnect\fR section
+you'll specify groups of tiles that are mutually connected.  These
+are called \fItype-lists\fR and there are several ways to specify
+them.  The simplest form for a type-list is a comma-separated list
+of tile types, for example
+.DS C
+poly,ndiff,pcontact,ndc
+.DE
+The null list (no tiles at all) is indicated by zero, i.e.,
+.DS C
+0
+.DE
+There must not be any spaces in the type-list.  Type-lists may also
+use tildes (``~'') to select all tiles but a specified set, and
+parentheses for grouping.  For example,
+.DS C
+~(pcontact,ndc)
+.DE
+selects all tile types but pcontact and ndc.  When a contact name appears
+in a type-list, it selects \fIall\fR images of the contact unless
+a ``/'' is used to indicate a particular one.  The example
+above will not select any of the images of pcontact or ndc.
+Slashes can also be used in conjunction with parentheses and tildes.
+For example,
+.DS C
+~(pcontact,ndc)/active,metal1
+.DE
+selects all of the tile types on the active plane except for
+pcontact and ndc, and also selects metal1.  Tildes have higher operator
+precedence than slashes, and commas have lowest precedence of
+all.
+.PP
+Note: in the CIF sections of the technology file, only simple
+comma-separated names are permitted;
+tildes and parentheses are
+not understood.  However, everywhere else in the technology file
+the full generality can be used.  Sorry for this inconsistency...
+.(T
+.TS
+center box;
+lp10 s
+lp10 lp10.
+\fBstyles\fR
+styles
+styletype mos
+poly	1
+ndiff	2
+pdiff	4
+nfet	6
+nfet	7
+pfet	8
+pfet	9
+metal1	20
+metal2	21
+pcontact	1
+pcontact	20
+pcontact	32
+ndcontact	2
+ndcontact	20
+ndcontact	32
+pdcontact	4
+pdcontact	20
+pdcontact	32
+m2contact	20
+m2contact	21
+m2contact	33
+\fBend\fR
+.TE
+.(c
+Table 6.  Part of the \fBstyles\fR section
+.)c
+.)T
+
+.NH 1
+Styles section
+.PP
+Magic can be run on several different types of graphical displays.
+Although it would have been possible to incorporate display-specific
+information into the technology file,
+a different technology file would have been required for each display type.
+Instead, the technology file gives one or more display-independent
+\fIstyles\fR for each type that is to be displayed,
+and uses a per-display-type styles file to map to
+colors and stipplings specific to the display being used.  The
+styles file is described in
+Magic Maintainer's Manual\ #3: ``Styles and Colors'',
+so we will not describe it further here.
+.PP
+Table 6 shows part of the \fBstyles\fR
+section from the scmos technology file.
+The first line specifies the type of style file
+for use with this technology, which in this
+example is \fBmos\fR.
+Each subsequent line consists of a tile type and a style number
+(an integer between 1 and 63).
+The style number is nothing more than a reference between the technology
+file and the styles file.
+Notice that a given tile type can have several styles
+(e.g., pcontact uses styles #1, #20, and #32),
+and that a given style may be
+used to display several different tiles
+(e.g., style #2 is used in ndiff and ndcontact).
+If a tile type should not be displayed,
+it has no entry in the \fBstyles\fR section.
+
+.(T
+.TS
+center box;
+lBp10 lp10 lp10 lp10.
+compose
+compose	nfet	poly	ndiff
+compose	pfet	poly	pdiff
+paint	pwell	nwell	nwell
+paint	nwell	pwell	pwell
+paint	pdc/active	pwell	ndc/active
+paint	pdc/m1	pwell	ndc/m1
+paint	pfet	pwell	nfet
+paint	pdiff	pwell	ndiff
+paint	nsd	pwell	psd
+paint	nsc/active	pwell	psc/active
+paint	nsc/m1	pwell	psc/m1
+paint	ndc/active	nwell	pdc/active
+paint	ndc/m1	nwell	pdc/m1
+paint	nfet	nwell	pfet
+paint	ndiff	nwell	pdiff
+paint	psd	nwell	nsd
+paint	psc/active	nwell	nsc/active
+paint	psc/m1	nwell	nsc/m1
+end
+.TE
+.(c
+Table 7.  \fBCompose\fR section
+.)c
+.)T
+
+.NH 1
+Compose section
+.PP
+The semantics of Magic's paint operation are defined by a collection
+of rules of the form, ``given material \fIHAVE\fR on plane \fIPLANE\fR,
+if we paint \fIPAINT\fR, then
+we get \fIZ\fR'', plus a similar set of rules for the erase operation.
+The default paint and erase rules are simple.  Assume that we
+are given material \fIHAVE\fR on plane \fIPLANE\fR, and are painting
+or erasing material \fIPAINT\fR.
+.IP (1)
+.I "You get what you paint."
+If the home plane of \fIPAINT\fR is \fIPLANE\fR, or \fIPAINT\fR is space,
+you get \fIPAINT\fR; otherwise, nothing changes and you get \fIHAVE\fR.
+.IP (2)
+.I "You can erase all or nothing."
+Erasing space or \fIPAINT\fR from \fIPAINT\fR will give space; erasing
+anything else has no effect.
+.PP
+These rules apply for contacts as well.
+Painting the base type of a contact paints the base type
+on its home plane, and each image type on its home plane.
+Erasing the base type of a contact erases both the base type
+and the image types.
+.PP
+It is sometimes desirable for certain tile types to behave as
+though they were ``composed'' of other, more fundamental ones.
+For example, painting poly over ndiffusion in scmos
+produces ntransistor, instead of ndiffusion.
+Also, painting either poly or ndiffusion
+over ntransistor leaves ntransistor,
+erasing poly from ntransistor leaves ndiffusion,
+and erasing ndiffusion leaves poly.
+The semantics for ntransistor
+are a result of the following rule in the
+\fBcompose\fR section of the scmos technology file:
+.(X
+\fBcompose\fR ntransistor poly ndiff
+.)X
+.PP
+Sometimes, not all of the ``component'' layers of a type are layers
+known to magic.
+As an example, in the \fBnmos\fR technology, there are two types
+of transistors: \fBenhancement-fet\fR and \fBdepletion-fet\fR.
+Although both contain polysilicon and diffusion,
+depletion-fet can be thought of as also containing
+implant, which is not a tile type.
+So while we can't construct depletion-fet by painting poly and then
+diffusion, we'd still like it to behave as though it contained
+both materials.
+Painting poly or diffusion over a depletion-fet should not change it, and
+erasing either poly or diffusion should give the other.
+These semantics are the result of the following rule:
+.(X
+\fBdecompose\fR dfet poly diff
+.)X
+.PP
+The general syntax of both types of composition rules,
+\fBcompose\fR and \fBdecompose\fR,
+is:
+.(X
+\fBcompose\fI \ \ type \ a1 b1 \ a2 b2 \ ...
+\fBdecompose\fI type \ a1 b1 \ a2 b2 \ ...
+.)X
+The idea is that each of the pairs \fIa1 b1\fR, \fIa2 b2\fR, etc
+comprise \fItype\fR.
+In the case of a \fBcompose\fR rule,
+painting any \fIa\fR atop its corresponding \fIb\fR
+will give \fItype\fR, as well as vice-versa.
+In both \fBcompose\fR and \fBdecompose\fR rules, erasing \fIa\fR from
+\fItype\fR gives \fIb\fR, erasing \fIb\fR from \fItype\fR gives
+\fIa\fR, and painting either \fIa\fR or \fIb\fR over \fItype\fR
+leaves \fItype\fR unchanged.
+.PP
+Contacts are implicitly composed of their component types,
+so the result obtained when painting a type \fIPAINT\fR over a contact
+type \fICONTACT\fR will by default depend only on
+the component types of \fICONTACT\fR.
+If painting \fIPAINT\fR doesn't affect the component
+types of the contact, then it is considered not to affect the
+contact itself either.  If painting \fIPAINT\fR does affect any of
+the component types, then the result is as though the contact
+had been replaced by its component types in the layout before type
+\fIPAINT\fR was painted.  Similar rules hold for erasing.
+.PP
+A pcontact has component types poly and metal1.
+Since painting poly doesn't affect either poly or metal1, it
+doesn't affect a pcontact either.
+Painting ndiffusion does affect
+poly\-\-it turns it into an ntransistor\-\-.
+Hence, painting ndiffusion over a pcontact breaks up
+the contact, leaving ntransistor on the
+active plane and metal1 on the metal1 plane.
+.PP
+The \fBcompose\fR and \fBdecompose\fR rules
+are normally sufficient to specify the desired semantics
+of painting or erasing.
+In unusual cases, however, it may be necessary to provide
+Magic with explicit \fBpaint\fR or \fBerase\fR rules.
+For example,
+to specify that painting pwell over pdiffusion switches its
+type to ndiffusion, the technology file contains the
+rule:
+.(X
+\fBpaint\fR pdiffusion pwell ndiffusion
+.)X
+This rule could not have been written as a \fBdecompose\fR rule;
+erasing ndiffusion from pwell does not yield pdiffusion,
+nor does erasing pdiffusion from ndiffusion yield pwell.
+The general syntax for these explicit rules is:
+.(X
+\fBpaint\fI have t result \fR[\fIp\fR]
+\fBerase\fI have t result \fR[\fIp\fR]
+.)X
+Here, \fIhave\fR is the type already present, on plane \fIp\fR
+if it is specified; otherwise, on the home plane of \fIhave\fR.
+Type \fIt\fR is being painted or erased, and the result is type \fIresult\fR.
+Table 7 gives the \fBcompose\fR section for scmos.
+.PP
+It's easiest to think of the paint and erase rules as being built
+up in four passes.
+The first pass generates the default rules for all non-contact types,
+and the second pass replaces these as specified by the \fBcompose\fR,
+\fBdecompose\fR, etc. rules, also for non-contact types.
+At this point, the behavior of the component types of contacts has
+been completely determined, so the third pass can generate the
+default rules for all contact types, and the fourth pass
+can modify these as per any \fBcompose\fR, etc. rules for contacts.
+.(T
+.TS
+center box;
+lp10 s s
+lp10 lp10 lp10.
+\fBconnect\fR
+#define allMetal2 m2,m2c/m2,pad/m2
+#define allMetal1 m1,m2c/m1,pc/m1,ndc/m1,pdc/m1,ppcont/m1,nncont/m1,pad/m1
+#define allPoly poly,pc/a,nfet,pfet
+allMetal2	allMetal2
+allMetal1	allMetal1
+allPoly	allPoly
+ndiff	ndc
+pdiff	pdc
+nwell,nnc,nsd	nwell,nnc,nsd
+pwell,ppc,psd	pwell,ppc,psd
+nnc	pdc
+ppc	ndc
+\fBend\fR
+.TE
+.(c
+Table 8.  \fBConnect\fR section
+.)c
+.)T
+
+.NH 1
+Connect section
+.PP
+For circuit extraction, routing, and some of the net-list operations,
+Magic needs to know what types are electrically connected.
+Magic's model of electrical connectivity used is based on signal propagation.
+Two types should be marked as connected if a signal will
+.I always
+pass between the two types, in either direction.
+For the most part, this will mean that all non-space types within a plane
+should be marked as connected.
+The exceptions to this rule are devices (transistors).
+A transistor should be considered electrically
+connected to adjacent polysilicon, but not to adjacent diffusion.
+This models the fact that polysilicon connects to the gate of
+the transistor, but that the transistor acts as a switch
+between the diffusion areas on either side of the channel of the transistor.
+.PP
+The lines in the \fBconnect\fR
+section of a technology file, as shown in Table 8,
+each contain a pair of type-lists in the format described in
+Section 4.
+Each type in the first list connects to each type in the second list.
+This does not imply that the types in the first list are themselves
+connected to each other, or that the types in the second list are
+connected to each other.
+.PP
+Because connectivity is a symmetric relationship, only one of
+the two possible orders of two tile types need be specified.
+Tiles of the same type
+are always considered to be connected.
+Contacts are treated specially; they should be specified as
+connecting to material in all planes spanned by the contact.
+For example, pcontact is shown as connecting to
+several types in the active plane, as well as several types
+in the metal1 plane.
+The connectivity of a contact should usually be that
+of its component types,
+so pcontact should connect
+to everything connected to poly, and
+to everything connected to metal1.
+
+.(T
+.TS
+center box;
+lp10.
+\fBcifoutput\fR
+style lambda=1.0(gen)
+    scalefactor 100
+    layer CWN nwell
+        bloat-or pdiff,pdc,pfet * 600
+        bloat-or nsc,nnd * 300
+        grow 300
+        shrink 300
+        calma 42 1
+    layer CWP pwell
+        bloat-or ndiff,ndc,nfet * 600
+        bloat-or psc,ppd * 300
+        grow 300
+        shrink 300
+        calma 41 1
+    layer CMS allMetal2
+        labels m2
+        calma 51 1
+    layer CAA allDiff
+        labels ndiff,pdiff
+        calma 43 1
+    layer CCA ndc,pdc
+        squares 200
+        calma 48 1
+    layer CCA nncont,ppcont
+        squares 200
+        calma 48 1
+    layer CCP pc
+        squares 200
+        calma 47 1
+\fBend\fR
+
+.TE
+.(c
+Table 9.  Part of the \fBcifoutput\fR section for style lambda=1.0(gen) only
+.)c
+.)T
+
+.NH 1
+Cifoutput section
+.PP
+The layers stored by Magic do not always correspond to physical
+mask layers.  For example, there is no physical layer corresponding
+to ntransistor; instead, the actual circuit must be built up
+by overlapping poly and diffusion over pwell.
+When writing CIF (Caltech Intermediate Form) or Calma GDS-II files,
+Magic generates the actual
+geometries that will appear on the masks used to fabricate the
+circuit.  The \fBcifoutput\fR section of the technology file
+describes how to generate mask layers from Magic's abstract layers.
+.NH 2
+CIF styles
+.PP
+The technology file can contain several different specifications
+of how to generate CIF.  Each of these is called a CIF
+\fIstyle\fR.  Different styles may be used for fabrication at
+different feature sizes, or for totally different purposes.  For
+example, some of the Magic technology files contain a style
+``plot'' that generates CIF pseudo-layers that have exactly the
+same shapes as the Magic layers.  This style is used for generating
+plots that look just like what appears on the color display;  it
+makes no sense for fabrication.  Lines of the form
+.DS C
+\fBstyle\fI name\fR
+.DE
+are used to end the description of the previous style and start
+the description of a new style.  The Magic command
+\fB:cif ostyle\fI name\fR is typed by users to change
+the current style used for output.  The first style in the
+technology file is used by default for CIF output if the
+designer doesn't issue a \fB:cif style\fR command.
+If the first line of the \fBcifoutput\fR
+section isn't a \fBstyle\fR line, then Magic uses an initial style
+name of \fBdefault\fR.
+.NH 2
+Scaling
+.PP
+Each style must contain a line of the form
+.DS C
+\fBscalefactor \fIscale \fB[\fIreducer\fR]
+.DE
+that tells how to scale Magic coordinates into CIF coordinates.
+The argument \fIscale\fR indicates how many hundredths of a
+micron correspond to one Magic unit.  Because of certain numerical
+problems with the CIF representation, \fIscale\fR must always
+be an even number (except as described below).
+.PP
+The second parameter, \fIreducer\fR, is optional.
+If it is specified, it may be either the keyword \fBcalmaonly\fR,
+or an integer.
+If \fIreducer\fR is \fBcalmaonly\fR, then this output style
+can only be used to generate
+Calma (GDS-II) output, not CIF, but
+the restriction that \fIscale\fR must always be an even
+number is relaxed; \fIscale\fR can be any positive integer.
+.PP
+If \fIreducer\fR is an integer,
+it is used to increase the readability and decrease
+the size of CIF files.  Each CIF coordinate is divided by \fIreducer\fR
+before being written to the CIF file, then a uniform upward scalefactor
+of \fIreducer\fR is specified once for the whole file.  This has no
+effect on the CIF except to make the individual CIF numbers smaller
+and thereby reduce the sizes of CIF files.
+\fIReducer\fR must be a positive integer, and must evenly divide
+into every other dimension specified in any statement for this style.
+\fIReducer\fR must also divide one-half of \fIscale\fR.
+If this sounds confusing, the easiest thing is
+to leave \fIreducer\fR unspecified, in which case the value 1 is used.
+.PP
+In addition to specifying a scale factor, each style can specify
+the size in which chunks will be processed when generating CIF
+hierarchically.  This is particularly important when the average
+design size is much larger than the maximum bloat or shrink (e.g,
+more than 3 orders of magnitude difference).
+The step size is specified by a line of the following form:
+.DS C
+\fBstepsize \fIstepsize\fR
+.DE
+where \fIstepsize\fR is in Magic units.  For example, if you plan
+to generate CIF for designs that will typically be 100,000 Magic
+units on a side, it might make sense for \fIstepsize\fR to be
+10000 or more.
+.NH 2
+Layer descriptions
+.PP
+The main body of information for each CIF style is a set of layer
+descriptions.  Each layer description consists of one or more
+lines describing how to generate
+the CIF for a single layer.  The first line of each description is
+one of
+.DS C
+\fBlayer \fIname\fR [\fIlayers\fR]
+or
+\fBtemplayer \fIname\fR [\fIlayers\fR]
+.DE
+These statements are identical, except that templayers are not
+output in the CIF file.  They are used only to build up intermediate
+results used in generating the ``real'' layers.  In each case,
+\fIname\fR is the CIF name to be used for the layer.  If \fIlayers\fR
+is specified, it consists of a comma-separated list of Magic layers and
+previously-defined CIF layers in this style;  these layers form
+the initial contents of the new CIF layer (note: the layer lists
+in this section are less general than what was described in
+Section 4; tildes and parentheses are not allowed).  If \fIlayers\fR is
+not specified, then the new CIF layer is initially empty.  The
+following statements are used to modify the contents of a CIF
+layer before it is output.
+.PP
+After the \fBlayer\fR or \fBtemplayer\fR statement come several
+statements specifying geometrical operations to apply in building
+the CIF layer.  Each statement takes the current contents of the
+layer, applies some operation to it, and produces the new contents
+of the layer. The last geometrical operation for the layer determines
+what is actually output in the CIF file.  The geometrical operations
+are:
+.DS C
+\fBor \fIlayers\fR
+\fBand \fIlayers\fR
+\fBand-not \fIlayers\fR
+\fBgrow \fIamount\fR
+\fBshrink \fIamount\fR
+\fBbloat-or \fIlayers layers2 amount layers2 amount ...\fR
+\fBbloat-max \fIlayers layers2 amount layers2 amount ...\fR
+\fBbloat-min \fIlayers layers2 amount layers2 amount ...\fR
+\fBsquares \fIsize\fR
+\fBsquares \fIborder size separation\fR
+.DE
+The operation \fBor\fR takes all the \fIlayers\fR (which may be
+either Magic layers or previously-defined CIF layers), and or's
+them with the material already in the CIF layer.  The operation
+\fBand\fR is similar to \fBor\fR, except that it and's the layers
+with the material in the CIF layer (in other words, any CIF
+material that doesn't lie under material in \fIlayers\fR is
+removed from the CIF layer).  \fBAnd-not\fR finds all areas covered
+by \fIlayers\fR and erases current CIF material from those areas.
+\fBGrow\fR and \fBshrink\fR will
+uniformly grow or shrink the current CIF layer by \fIamount\fR
+units, where \fIamount\fR is specified in CIF units, not Magic
+units.
+.KF
+.GS C
+file maint2.2.g
+width 5.5
+1 9
+st cf
+.GE
+.(C
+\fBFigure 2\fR.  The three different forms of \fBbloat\fR behave slightly
+differently when two different bloat distances apply along the same
+side of a tile.  In each of the above examples, the CIF that would
+be generated is shown in bold outline.
+If \fBbloat-or\fR is specified, a jagged edge may
+be generated, as on the left.  If \fBbloat-max\fR is used, the
+largest bloat distance for each side is applied uniformly to the
+side, as in the center.  If \fBbloat-min\fR is used, the smallest
+bloat distance for each side is applied uniformly to the side, as
+on the right.
+.)C
+.KE
+.PP
+The three \fBbloat\fR operations provide selective forms of
+growing.  In these statements, all the layers must be Magic
+layers.  Each operation examines all the tiles in \fIlayers\fR,
+and grows the tiles by a different distance on each side, depending
+on the rest of the line.  Each pair \fIlayers2 amount\fR specifies
+some tile types and a distance (in CIF units).  Where a tile of
+type \fIlayers\fR abuts a tile of type \fIlayers2\fR, the first
+tile is grown on that side by \fIamount\fR.  The result is or'ed
+with the current contents of the CIF plane.  The layer ``\fB*\fR'' may
+be used as \fIlayers2\fR to indicate all tile types.  Where tiles
+only have a single type of neighbor on each side, all three forms
+of \fBbloat\fR are identical.  Where the neighbors are different,
+the three forms are slightly different, as illustrated in Figure
+2.  Note:  all the layers specified in any given \fBbloat\fR
+operation must lie on a single Magic plane.  For \fBbloat-or\fR
+all distances must be positive.  In \fBbloat-max\fR and \fBbloat-min\fR
+the distances may be negative to provide a selective form of
+shrinking.
+.PP
+In retrospect, it's not clear that \fBbloat-max\fR and \fBbloat-min\fR
+are very useful operations.  The problem is that they operate on tiles,
+not regions.  This can cause unexpected behavior on concave regions.
+For example, if the region being bloated is in the shape of a ``T'', a
+single bloat factor will be applied to the underside of the horizontal
+bar.  If you use \fBbloat-max\fR or \fBbloat-min\fR, you should
+probably specify design-rules that require the shapes being bloated to
+be convex.
+.KF
+.GS C
+file maint2.3.g
+width 2i
+st cf
+.GE
+.(C
+\fBFigure 3\fR.  The \fBsquares\fR operator chops each tile up
+into squares, as determined by the \fIborder\fR, \fIsize\fR,
+and \fIseparation\fR parameters.  In the example, the bold
+lines show the CIF that would be generated by a \fBsquares\fR
+operation.  The squares of material are always centered so that
+the borders on opposite sides are the same.
+.)C
+.KE
+.PP
+The last geometric operation is called \fBsquares\fR.  It examines
+each tile on the CIF plane, and replaces that tile with one or
+more squares of material.  Each square is \fIsize\fR CIF units
+across, and squares are separated by \fIseparation\fR units.  A border
+of at least \fIborder\fR units is left around the edge of the original
+tile, if possible.  This operation is used to generate contact vias, as in
+Figure 3.  If only one argument is given in the \fBsquares\fR
+statement, then \fIseparation\fR defaults to \fIsize\fR and
+\fIborder\fR defaults to \fIsize\fR/2.  If a tile doesn't hold an
+integral number of squares, extra space is left around the edges of
+the tile and the squares are centered in the tile.  If the tile is
+so small that not even a single square can fit and still leave enough
+border, then the border is reduced.  If a square won't fit in the
+tile, even with no border, then no material is generated.
+The \fBsquares\fR operation
+must be used with some care, in conjunction with the design rules.
+For example, if there are several adjacent skinny tiles, there
+may not be enough room in any of the tiles for a square, so no
+material will be generated at all.  Whenever you use the \fBsquares\fR
+operator, you should use design rules to prohibit adjacent contact
+tiles, and you should always use the \fBno_overlap\fR rule to prevent
+unpleasant hierarchical interactions.  The problems with hierarchy
+are discussed in Section 8.6 below, and design rules are discussed
+in Section 10.
+.NH 2
+Labels
+.PP
+There is an additional statement permitted in the \fBcifoutput\fR
+section as part of a layer description:
+.DS C
+\fBlabels \fIMagiclayers\fR
+.DE
+This statement tells Magic that labels attached to Magic layers
+\fIMagiclayers\fR are to be associated with the current CIF layer.
+Each Magic layer should only appear in one such statement for
+any given CIF style.  If a Magic layer doesn't appear in any
+\fBlabels\fR statement, then it is not attached to a specific
+layer when output in CIF.
+.NH 2
+Calma (GDS II Stream format) layers
+.PP
+Each layer description in the \fBcifoutput\fR section may also
+contain one of the following statements:
+.DS C
+\fBcalma \fIcalmaNumber\fR \fIcalmaType\fR
+.DE
+This statement tells Magic which layer number and data type
+to use when the \fBcalma\fR command outputs
+Calma GDS II Stream format for this CIF layer.
+Both \fIcalmaNumber\fR and \fIcalmaType\fR should be positive
+integers, between 0 and 63.
+Each CIF layer should have a different \fIcalmaNumber\fR.
+If there is no \fBcalma\fR line for a given CIF layer, then
+that layer will not be output by the \fB:calma\fR command.
+.KF
+.GS C
+file maint2.4.g
+width 5i
+st cf
+.GE
+.(C
+\fBFigure 4\fR.  If the operator \fBgrow 100\fR is applied to the
+shapes in (a), the merged shape in (b) results.  If the operator
+\fBshrink 100\fR is applied to (b), the result is (c).  However,
+if the two original shapes in (a) belong to different cells, and
+if CIF is generated separately in each cell, the result will be
+the same as in (a).  Magic handles this by outputting additional
+information in the parent of the subcells to fill in the gap between
+the shapes.
+.)C
+.KE
+.NH 2
+Hierarchy
+.PP
+Hierarchical designs make life especially difficult for the
+CIF generator.  The CIF corresponding
+to a collection of subcells may not necessarily be the same
+as the sum of the CIF's of the individual cells.  For example,
+if a layer is generated by growing and then shrinking, nearby
+features from different cells may merge together so that they
+don't shrink back to their original shapes (see Figure 4).
+If Magic
+generates CIF separately for each cell, the interactions between
+cells will not be reflected properly.  The CIF generator attempts
+to avoid these problems.  Although it generates CIF in a
+hierarchical representation that matches the Magic cell structure,
+it tries to ensure that the resulting CIF patterns are exactly the same
+as if the entire Magic design had been flattened into a single cell
+and then CIF were generated from the flattened design.  It does this
+by looking in each cell for places where subcells are close enough
+to interact with each other or with paint in the parent.  Where this
+happens, Magic flattens the interaction area and generates CIF for
+it;  then Magic flattens each of the subcells separately and generates
+CIF for them.  Finally, it compares the CIF from the subcells with the
+CIF from the flattened parent.  Where there is a difference, Magic
+outputs extra CIF in the parent to compensate.
+.PP
+Magic's hierarchical approach only works if the overall CIF for the
+parent ends up covering at least as much area as the CIFs for the
+individual components, so all compensation can be done by adding
+extra CIF to the parent.  In mathematical terms, this requires
+each geometric operation to obey the rule
+.DS C
+Op(A \(cu B) \(ip Op(A) \(cu Op(B)
+.DE
+The operations \fBand\fR, \fBor\fR, \fBgrow\fR, and \fBshrink\fR all
+obey this rule.  Unfortunately, the \fBand-not\fR, \fBbloat\fR,
+and \fBsquares\fR
+operations do not.  For example, if there are two partially-overlapping
+tiles in different cells, the squares generated from one of the cells
+may fall in the separations between squares in the other cell, resulting
+in much larger areas of material than expected.
+There are two ways around this problem.  One
+way is to use the design rules to prohibit problem situations from
+arising.  This applies mainly to the \fBsquares\fR operator.  Tiles
+from which squares are made should never be allowed to overlap
+other such tiles in different cells unless the overlap is exact,
+so each cell will generate squares in the same place.  You can
+use the \fBexact_overlap\fR design rule for this.
+.PP
+The second approach is to leave things up to the designer.
+When generating CIF, Magic issues warnings where there is less material
+in the children than the parent.  The designer can locate these problems
+and eliminate the interactions that cause the trouble.  Warning:
+Magic does not check the \fBsquares\fR operations for hierarchical
+consistency, so you absolutely must use \fBexact_overlap\fR design
+rule checks! Right now, the \fBcifoutput\fR section of the
+technology is one of the trickiest things in the whole file, particularly
+since errors here may not show up until your chip comes back and doesn't
+work.  Be extremely careful when writing this part!
+
+.(T
+.TS
+center box;
+lp10.
+\fBcifinput\fR
+style lambda=1.0(gen)
+    scalefactor 100
+    layer m1 CMF
+        labels CMF
+    layer ndiff CSN
+        and CAA
+    layer nsd CWN
+        and CSN
+        and CAA
+    layer nfet CPG
+        and CAA
+        and CSN
+    layer ndc CCA
+        grow 100
+        and CAA
+        and CWP
+        and CSN
+        and CMF
+    layer nncont CCA
+        grow 100
+        and CAA
+        and CSN
+        and CWN
+        and CMF
+    calma CAA 1 *
+    calma CCA 2 *
+    calma CMF 4 *
+    calma CPG 7 *
+    calma CSN 8 *
+    calma CWN 11 *
+    calma CWP 12 *
+\fBend\fR
+
+.TE
+.(C
+Table 10.  Part of the \fBcifinput\fR section.  The order of the layers is
+important, since each Magic layer overrides the previous ones
+just as if they were painted by hand.
+.)C
+.)T
+.NH 1
+Cifinput section
+.PP
+In addition to writing CIF, Magic can also read in CIF files using
+the \fB:cif read \fIfile\fR command.  The \fBcifinput\fR section
+of the technology file describes how to convert from CIF mask layers
+to Magic tile types.
+In addition, it provides information to the Calma reader to allow
+it to read in Calma GDS II Stream format files.
+The \fBcifinput\fR section is very similar to the \fBcifoutput\fR
+section.  It can contain several styles, with a line of the form
+.DS C
+\fBstyle \fIname\fR
+.DE
+used to end the description of the previous style (if any), and start a
+new CIF input style called \fIname\fR.  If no initial style name is
+given, the name \fBdefault\fR is assigned.  Each style must have a
+statement of the form
+.DS C
+\fBscalefactor\fI centimicrons\fR
+.DE
+to indicate how many hundredths of a micron correspond to one unit
+in Magic.
+.PP
+Like the \fBcifoutput\fR section, each style consists of a number
+of layer descriptions.  A layer description contains one
+or more lines describing a series of geometric operations to be
+performed on CIF layers.  The result of all these operations is
+painted on a particular Magic layer just as if the user had
+painted that information by hand.
+A layer description begins with a statement of the form
+.DS C
+\fBlayer\fI magicLayer \fR[\fIlayers\fR]
+.DE
+In the \fBlayer\fR statement, \fImagicLayer\fR is the Magic layer
+that will be painted after performing the geometric operations,
+and \fIlayers\fR is an optional list of CIF layers.  If
+\fIlayers\fR is specified, it is the initial value for the layer
+being built up.  If \fIlayers\fR isn't specified, the layer starts
+off empty.  As in the \fBcifoutput\fR section, each line after
+the \fIlayer\fR statement gives a geometric operation that is applied
+to the previous contents of the layer being built in order to generate
+new contents for the layer.  The result of the last geometric operation
+is painted into the Magic database.
+.PP
+The geometric operations that are allowed in the \fBcifinput\fR section
+are a subset of those permitted in the \fBcifoutput\fR section:
+.DS C
+\fBor \fIlayers\fR
+\fBand \fIlayers\fR
+\fBand-not \fIlayers\fR
+\fBgrow \fIamount\fR
+\fBshrink \fIamount\fR
+.DE
+In these commands the \fIlayers\fR must all be CIF layers, and the
+\fIamounts\fR are all CIF distances (centimicrons).  As with the
+\fBcifoutput\fR section, layers can only be specified in simple
+comma-separated lists:  tildes and slashes are not permitted.
+.PP
+When CIF files are read, all the mask information is read for a cell
+before performing any of the geometric processing.  After the cell
+has been completely read in, the Magic layers are produced and
+painted in the order they appear in the technology file.  In
+general, the order that the layers are processed is important
+since each layer will usually override the previous ones.  For
+example, in the scmos tech file shown in Table 10 the commands
+for \fBndiff\fR will result in the \fBndiff\fR layer being generated
+not only where there is only ndiffusion
+but also where there are
+ntransistors and ndcontacts.
+The descriptions
+for \fBntransistor\fR and \fBndcontact\fR appear later in the section,
+so those layers will replace the \fBndiff\fR material that was originally
+painted.
+.PP
+Labels are handled in the \fBcifinput\fR section just like in the
+\fBcifoutput\fR section.  A line of the form
+.DS C
+\fBlabels \fIlayers\fR
+.DE
+means that the current Magic layer is to receive all CIF labels
+on \fIlayers\fR.  This is actually just an initial layer assignment
+for the labels.  Once a CIF cell has been read in, Magic scans the
+label list and re-assigns labels if necessary.  In the example of
+Table 10, if a label is attached to the CIF layer CPG then it will
+be assigned to the Magic layer \fBpoly\fR.  However, the polysilicon
+may actually be part of a poly-metal contact, which is Magic layer
+\fBpcontact\fR.  After all the mask information has been processed, 
+Magic checks the material underneath the layer, and adjusts the
+label's layer to match that material (\fBpcontact\fR in this case).
+This is the same as what would happen if a designer painted \fBpoly\fR
+over an area, attached a label to the material, then painted \fBpcontact\fR
+over the area.
+.PP
+No hierarchical mask processing is done for CIF input.  Each cell
+is read in and its layers are processed independently
+from all other cells;  Magic assumes that there
+will not be any unpleasant interactions between cells as happens
+in CIF output (and so far, at least, this seems to be a valid
+assumption).
+.PP
+If Magic encounters a CIF layer name that doesn't appear
+in any of the lines for the current CIF input style, it
+issues a warning message and ignores the information associated
+with the layer.  If you would like Magic to ignore certain
+layers without issuing any warning messages, insert a line
+of the form
+.DS C
+\fBignore \fIcifLayers\fR
+.DE
+where \fIcifLayers\fR is a comma-separated list of one or
+more CIF layer names.
+.PP
+Calma layers are specified via \fBcalma\fR lines, which should appear
+at the end of the \fBcifinput\fR section.  They are of the form:
+.DS C
+\fBcalma\fR \fIcifLayer\fR \fIcalmaLayers\fR \fIcalmaTypes\fR
+.DE
+The \fIcifLayer\fR is one of the CIF types mentioned in the \fBcifinput\fR
+section.  Both \fIcalmaLayers\fR and \fIcalmaTypes\fR are one or more
+comma-separated integers between 0 and 63.  The interpretation of
+a \fBcalma\fR line is that any Calma geometry whose layer is any
+of the layers in \fIcalmaLayers\fR, and whose type is any of the
+types in \fIcalmaTypes\fR, should be treated as the CIF layer
+\fIcifLayer\fR.
+Either or both of \fIcalmaLayers\fR and \fIcalmaTypes\fR may be
+the character \fB*\fR instead of a comma-separated list of integers;
+this character means \fIall\fR layers or types respectively.
+It is commonly used for \fIcalmaTypes\fR to indicate that the
+Calma type of a piece of geometry should be ignored.
+.PP
+Just as for CIF, Magic also issues warnings if it encounters
+unknown Calma layers while reading Stream files.  If there are
+layers that you'd like Magic to ignore without issuing warnings,
+assign them to a dummy CIF layer and ignore the CIF layer.
+
+.NH 1
+Mzrouter section
+.PP
+This section defines the layers and contacts available to the Magic maze router, \fImzrouter\fR, and assigns default costs for each type.  Default widths 
+and spacings are
+derived from the \fBdrc\fR section of the technology file (described below) 
+but can be overridden in this 
+section.  Other mzrouter parameters, for example, search rate and width, 
+can also be specified in this section.  The syntax and function of the
+lines in the \fBmzrouter\fR section of the technology file 
+are specified in the subsections below.  Each
+set of specifications should be headed by a \fBstyle\fR line.
+\fBRoutelayer\fR
+and \fBroutecontact\fR specifications should precede references to them.
+.(T
+.TS
+center box;
+lBp10 lp10 lp10 lp10 lp10 lp10.
+mzrouter
+style irouter
+layer	m2	32	64	256	1
+layer	m1	64	32	256	1
+layer	poly	128	128	512	1
+contact	m2contact	metal1	metal2	1024
+contact	pcontact	metal1	poly	2056
+notactive	poly	pcontact
+style garouter
+layer	m2	32	64	256	1
+layer	m1	64	32	256	1	
+contact	m2contact	metal1	metal2	1024
+end
+.TE
+.(c
+Table 11.  Mzrouter section for the scmos technology.
+.)c
+.)T
+.NH 2 
+Styles
+.PP
+The mzrouter is currently used in two contexts, 
+interactively via the \fBiroute\fR command, and as a subroutine to the garouter
+for stem generation.  To permit distinct parameters for these two
+uses, the lines in the \fBmzrouter\fR section are grouped into \fIstyles\fR.
+The lines pertaining to the irouter should be preceded by 
+.(X
+\fBstyle irouter\fR
+.)X
+and those pertaining to the garouter should be preceded by the specification
+.(X
+\fBstyle garouter\fR
+.)X
+Other styles can be specified, but are currently not used.
+Table 11 shows the mzrouter section from the scmos technology.
+.NH 2 
+Layers
+.PP
+Layer lines
+define the route-layers available to the maze router in that style.  They
+have the following form:
+.(X
+\fBlayer \fItype hCost vCost jogCost hintCost\fR
+.)X
+Here \fItype\fR is the name of the tiletype of the layer and \fIhCost\fR,
+\fIvCost\fR, \fIjogCost\fR and \fIhintCost\fR, are non-negative integers
+specifying the cost per unit horizontal distance, 
+cost per unit vertical distance, cost per jog, and 
+cost per unit area of deviation from magnets, respectively.  Route layers
+for any given style must lie in distinct planes.
+.NH 2
+Contacts
+.PP
+Contact lines specify
+the route-contacts available to the mzrouter in the current
+style.   They have the following form:
+.(X
+\fBcontact \fItype routeLayer1 routeLayer2 cost\fR
+.)X
+Here \fItype\fR is the tiletype of the contact, \fIrouteLayer1\fR and
+\fIrouteLayer2\fR are the two layers connected by the contact, and \fIcost\fR
+is a nonnegative integer specifying the cost per contact.
+.NH 2 
+Notactive  
+.PP
+It maybe desirable to have a layer or contact available to the maze router, 
+but default to off, i.e., not be used by the mzrouter until explicitly
+made active.  Route-types (route-layers or route-contacts) can be made to 
+default to off with the following specification:
+.(X
+\fBnotactive \fIroute-type\fR ... [\fBroute-typen\fR]
+.)X
+.NH 2
+Search
+.PP
+The search \fBrate\fR, \fBwidth\fR, and \fBpenalty\fR parameters can 
+be set with a specification of the form:
+.(X
+\fBsearch\fI rate width penalty\fR
+.)X
+Here \fIrate\fR and \fIwidth\fR are positive integers.  And \fIpenalty\fR
+is a positive rational (it may include a decimal point).  See the irouter
+tutorial for a discussion of these parameters.  (Note that \fBpenalty\fR
+is a ``wizardly'' parameter, i.e., it is interactively
+set and examined via \fBiroute wizard\fR not \fBiroute search\fR).
+If no \fBsearch\fR line
+is given for a style, the overall mzrouter defaults are used.
+.NH 2
+Width
+.PP
+Appropriate widths for route-types are normally derived from the \fBdrc\fR
+section
+of the technology file.  These can be overridden with width specifications
+of the following form:
+.(X
+\fBwidth\fI route-type width\fR
+.)X
+Here \fIwidth\fR is a positive integer.
+.NH 2
+Spacing
+.PP
+Minimum spacings between routing on a route-type and other types are
+derived from the design rules.  These values can be overridden by explicit
+spacing specifications in the \fBmzrouter\fR section.  Spacing 
+specifications have the following form:
+.(X
+\fBspacing\fI routetype type1 spacing1 \fR... [\fItypen spacingn\fR]
+.)X
+Spacing values must be nonnegative integers or \fBNIL\fR.  The special type
+\fBSUBCELL\fR can be used to specify minimum spacing to unexpanded subcells.
+
+.(T
+.TS
+center box;
+lBp10 lp10 lp10.
+#define	allDiff	ndiff,pdiff,ndc/a,pdc/a,ppcont/a,nncont/a,pfet,nfet,psd,nsd
+#define	extPoly	poly,pcontact
+#define	extM1	metal1,pcontact/m1,ndc/m1,ppcont/m1,pdc/m1,nncont/m1
+#define	extM2	metal2,m2contact/m2
+.TE
+.(c
+Table 12a.  Abbreviations for sets of tile types.
+.)c
+.)T
+.(T
+.TS
+center box;
+lBp10 lp10 lp10 lIp10.
+width	pwell	6	``P-Well width must be at least 6 (MOSIS rule #1.1)''
+width	nwell	6	``N-Well width must be at least 6 (MOSIS rule #1.1)''
+width	allDiff	2	``Diffusion width must be at least 2 (MOSIS rule #2.1)''
+width	allPoly	2	``Polysilicon width must be at least 2 (MOSIS rule #3.1)''
+.TE
+.(c
+Table 12b.  Some width rules in the \fBdrc\fR section.
+.)c
+.)T
+
+.NH 1
+Drc section
+.PP
+The design rules used by Magic's design rule checker
+come entirely from the technology file.
+We'll look first at two simple kinds of rules,
+\fBwidth\fR and and \fBspacing\fR.
+Most of the rules in the \fBdrc\fR
+section are one or the other of these kinds of rules.
+.NH 2
+Width rules
+.PP
+The minimum width of a collection of types, taken together,
+is expressed by a \fBwidth\fR rule.
+Such a rule has the form:
+.(X
+\fBwidth\fR \fItype-list width error\fR
+.)X
+where \fItype-list\fR is a set of tile types (see Section 4 for syntax),
+\fIwidth\fR is an integer, and \fIerror\fR
+is a string, enclosed in double quotes,
+that can be printed by the command \fB:drc why\fR
+if the rule is violated.
+A width rule requires that all regions containing any types
+in the set \fItypes\fR must be wider than \fIw\fR in both dimensions.
+For example, in Table 12b, the rule
+.(X
+\fBwidth\fR nwell 6 \fI``N-Well width must be at least 6 (MOSIS rule #1.1)''\fR
+.)X
+means that nwells must be at least 6 units
+wide whenever they appear.
+The \fItype-list\fR
+field may contain more than a single type, as in the following rule:
+.(X
+\fBwidth\fR allDiff 2 \fI``Diffusion width must be at least 2 (MOSIS rule #2.1)''\fR
+.)X
+which means that all regions consisting of the types
+containing any kind of diffusion
+be at least 2 units wide.
+Because many of the rules in the \fBdrc\fR section refer to the
+same sets of layers, the \fB#define\fR facility of the C preprocessor
+is used to define a number of macros for these sets of layers.
+Table 12a gives a complete list.
+.PP
+All of the layers named in any one width rule must lie on the
+same plane.  However, if some of the layers are contacts, Magic
+will substitute a different contact image if the named image
+isn't on the same plane as the other layers.
+.(T
+.TS
+center box;
+lBp10 lp10 lp10 lp10 lBp10
+l lIp10 s s s.
+spacing	allPoly	allPoly	2	touching_ok \e
+	``Polysilicon spacing must be at least 2 (MOSIS rule #3.2)''
+.T&
+lBp10 lp10 lp10 lp10 lBp10
+l lIp10 s s s.
+spacing	pfet	nncont,nnd	3	touching_illegal \e
+	``Transistors must be separated from substrate contacts by 3 (MOSIS rule #4.1)''
+.T&
+lBp10 lp10 lp10 lp10 lBp10
+l lIp10 s s s.
+spacing	pc	allDiff	1	touching_illegal \e
+	``Poly contact must be 1 unit from diffusion (MOSIS rule #5B.6)''
+.TE
+.(c
+Table 12c.  Some spacing rules in the \fBdrc\fR section.
+.)c
+.)T
+.KF
+.GS C
+file maint2.5.g
+height 2i
+st cf
+.GE
+.(C
+\fBFigure 5\fR.  For design rule checking,
+the Manhattan distance between two horizontally or vertically
+aligned points is just the normal Euclidean distance.
+If they are not so aligned, then the Manhattan distance is
+the length of the longest side of the right triangle forming
+the diagonal line between the points.
+.)C
+.KE
+.NH 2
+Spacing rules
+.PP
+The second simple kind of design rule is a \fBspacing\fR rule.
+It comes in two flavors:
+\fBtouching_ok\fR, and \fBtouching_illegal\fR,
+both with the following syntax:
+.(X
+\fBspacing\fR \fItypes1 types2 distance flavor error\fR
+.)X
+The first flavor, \fBtouching_ok\fR, does not prohibit
+\fItypes1\fR and \fItypes2\fR from being immediately adjacent.
+It merely requires that any type in the set \fItypes1\fR
+must be separated by a ``Manhattan'' distance of at least
+\fIdistance\fR units from any type in the set \fItypes2\fR
+that is not immediately adjacent to the first type.
+See Figure 5 for an explanation of Manhattan distance
+for design rules.
+As an example, consider the metal1 separation rule:
+.(X
+\fBspacing\fR allPoly allPoly 2 \fBtouching_ok\fR \e
+      \fI``Polysilicon spacing must be at least 2 (MOSIS rule #3.2)''\fR
+.)X
+.KF
+.GS C
+file maint2.6.g
+height 2i
+st cf
+.GE
+.(C
+\fBFigure 6\fR.  The \fBtouching_ok\fR rules cancels spacing checks if the
+material is touching.  This means that even distant material won't be
+checked for spacing.  If the rule applied at edge A is a touching_ok rule
+between material t1 and t2, then no check will be made between the t1 material
+and the t2 material on the far right side of the diagram.  If this check
+was desired, it could be accomplished in this case by a \fBedge4way\fR check
+from edge B.  This would not work in general, though, because that check 
+could also be masked by material of type t2, causing the touching_ok rule
+to be invoked.
+.)C
+.KE
+This rule is symmetric (\fItypes1\fR is equal to \fItypes2\fR),
+and requires, for example, that a pcontact
+be separated by at least 2 units from a piece of polysilicon.
+However, this rule does not prevent the pcontact
+from touching a piece of poly.  In \fBtouching_ok\fR rules,
+all of the layers in both \fItypes1\fR and \fItypes2\fR must be stored
+on the same plane (Magic will substitute different contact
+images if necessary).  
+.PP
+\fBTOUCHING_OK SPACING\fR RULES DO NOT WORK
+FOR VERY LARGE SPACINGS (RELATIVE TO THE TYPES INVOLVED).  SEE FIGURE 6
+FOR AN EXPLANATION.
+If the spacing 
+to be checked is greater
+than the width of one of the types involved plus either its self-spacing or 
+spacing to a second involved type,
+\fBtouching_ok spacing\fR may not work properly:  a violation can
+be masked by an intervening touching type.  In such cases the rule
+should be written using the \fBedge4way\fR construct described below. 
+.PP
+The second flavor of spacing rule, \fBtouching_illegal\fR, disallows adjacency.
+It is used for rules where \fItypes1\fR and \fItypes2\fR
+can never touch, as in the following:
+.(X
+\fBspacing\fR pc allDiff 1 \fBtouching_illegal\fR \e
+      \fI``Poly contact must be 1 unit from diffusion (MOSIS rule #5B.6)''\fR
+.)X
+Pcontacts and any type of diffusion must be at least 1 unit apart;
+they cannot touch.
+In \fBtouching_illegal\fR
+rules \fItypes1\fR and \fItypes2\fR may not have any types in common:  it
+would be rather strange not to permit a type to touch itself.  In
+\fBtouching_illegal\fR rules, \fItypes1\fR
+and \fItypes2\fR may be spread across multiple planes;  Magic will find
+violations between material on different planes.
+.NH 2
+Edge rules
+.PP
+The width and spacing rules just described are actually translated
+by Magic into an underlying, edge-based rule format.  This underlying
+format can handle rules more general than simple widths and spacings,
+and is accessible to the writer of a technology file via \fBedge\fR rules.
+These rules are applied at boundaries between material of
+two different types, in any of four directions as shown in Figure 7.
+The design rule table contains a separate list of rules for each possible
+combination of materials on the two sides of an edge.
+.KF
+.GS C
+file maint2.7.g
+height 2i
+st cf
+.GE
+.(C
+\fBFigure 7\fR.
+Design rules are applied at the edges between tiles in the same plane.
+A rule is specified in terms of type \fIt1\fR and
+type \fIt2\fR, the materials on either side of the edge.
+Each rule may be applied in any of four directions,
+as shown by the arrows.
+The simplest rules require that only certain mask types
+can appear within distance \fId\fR on \fIt2\fR's side of
+the edge.
+.)C
+.KE
+.PP
+In its simplest form, a rule specifies a distance
+and a set of mask types:  only the given types are permitted
+within that distance on \fItype2\fR's side of the edge.
+This area is referred to as the \fIconstraint region\fR.
+Unfortunately, this simple scheme will miss errors
+in corner regions, such as the case shown in Figure 8.
+To eliminate these problems, the full rule format allows the constraint
+region to be extended past the ends of the edge under some
+circumstances.
+See Figure 9 for an illustration of the
+corner rules and how they work.
+Table 13 gives a complete
+description of the information in each design rule.
+.KF
+.GS C
+width 4.5i
+file maint2.8.g
+st cf
+.GE
+.(C
+\fBFigure 8.\fR
+If only the simple rules from Figure 7 are used, errors
+may go unnoticed in corner regions.  For example, the polysilicon
+spacing rule in (a) will fail to detect the error in (b).
+.)C
+.KE
+.PP
+Edge rules are specified in the technology file using the following syntax:
+.(X
+\fBedge\fR \fItypes1 types2 d OKTypes cornerTypes cornerDist error\fR [\fIplane\fR]
+.)X
+Both \fItypes1\fR and \fItypes2\fR are type-lists.
+An edge rule is generated for each pair consisting of a type from
+\fItypes1\fR and a type from \fItypes2\fR.  All the types in \fItypes1\fR,
+\fItypes2\fR, and \fIcornerTypes\fR must lie on a single plane.
+See Figure 9 for an example edge rule.  It is sometimes useful
+to specify a null list, i.e.,  \fB0\fR, for \fIOKTypes\fR or \fICornerTypes\fR.
+Null \fIOKTypes\fR means no edges between \fItypes1\fR and \fItypes2\fR are OK.
+Null \fICornerTypes\fR means no corner extensions are to be
+checked (corner extensions are explained below).
+.KF
+.GS C
+height 3.5i
+file maint2.9.g
+st cf
+.GE
+.(C
+\fBFigure 9.\fR
+The complete design rule format is illustrated in (a).  Whenever
+an edge has \fItype1\fR on its left side and \fItype2\fR on
+its right side, the area A is checked to be sure that
+only \fIOKTypes\fR are present.
+If the material just above and to the left of
+the edge is one of \fIcornerTypes\fR, then area B
+is also checked to be sure that it contains only \fIOKTypes\fR.
+A similar corner check is made at the bottom
+of the edge.  Figure (b) shows a polysilicon spacing rule,
+(c) shows a situation where corner extension is performed
+on both ends of the edge, and
+(d) shows a situation where corner extension
+is made only at the bottom of the edge.
+If the rule described in (d) were to be written as an
+\fBedge\fR rule, it would look like:
+.sp 0.1i
+.in +1i
+\fBedge\fR poly space 2 ~poly ~poly 2 \e
+.br
+      \fI"Poly-poly separation must be at least 2"\fR
+.in -1i
+.)C
+.KE
+.KF
+.TS
+center box;
+l | l
+lI | l.
+Parameter	Meaning
+=
+type1	Material on first side of edge.
+_
+type2	Material on second side of edge.
+_
+d	Distance to check on second side of edge.
+_
+OKTypes	List of layers that are permitted within
+	\fId\fR units on second side of edge.
+	(\fIOKTypes\fR=\fB0\fR means never OK)
+_
+cornerTypes	List of layers that cause corner extension.  
+	(\fIcornerTypes\fR=\fB0\fR means no corner extension)
+_
+cornerDist	Amount to extend constraint area when
+	\fIcornerTypes\fR matches.
+_
+plane	Plane on which to check constraint region (defaults
+	to same plane as \fItype1\fR and \fItype2\fR and
+	\fIcornerTypes\fR).
+.TE
+.(c
+Table 13. The parts of an edge-based rule.
+.)c
+.KE
+.PP
+Some of the edge rules in Magic have the property that if a rule
+is violated between two pieces of geometry, the violation can be
+discovered looking from either piece of geometry toward the other.
+To capitalize on this, Magic normally applies an edge
+rule only in two of the four possible directions: bottom-to-top
+and left-to-right, reducing the work it has to do by a factor of two.
+Also, the corner extension is only performed to one side of the edge:
+to the top for a left-to-right rule, and to the left for a bottom-to-top
+rule.  All of the width and spacing rules translate neatly into edge
+rules.
+.PP
+However, you'll probably find it easiest when you're writing
+edge rules to insist that they be checked in all directions.
+To do this, write the rule the same way except use the keyword
+\fBedge4way\fR instead of \fBedge\fR:
+.(X
+\fBedge4way\fR nfet ndiff 2 ndiff,ndc ndiff 2 \e
+      \fI``Diffusion must overhang transistor by at least 2''\fR
+.)X
+Not only are \fBedge4way\fR rules checked in all four directions,
+but the corner extension is performed on \fIboth\fR sides of the
+edge.  For example, when checking a rule from left-to-right,
+the corner extension is performed both to the top and to the bottom.
+\fBEdge4way\fR rules take twice as much time to check as \fBedge\fR
+rules, so it's to your advantage to use \fBedge\fR rules wherever
+you can.
+.(T
+.TS
+center box;
+lBp10 lp10 lp10 lp10 lp10 lp10 lp10
+l lIp10 s s s s s.
+edge4way	ppcont,ppd	ndiff,ndc,nfet	3	ndiff,ndc,nfet	ndiff,ndc,nfet	3 \e
+	``Ndiff must be 3 wide if it abuts ppcont or ppd (MOSIS rule #??)''
+.T&
+lBp10 lp10 lp10 lp10 lp10 lp10 lp10
+l lIp10 s s s s s.
+edge4way	allPoly	~(allPoly)/active	3	~pc/active	~(allPoly)/active	3 \e
+	``Poly contact must be at least 3 from other poly (MOSIS rule #5B.4,5)''
+.T&
+lBp10 lp10 lp10 lp10 lp10 lp10 lp10
+l lIp10 s s s s s.
+edge4way	allPoly	~(allPoly)/active	1	~m2c/metal2	~(allPoly)/active	1 \e
+	``Via must be on a flat surface (MOSIS rule #8.4,5)'' metal2
+.TE
+.(c
+Table 12d.  Some edge rules in the \fBdrc\fR section.
+.)c
+.)T
+.PP
+Normally, an edge rule is checked completely within a single plane:
+both the edge that triggers the rule and the constraint area to check
+fall in the same plane.  However, the \fIplane\fR argument can be
+specified in an edge rule to force Magic to perform the constraint
+check on a plane different from the one containing the triggering
+edge.  In this case, \fIOKTypes\fR must all be tile types in \fIplane\fR.
+This feature is used, for example, to ensure that
+polysilicon and diffusion edges don't lie underneath metal2 contacts:
+.(X
+\fBedge4way\fR allPoly ~(allPoly)/active 1 ~m2c/metal2 ~(allPoly)/active 1 \e
+	\fI``Via must be on a flat surface (MOSIS rule #8.4,5)''\fR metal2
+.)X
+.NH 2
+Overlap Rules
+.PP
+In order for CIF generation and circuit extraction to work properly,
+certain kinds of overlaps between subcells must be prohibited.  The
+design-rule checker provides two kinds of rules for restricting
+overlaps.  They are
+.(X
+\fBexact_overlap\fI type-list\fR
+\fBno_overlap\fI type-list1 type-list2\fR
+.)X
+In the \fBexact_overlap\fR rule, \fItype-list\fR indicates one
+or more tile types.
+If a cell contains a tile of one of these types and that tile is
+overlapped by another tile of the same type from a different cell,
+then the overlap must be exact:  the tile in each cell must cover
+exactly the same area.  Abutment between tiles from different cells
+is considered to be a partial overlap, so it is prohibited too.
+This rule is used to ensure that the CIF \fBsquares\fR operator
+will work correctly, as described in Section 8.6.  See Table 12e
+for the \fBexact_overlap\fR rule from the standard scmos technology
+file.
+.(T
+.TS
+center box;
+lBp10 lp10.
+exact_overlap	m2c,ndc,pdc,pc,ppcont,nncont
+no_overlap	pfet,nfet\ \ \ pfet,nfet
+.TE
+.(c
+Table 12e.  Exact_overlap rule in the \fBdrc\fR section.
+.)c
+.)T
+.PP
+The \fBno_overlap\fR rule makes illegal any overlap between a tile in
+\fItype-list1\fR and a tile in \fItype-list2\fR.  You should rarely,
+if ever, need to specify \fBno_overlap\fR rules, since
+Magic automatically prohibits many kinds of overlaps between
+subcells.  After reading the technology file, Magic examines the paint
+table and applies the following rule:  if two tile types A and
+B are such that the result of painting A over B
+is neither A nor B, or the result of painting B over A isn't
+the same as the result of painting A over B, then A and B
+are not allowed to overlap.
+Such overlaps are prohibited because they change the
+structure of the circuit.  Overlaps are supposed only to connect
+things without making structural changes.  Thus, for example, poly can
+overlap pcontact without violating the above rules, but
+poly may not overlap diffusion because the result is efet, which
+is neither poly nor diffusion.  The only \fBno_overlap\fR rules
+you should need to specify are rules to keep transistors from
+overlapping other transistors of the same type.
+.NH 2
+Background checker step size
+.PP
+Magic's background design-rule checker breaks large cells up into
+smaller pieces, checking each piece independently.  For very large
+designs, the number of pieces can get to be enormous.
+If designs are large but sparse, the performance of the design-rule
+checker can be improved tremendously by telling it to use a larger
+step size for breaking up cells.  This is done as follows:
+.(X
+\fBstepsize\fI stepsize\fR
+.)X
+which causes each cell to be processed in square pieces
+of at most \fIstepsize\fR by \fIstepsize\fR units.
+It is generally a good idea to pick a large \fIstepsize\fR, but
+one that is small enough so each piece will contain no more than
+100 to 1000 rectangles.
+
+.(T
+.TS
+center box;
+lBp10 lp10.
+extract
+style	lambda=0.7
+lambda	70
+step	100
+sidehalo	4
+
+resist	poly,pfet,nfet 60000
+resist	pc/a 50000
+resist	pdiff,ppd 120000
+resist	ndiff,nnd 120000
+resist	m2contact/m1 1200
+resist	metal1 200
+resist	metal2,pad/m1 60
+resist	ppc/a,pdc/a 100000
+resist	nnc/a,ndc/a 100000
+resist	nwell,pwell 3000000
+
+areacap	poly 33
+areacap	metal1 17
+areacap	metal2,pad/m1 11
+areacap	ndiff,nsd 350
+areacap	pdiff,psd 200
+areacap	ndc/a,nsc/a 367
+areacap	pdc/a,psc/a 217
+areacap	pcontact/a 50
+
+perimc	allMetal1 space 56
+perimc	allMetal2 space 55
+
+overlap	metal1 pdiff,ndiff,psd,nsd 33
+overlap	metal2 pdiff,ndiff,psd,nsd 17 metal1
+overlap	metal1 poly 33
+overlap	metal2 poly 17 metal1
+overlap	metal2 metal1 33
+
+sideoverlap	allMetal1 space allDiff 64
+sideoverlap	allMetal2 space allDiff 60
+sideoverlap	allMetal1 space poly 64
+sideoverlap	allMetal2 space poly 60
+sideoverlap	allMetal2 space allMetal1 70
+
+fet	pfet pdiff,pdc/a 2 pfet Vdd! nwell 0 0
+fet	nfet ndiff,ndc/a 2 nfet GND! pwell 0 0
+end
+.TE
+.(c
+Table 14.  \fBExtract\fR section
+.)c
+.)T
+.NH 1
+Extract section
+.PP
+The \fBextract\fP section of a technology file contains the parameters
+used by Magic's circuit extractor.
+Each line in this section begins
+with a keyword that determines the interpretation of the remainder of
+the line.
+Table 14 gives an example \fBextract\fP section.
+.PP
+This section is like the \fBcifinput\fR and \fBcifoutput\fR sections
+in that it supports multiple extraction styles.  Each style is
+preceded by a line of the form
+.(X
+\fBstyle\fR \fIstylename\fR
+.)X
+All subsequent lines up to the next \fBstyle\fR line or the end
+of the section are interpreted as belonging to extraction style
+\fIstylename\fR.
+If there is no initial \fBstyle\fR line, the first
+style will be named ``default''.
+.PP
+The keywords \fBareacap\fP, \fBperimcap\fP,
+and \fBresist\fP define the capacitance to substrate
+and the sheet resistivity of each of the Magic layers in a layout.
+All capacitances that appear in the \fBextract\fP section are
+specified as an integral number of attofarads (per unit area or perimeter),
+and all resistances as an integral number of milliohms per square.
+.PP
+The \fBareacap\fP keyword is followed by a list of types
+and a capacitance to substrate, as follows:
+.(X
+\fBareacap\fP \fItypes\fP \fIC\fP
+.)X
+Each of the types listed in \fItypes\fP has a capacitance to substrate
+of \fIC\fP attofarads per square lambda.
+Each type can appear in at most one \fBareacap\fP line.
+If a type does not appear in any \fBareacap\fP line,
+it is considered to have zero
+capacitance to substrate per unit area.
+Since most analysis tools compute transistor gate capacitance directly
+from the area of the transistor's gate, Magic should produce node
+capacitances that do not include gate capacitances.  To ensure
+this, all transistors should have zero \fBareacap\fR values.
+.PP
+The \fBperimcap\fP keyword is followed by two type-lists
+and a capacitance to substrate, as follows:
+.(X
+\fBperimcap\fP \fIintypes\fP \fIouttypes\fP \fIC\fP
+.)X
+Each edge that has one of the types in \fIintypes\fP
+on its inside, and one of the types in \fIouttypes\fP on its outside,
+has a capacitance to substrate of \fIC\fP attofarads per lambda.
+This can also be used as an approximation of the effects due
+to the sidewalls of diffused areas.
+As for \fBareacap\fP, each unique combination of an \fIintype\fP
+and an \fIouttype\fP may appear at most once in a \fBperimcap\fP line.
+Also as for \fBareacap\fP, if a combination of \fIintype\fP and
+\fIouttype\fP does not appear in any \fBperimcap\fP line, its
+perimeter capacitance per unit length is zero.
+.PP
+The \fBresist\fP keyword is followed by a type-list
+and a resistance as follows:
+.(X
+\fBresist\fP \fItypes\fP \fIR\fP
+.)X
+The sheet resistivity of each of the types in \fItypes\fP is
+\fIR\fP milliohms per square.
+.PP
+Each \fBresist\fR line in fact defines a ``resistance class''.
+When the extractor outputs the area and perimeter of nodes in
+the \fB.ext\fR file, it does so for each resistance class.
+Normally, each resistance class consists of all types with
+the same resistance.
+However, if you wish to obtain the perimeter and area of each
+type separately in the \fB.ext\fR file, you should make each
+into its own resistance class by using a separate \fBresist\fR
+line for each type.
+.PP
+In addition to sheet resistivities, there are two other ways
+of specifying resistances.  Neither is used by the normal
+Magic extractor, but both are used by the resistance extractor.
+Contacts have a resistance that is inversely proportional to
+the number of via holes in the contact, which is proportional
+(albeit with quantization) to the area of the contact.  The
+\fBcontact\fR keyword allows the resistance for a single
+via hole to be specified:
+.(X
+\fBcontact\fR \fItypes size R\fR
+.)X
+where \fItypes\fR is a comma-separated list of types, \fIsize\fR
+is in lambda, and \fIR\fR is in milliohms.  \fISize\fR is interpreted
+as a hole-size quantum; the number of holes in a contact is equal to
+its width divided by \fIsize\fR times its length divided by \fIsize\fR,
+with both quotients rounded down to the nearest integer.  The resistance
+of a contact is \fIR\fR divided by the number of holes.
+.PP
+Transistors also have resistance information associated with them.
+However, a transistor's resistance may vary depending on a number
+of variables, so a single parameter is generally insufficient to
+describe it.  The \fBfetresist\fR line allows sheet resistivities
+to be given for a variety of different configurations:
+.(X
+\fBfetresist\fR \fIfettypes region R\fR
+.)X
+where \fIfettypes\fR is a comma-separated list of transistor types
+(as defined in \fBfet\fR lines below), \fIregion\fR is a string
+used to distinguish between resistance values for a fet if more
+than one is provided (the special \fIregion\fR value of ``\fBlinear\fR''
+is required for the resistance extractor), and \fIR\fR is the on-resistance
+of the transistor in ohms per square (\fInot\fR milliohms; there would
+otherwise be too many zeroes).
+.PP
+Magic also extracts internodal coupling capacitances, as
+illustrated in Figure 10.
+The keywords
+\fBoverlap\fP, \fBsidewall\fP, \fBsideoverlap\fP, and \fBsidehalo\fP
+provide the parameters needed to do this.
+.PP
+Overlap capacitance is between pairs of tile types,
+and is described by the \fBoverlap\fP keyword as follows:
+.(X
+\fBoverlap\fP \fItoptypes bottomtypes cap\fR [\fIshieldtypes\fR]
+.)X
+where \fItoptypes\fP, \fIbottomtypes\fP, and optionally
+\fIshieldtypes\fR are type-lists and \fIcap\fP
+is a capacitance in attofarads per square lambda.
+The extractor searches for tiles whose types are in \fItoptypes\fP
+that overlap tiles whose types are in \fIbottomtypes\fP, and
+that belong to different electrical nodes.
+(The planes of \fItoptypes\fR and \fIbottomtypes\fR must be disjoint).
+When such an overlap is found, the capacitance to substrate
+of the node of the tile in \fItoptypes\fP is deducted for the
+area of the overlap,
+and replaced by a capacitance to the node of the tile in \fIbottomtypes\fP.
+.KF
+.GS C
+width 3.8i
+file maint2.10.g
+st cf
+.GE
+.(C
+\fBFigure 10.\fR
+Magic extracts three kinds of internodal coupling capacitance.
+This figure is a side view of a set of masks that shows
+all three kinds of capacitance.
+\fIOverlap\fP capacitance is parallel-plate capacitance between
+two different kinds of material when they overlap.
+\fIParallel wire\fP capacitance is fringing-field capacitance
+between the parallel vertical edges of two pieces of material.
+\fISidewall overlap\fP capacitance is fringing-field
+capacitance between the vertical edge of one piece of material
+and the horizontal surface of another piece of material that overlaps
+the vertical edge.
+.)C
+.KE
+.PP
+If \fIshieldtypes\fR are specified, overlaps between \fItoptypes\fR
+and \fIbottomtypes\fR that also overlap a type in \fIshieldtypes\fR
+are not counted.
+The types in \fIshieldtypes\fR must appear on a different plane 
+(or planes) than any of the types in \fItoptypes\fR or \fIbottomtypes\fR.
+.KF
+.GS C
+height 2.0i
+file maint2.11.g
+st cf
+.GE
+.(C
+\fBFigure 11.\fR
+Parallel wire capacitance is between pairs of edges.
+The capacitance applies between the tiles \fItinside\fP
+and \fItfar\fP above, where \fItinside\fP's type is
+one of \fIintypes\fP, and \fItfar\fP's type is
+one of \fIfartypes\fP.
+.)C
+.KE
+.PP
+Parallel wire capacitance is between pairs of edges, and
+is described by the \fBsidewall\fP keyword:
+.(X
+\fBsidewall\fP \fIintypes outtypes neartypes fartypes cap\fP
+.)X
+where \fIintypes\fP, \fIouttypes\fP, \fIneartypes\fP, and \fIfartypes\fP
+are all type-lists, described in
+Figure 11.
+\fICap\fP is half the capacitance
+in attofarads per lambda when the edges are 1 lambda apart.
+Parallel wire coupling capacitance is computed as being
+inversely proportional to the
+distance between two edges: at 2 lambda separation, it is equal
+to the value \fIcap\fP; at 4 lambda separation, it is half of \fIcap\fP.
+This approximation is not very good, in that it tends to overestimate
+the coupling capacitance between wires that are farther apart.
+.PP
+To reduce the amount of searching done by Magic, there is a
+threshold distance beyond which the effects of parallel wire
+coupling capacitance are ignored.
+This is set as follows:
+.(X
+\fBsidehalo\fP \fIdistance\fP
+.)X
+where \fIdistance\fP is the maximum distance between two edges
+at which Magic considers them to have parallel wire coupling capacitance.
+\fBIf this number is not set explicitly in the technology file,
+it defaults to 0, with the result that no parallel wire
+coupling capacitance is computed.\fR
+.PP
+Sidewall overlap capacitance is between material on the inside
+of an edge and overlapping material of a different type.
+It is described by the \fBsideoverlap\fP keyword:
+.(X
+\fBsideoverlap\fP \fIintypes outtypes ovtypes cap\fP
+.)X
+where \fIintypes\fP, \fIouttypes\fP, and \fIovtypes\fP are type-lists
+and \fIcap\fP is capacitance in attofarads per lambda.
+This is the capacitance associated with an edge with a type
+in \fIintypes\fP on its inside and a type in \fIouttypes\fP on
+its outside, that overlaps a tile whose type is in \fIovtypes\fP.
+See Figure 10.
+.PP
+Transistors are represented in Magic by explicit tiletypes.
+The extraction of a fet (with gate, sources, and drains)
+from a collection of transistor tiles is governed by the
+information in a \fBfet\fP line.  This line has the following
+format:
+.(X
+\fBfet\fP \fItypes dtypes min-nterms name snode \fR[\fIstypes\fR]\fI gscap gccap\fP
+.)X
+\fITypes\fP is a list of those tiletypes that
+make up this type of transistor.  Normally, there will be only
+one type in this list, since Magic usually represents each
+type of transistor with a different tiletype.
+.PP
+\fIDtypes\fP is a list of those tiletypes
+that connect to the diffusion terminals of the fet.
+Each transistor of this type must have at least \fImin-nterms\fP
+distinct diffusion terminals; otherwise, the extractor will
+generate an error message.
+For example, an \fBefet\fP in the scmos technology must have
+a source and drain in addition to its gate; \fImin-nterms\fP
+for this type of fet is 2.
+The tiletypes connecting to the gate of the fet are the same
+as those specified in the \fBconnect\fP section as connecting
+to the fet tiletype itself.
+.PP
+\fIName\fP is a string used to identify this type of transistor
+to simulation programs.
+.PP
+The substrate terminal of a transistor is determined in one
+of two ways.
+If \fIstypes\fR
+(a comma-separated list of tile types) is given, and
+a particular transistor overlaps one of those types,
+the substrate terminal will be connected to the node
+of the overlapped material.
+Otherwise, the substrate terminal will be connected
+to the node with the global name of \fIsnode\fP
+(which \fImust\fR be a global name, i.e., end in
+an exclamation point).
+.PP
+\fIGscap\fP is the capacitance between the transistor's gate
+and its diffusion terminals, in attofarads per lambda.
+Finally, \fIgccap\fP is the capacitance between the gate
+and the channel, in attofarads per square lambda.
+.I
+Currently, \fIgscap\fR and \fIgccap\fR are unused by the extractor.
+.R
+.PP
+Often the units in the extracted circuit for a cell will always
+be multiples of certain basic units larger than centimicrons
+for distance, attofarads for capacitance, or milliohms for resistance.
+To allow larger units to be used in the \fB.ext\fP file for this
+technology, thereby reducing the file's size,
+the \fBextract\fP section may specify a scale
+for any of the three units, as follows:
+.(X
+\fBcscale\fP \fIc\fP
+\fBlambda\fP \fIl\fP
+\fBrscale\fP \fIr\fP
+.)X
+In the above, \fIc\fP is the number of attofarads per unit capacitance
+appearing in the \fB.ext\fP files, \fIl\fP is the number of centimicrons
+per unit length, and \fIr\fP is the number of milliohms per unit
+resistance.  All three must be integers;
+\fIr\fP should divide evenly all the resistance-per-square values
+specified as part of \fBresist\fP lines,
+and \fIc\fP should divide evenly all the capacitance-per-unit values.
+.PP
+Magic's extractor breaks up large cells into chunks
+for hierarchical extraction, to avoid having to process too
+much of a cell all at once and possibly run out of memory.
+The size of these chunks is determined by the \fBstep\fR
+keyword:
+.(X
+\fBstep\fR \fIstep\fR
+.)X
+This specifies that chunks of \fIstep\fR units by \fIstep\fR units
+will be processed during hierarchical extraction.  The default
+is \fB100\fR units.
+Be careful about changing \fIstep\fR; if it is too small then
+the overhead of hierarchical processing will increase, and if
+it is too large then more area will be processed during
+hierarchical extraction than necessary.
+It should rarely be necessary to change \fIstep\fR unless the
+minimum feature size changes dramatically; if so, a value of about
+50 times the minimum feature size appears to work fairly well.
+
+.(T
+.TS
+center box;
+lp10.
+\fBwiring\fR
+\fBcontact\fR pdcontact 4 metal1 0 pdiff  0
+\fBcontact\fR ndcontact 4 metal1 0 ndiff  0
+\fBcontact\fR pcontact  4 metal1 0 poly   0
+\fBcontact\fR m2contact 4 metal1 0 metal2 0
+\fBend\fR
+.TE
+.(c
+Table 15.  \fBWiring\fR section
+.)c
+.)T
+
+.NH 1
+Wiring section
+.PP
+The \fBwiring\fR section provides information used by the \fB:wire switch\fR
+command to generate contacts.
+See Table 15 for the \fBwiring\fR section from the scmos
+technology file.  Each line in the section has the syntax
+.(X
+\fBcontact\fI type minSize layer1 surround1 layer2 surround2\fR
+.)X
+\fIType\fR is the name of a contact layer, and \fIlayer1\fR and \fIlayer2\fR
+are the two wiring layers that it connects.  \fIMinSize\fR is the
+minimum size of contacts of this type.  If \fISurround1\fR is non-zero,
+then additional material of type \fIlayer1\fR will be painted for
+\fIsurround1\fR units around contacts of \fItype\fR.  If \fIsurround2\fR
+is non-zero, it indicates an overlap distance for \fIlayer2\fR.
+.PP
+During \fB:wire switch\fR commands, Magic scans the wiring information
+to find a contact whose \fIlayer1\fR and \fIlayer2\fR correspond to the
+previous and desired new wiring materials (or vice versa).
+If a match is found, a
+contact is generated according to \fItype\fR, \fIminSize\fR, \fIsurround1\fR,
+and \fIsurround2\fR.
+
+.NH 1
+Router section
+.PP
+The \fBrouter\fR section of a technology file provides information
+used to guide the automatic routing tools.  The section contains four
+lines.  See Table 16 for an example \fBrouter\fR section.
+.(T
+.TS
+center box;
+lp10.
+\fBrouter\fR
+\fBlayer1\fR metal1 3 allMetal1 3
+\fBlayer2\fR metal2 3 allMetal2 4 allPoly,allDiff 1
+\fBcontacts\fR m2contact 4
+\fBgridspacing\fR 8
+end
+.TE
+.(c
+Table 16.  \fBRouter\fR section
+.)c
+.)T
+.PP
+The first two lines have the keywords \fBlayer1\fR and \fBlayer2\fR
+and the following format:
+.(X
+\fBlayer1\fR \fIwireType wireWidth type-list distance type-list distance\fR ...
+.)X
+They define the two layers used for routing.  After the \fBlayer1\fR
+or \fBlayer2\fR keyword are two fields giving the name of the material
+to be used for routing that layer and the width to use for its wires.
+The remaining fields are used by Magic to avoid routing over existing
+material in the channels.  Each pair of fields contains a list of
+types and a distance.  The distance indicates how far away the given
+types must be from routing on that layer.  Layer1 and layer2
+are not symmetrical:  wherever possible, Magic will try to
+route on layer1 in preference to layer2.  Thus, in a single-metal
+process, metal should always be used for layer1.
+.PP
+The third line provides information about contacts.  It has the format
+.(X
+\fBcontacts\fI contactType size \fR[\fIsurround1 surround2\fR]
+.)X
+The tile type \fIcontactType\fR
+will be used to make contacts between layer1 and layer2.  Contacts
+will be \fIsize\fR units square.  In order to avoid placing contacts
+too close to hand-routed material, Magic assumes that both the layer1
+and layer2 rules will apply to contacts.  If \fIsurround1\fR and
+\fIsurround2\fR are present, they specify overlap distances around
+contacts for layer1 and layer2:  additional layer1 material will be
+painted for \fIsurround1\fR units around each contact, and additional
+layer2 material will be painted for \fIsurround2\fR units around
+contacts.
+.PP
+The last line of the \fBrouting\fR section indicates the size of
+the grid on which to route.  It has the format
+.(X
+\fBgridspacing \fIdistance\fR
+.)X
+The \fIdistance\fR must be chosen large enough that
+contacts and/or wires on adjacent grid lines will not generate
+any design rule violations.
+.(T
+.TS
+center box;
+lp10 s
+lBp10 ap10.
+plowing
+fixed	pfet,nfet,glass,pad
+covered	pfet,nfet
+drag	pfet,nfet
+.T&
+lBp10.
+end
+.TE
+.(c
+Table 17.  \fBPlowing\fR section
+.)c
+.)T
+.NH 1
+Plowing section
+.PP
+The \fBplowing\fP section of a technology file identifies those types
+of tiles whose sizes and shapes should not be changed as a result of plowing.
+Typically, these types will be transistors and buried contacts.
+The section currently contains three kinds of lines:
+.(X
+\fBfixed\fR \fItypes\fR
+\fBcovered\fR \fItypes\fR
+\fBdrag\fR \fItypes\fR
+.)X
+where \fItypes\fR is a type-list.
+Table 17 gives this section for the scmos technology file.
+.PP
+In a \fBfixed\fR line,
+each of \fItypes\fR is considered to be fixed-size;
+regions consisting of tiles of these types are not deformed by plowing.
+Contact types are always considered to be fixed-size, so need not
+be included in \fItypes\fR.
+.PP
+In a \fBcovered\fR line,
+each of \fItypes\fR will remain ``covered'' by plowing.
+If a face of a covered type is covered with a given type
+before plowing, it will remain so afterwards.
+For example, if a face of a transistor is covered by diffusion,
+the diffusion won't be allowed to slide along the transistor
+and expose the channel to empty space.
+Usually, you should make all fixed-width types covered
+as well, except for contacts.
+.PP
+In a \fBdrag\fR line,
+whenever material of a type in \fItypes\fR moves, it will drag
+with it any minimum-width material on its trailing side.  This
+can be used, for example, to insure that when a transistor moves,
+the poly-overlap forming its gate gets dragged along in its entirety,
+instead of becoming elongated.
+.(T
+.TS
+center box;
+lp10 lp10 lp10.
+\fBplot\fR
+\fBstyle\fR	gremlin
+	poly,efet,dfet,bc,pcontact/active 	18
+	diff,efet,dfet,bc,ndc/active	22
+	metal1,ndc/metal1,pcontact/metal1	11
+	pcontact/metal1,ndc/metal1,bc		X
+\fBstyle\fR	versatec
+	poly,efet,dfet,bc,pcontact/active	0808 0404 0202 0101 \e
+		8080 4040 2020 1010 \e
+		0808 0404 0202 0101 \e
+		8080 4040 2020 1010
+	diff,efet,dfet,bc,ndc/active	0000 4242 6666 0000 \e
+		0000 2424 6666 0000 \e
+		0000 4242 6666 0000 \e
+		0000 2424 6666 0000
+	metal1,ndc/metal1,pcontact/metal1	8080 0000 0000 0000 \e
+		0808 0000 0000 0000 \e
+		8080 0000 0000 0000 \e
+		0808 0000 0000 0000
+	pcontact/metal1,ndc/metal1,bc	X
+\fBstyle\fR	colorversatec
+	poly,efet,dfet,bc,pcontact/active magenta	0808 0404 0202 0101 \e
+		8080 4040 2020 1010 \e
+		0808 0404 0202 0101 \e
+		8080 4040 2020 1010
+	diff,efet,dfet,bc,ndc/active yellow	0000 4242 6666 0000 \e
+		0000 2424 6666 0000 \e
+		0000 4242 6666 0000 \e
+		0000 2424 6666 0000
+	metal1,ndc/metal1,pcontact/metal1 cyan	8080 0000 0000 0000 \e
+		0808 0000 0000 0000 \e
+		8080 0000 0000 0000 \e
+		0808 0000 0000 0000
+	pcontact/metal1,ndc/metal1,bc	X
+\fBend\fR
+.TE
+.(c
+Table 17.  Sample \fBplot\fR section (for an NMOS process)
+.)c
+.)T
+.NH 1
+Plot section
+.PP
+The \fBplot\fR section of the technology file contains information
+used by Magic to generate hardcopy plots of layouts.  Plots can
+be generated in different styles, which correspond to different
+printing mechanisms.  For each style of printing, there is a separate
+subsection within the \fBplot\fR section.  Each subsection is
+preceded by a line of the form
+.(X
+\fBstyle\fI styleName\fR
+.)X
+Right now, only \fBgremlin\fR, \fBversatec\fR, and \fBcolorversatec\fR
+styles are supported.
+.PP
+Within the \fBgremlin\fR subsection, lines must have one of three forms:
+.(X
+\fItype-list stippleNumber\fR
+\fItype-list \fBX\fR
+\fItype-list \fBB\fR
+.)X
+The first form of line associates a Gremlin stipple number with all
+Magic layers in \fItype-list\fR.  When Gremlin files are generated,
+all areas covered by \fItype-list\fR will appear as stippled areas
+filled with stipple \fIstippleNumber\fR and bordered with thin
+solid lines.  The second form is designed for contacts.  It causes
+each tile in \fItype-list\fR to be outlined with a medium-thickness
+line with an additional medium-thickness ``X'' drawn between
+opposite corners.  The \fBB\fR specification is identical to \fBX\fR
+except that only the border is drawn, without the diagonal ``X''.
+.PP
+Within the \fBversatec\fR subsection, lines may also be in either
+of three forms:
+.(X
+\fItype-list pat0 pat1 ... pat15\fR
+\fItype-list \fBX\fR
+\fItype-list \fBB\fR
+.)X
+In the first case, the material of types \fItype-list\fR is rendered
+with a stipple pattern given by 16 hexadecimal numbers.  Each number
+contains four hex digits;  the result is a 16-by-16 bit pattern of
+1's and 0's.  A one means that the corresponding bit of the output
+file is set and a zero means that the bit is not modified when this
+layer is rendered (thus the patterns from different \fItype-list\fRs
+will OR together).  \fIPat0\fR specifies the top line of the stipple
+pattern;  within each pattern, the most significant bit corresponds
+to the leftmost bit within the line of the stipple pattern.
+Stippled areas area also bordered by thin solid lines.
+The second and third forms (\fBX\fR and \fBB\fR) are similar to
+the second and third forms for \fBgremlin\fR
+lines: Magic outlines tiles in \fItype-list\fR with medium-thickness
+lines and also draws crosses through the tiles if \fBX\fR is
+given.
+.PP
+The \fBcolorversatec\fR subsection is just like the \fBversatec\fR
+section except the stipple lines can also specify a color:
+.(X
+\fItype-list color pat0 pat1 ... pat15\fR
+.)X
+where \fIcolor\fR is one of \fBblack\fR, \fBcyan\fR, \fBmagenta\fR,
+or \fByellow\fR.  This color is the dye that will be used for the
+stipple in the plot.
+Multicolored stipples may be obtained by listing the same \fItype-list\fR
+and stipple patterns two or more times, each with a different \fIcolor\fR.
+.PP
+For \fBversatec\fR plotting there are a number of parameters that
+can be set directly by users, such as the printer width.  These
+parameters allow users to reconfigure the system for different
+kinds of plotters and different spooling mechanisms.  See the manual
+page for details.  
+You may want to modify your system \fB.magic\fR
+file to set up default parameters for your printer.
+
+.NH 1
+Installing a Technology File
+.PP
+As mentioned earlier, ``raw'' technology files cannot be read directly
+by Magic.
+The C preprocessor must first be used to eliminate comments
+and expand macros in a technology file before it gets installed.
+As a consequence, the full power of the C preprocessor
+is available to the writer of a technology file.
+Not only may macro definitions be made with \fB#define\fR, but
+``conditional compilation'' using \fB#ifdef\fR and the ability to
+use other files via the \fB#include\fR mechanism are possible.
+.PP
+Technology files are installed
+as a file of the name \fItechname\fB.tech\fIn\fR.
+The numeric version suffix \fIn\fR (currently \fB26\fR)
+is added to the final \fB.tech\fR when the file
+is installed, and allows multiple versions of the technology
+file to coexist in the same directory.
+There is a shell script, \fBtech/:techinstall\fR, to do all
+the necessary processing to install a new technology file.
+.PP
+Technology files can be installed in any directory.  When Magic is
+run, it searches for a technology file first in the current directory
+and next in the system library directory, \fB~cad/lib/magic/sys\fR.
+To install a new technology file whose source is \fItechname\fB.tech\fR, run:
+.(X
+\fBtech/:techinstall\fR \fItechname\fB.tech\fR \fIvers\fR \fIdir\fR
+.)X
+where \fIdir\fR is the directory in which the technology file is to be
+installed, and \fIvers\fP is the proper version suffix to insure
+that this technology file is readable by the latest version of Magic.
+See the Makefile in \fBtech\fP for the string
+\fBVERSION\fP, which defines the current version number.

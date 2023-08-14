@@ -1,0 +1,7 @@
+#!/bin/csh -f
+# rcsid "$Header: :newdate,v 1.6 89/04/03 14:46:41 mayo Exp $"
+mv magicTop.c magicTop.c.tmp
+fgrep -v 'char *MagicVersion' < magicTop.c.tmp > magicTop.c
+chmod +w magicTop.c.tmp >& /dev/null
+rm magicTop.c.tmp
+echo 'char *MagicVersion = "Magic -' "Version 4.`cat version` - Last updated `date`" ' \n";' >> magicTop.c

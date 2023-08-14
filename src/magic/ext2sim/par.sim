@@ -1,0 +1,12 @@
+| units: 150	tech: scmos
+n Phi1 right/GND right/Vdd 3 7 59 13
+n Phi1 GND Vdd 3 7 9 13
+C Vdd GND 60
+R Vdd 75
+R GND 69
+C right/Vdd GND 60
+R right/Vdd 75
+C right/GND GND 56
+R right/GND 69
+C Phi1 GND 51
+R Phi1 1136

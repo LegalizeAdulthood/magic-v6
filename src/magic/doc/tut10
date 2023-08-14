@@ -1,0 +1,503 @@
+
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+\" rcsid "$Header"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.sp .5c
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Tutorial #10: The Interactive Router\fR
+.rm CH
+.ds LH Magic Tutorial #10: The Interactive Router
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIMichael Arnold\fR
+.sp 1c
+O Division
+Lawrence Livermore National Laboratory
+Livermore, CA  94550
+
+
+.SM
+This tutorial corresponds to Magic version 6, and Irouter version 0.6.
+
+
+.DE
+.SM
+.LP
+\fBTutorials to read first:\fR
+.IP
+Magic Tutorial #1: Getting Started
+.br
+Magic Tutorial #2: Basic Painting and Selection
+.br
+Magic Tutorial #4: Cell Hierarchies
+.DE
+.LP
+\fBCommands covered in this tutorial:\fR
+.IP
+:iroute
+.LP
+\fBMacros covered in this tutorial:\fR
+.IP
+Cntl-R, Cntl-N
+.br
+.NL
+.sp 1c
+.NH 1
+Introduction
+.PP
+The Magic interactive router, \fIIrouter\fR, provides an interactive interface
+to Magic's internal maze router.  It is intended as an aid to manual
+routing.  Routing is done one connection at a time, the user specifying 
+a starting point and destination areas prior to each connection.  The user 
+determines the order in which signals are routed and how multi-point nets
+are decomposed into point-to-area connections.  In addition parameters and
+special Magic \fIhint\fR layers permit the user to control the nature
+of the routes.  Typically the user determines the overall path of a connection,
+and leaves the details of satisfying the design-rules, and detouring around or 
+over minor obstacles, to the router.
+.PP
+The interactive router is not designed for fully 
+automatic routing:  interactions between nets 
+are not considered, and net decomposition is 
+not automatic.  Thus netlists are generally
+not suitable input for the Irouter.  However it can be convenient to obtain
+endpoint information from netlists.  The \fINet2ir\fR program uses
+netlist information to generate commands 
+to the Irouter with appropriate endpoints for specified
+signals.  Typically a user might
+setup parameters and hints to river-route a set of connections,
+and then generate Irouter commands with the appropriate endpoints via
+Net2ir.  For details on Net2ir see the
+manual page \fInet2ir(1)\fR.
+.PP
+This tutorial provides detailed information on the use 
+of the Irouter.  On-line help, Irouter 
+subcommands, Irouter parameters, and hint-layers are explained.
+.NH 1
+Getting Started - `Cntl-R', `Cntl-N', `:iroute' and `:iroute help'
+.PP
+To make a connection with the Irouter, place the cursor over one
+end of the desired connection (the \fIstart-point\fR) and the box at the other
+end (the \fIdestination-area\fR).  Then type
+.DS C
+\fBCntl-R\fR
+.DE
+Note that the box must be big 
+enough to allow the route to terminate entirely within it.  A 
+design-rule correct connection between the cursor and the box should 
+appear.  The macro 
+.DS C
+\fBCntl-R\fR
+.DE
+and the long commands
+.DS C
+\fB:iroute\fR
+\fB:iroute route\fR
+.DE
+are all equivalent.  They invoke the Irouter to connect the cursor with
+the interior of the box.  Note that the last connection is always left
+selected.   This allows further terminals to be
+connected to the route with the second Irouter macro, \fBCntl-N\fR.  Try
+typing
+.DS C
+\fBCntl-N\fR
+.DE
+A connection between the cursor and the previous route should appear.  In
+general \fBCntl-N\fR routes from the cursor to the selection.
+.PP
+There are a number of commands to set parameters and otherwise interact with
+the Irouter.  These commands have the general form
+.DS C
+\fB:iroute\fI subcommand \fR[\fIarguments\fR]
+.DE
+For a list of subcommands and a short description of each, type
+.DS C
+\fB:iroute help\fR
+.DE
+Usage information on a subcommand can be obtained by typing
+.DS C
+\fB:iroute help \fR[\fIsubcommand\fR]
+.DE
+As with Magic in general, unique abbreviations of subcommands and most of their
+arguments are permitted.  Case is generally ignored.
+.NH 1
+:Undo and Cntl-C
+.PP
+As with other Magic commands, the results of \fB:iroute\fR can be undone
+with \fB:undo\fR, and if the Irouter is taking too long it can be interrupted
+with \fBCntl-C\fR.  This makes it easy to refine the results of the Irouter
+by trial and error.  If you don't like the
+results of a route, undo it, tweak the Irouter parameters or hints you are
+using and try again.  If the Irouter is taking too long, you can very
+likely speed things up by interrupting it, resetting 
+performance related parameters, and trying again.  The details of 
+parameters and
+hints are described later in this document.
+.NH 1
+More about Making Connections - `:iroute route'
+.PP
+Start points for routes can be specified via the cursor, 
+labels, or coordinates.  Destination areas can be specified via the box,
+labels, coordinates or the selection.  In addition start and destination
+layers can be specified explicitly.  For the syntax of all these options
+type
+.DS C
+\fB:iroute help route\fR
+.DE
+When a start point lies on top of existing geometry
+it is assumed that a connection to that material is desired.  If this is
+not the case, the desired starting layer must be explicitly
+specified.  When routing to the selection it is assumed that connection
+to the selected material is desired.  By default, routes to the box 
+may terminate on any active route layer.  If you are having trouble connecting 
+to a large region, it may
+be because the connection point or area is too far in the interior of the
+region.  Try moving it toward the edge.  (Alternately see the discussion
+of the \fIpenetration\fR parameter in the wizard section below.)
+.NH 1
+Hints
+.PP
+Magic has three built-in layers for graphical 
+control of the Irouter, \fBfence\fR (\fBf\fR), 
+\fBmagnet\fR (\fBmag\fR), and \fBrotate\fR (\fBr\fR).  These layers
+can be painted and erased just like other Magic layers.  The effect 
+each has on the Irouter is described below.
+.NH 2
+The Fence Layer
+.PP
+The Irouter won't cross fence boundaries.  Thus the fence layer is useful
+both for carving out routing-regions and for blocking routing in given
+areas.  It is frequently useful to indicate the broad path of one or
+a series of routes with fence.  In addition to guiding the route, the
+use of fences can greatly speed up the router by limiting the search.
+.NH 2
+The Magnet Layer
+.PP
+Magnets attract the route.  They can be used to pull routes in a
+given direction, e.g., towards one edge of a channel.  Over use of
+magnets can make routing slow.  In particular magnets that are long and
+far away from the actual route can cause performance problems.  (If
+you are having problems with magnets and performance, see also the 
+discussion of the
+\fIpenalty\fR parameter in the wizard section below.)
+.NH 2 
+The Rotate Layer
+.PP
+The Irouter associates different weights with horizontal and vertical
+routes (see the layer-parameter section below).  This is so that 
+a preferred routing direction can be established for each layer.  When
+two good route-layers are available (as in a two-layer-metal process)
+interference between routes can be minimized by assigning opposite
+preferred directions to the layers.
+.PP
+The rotate layer locally inverts the preferred directions.  An example
+use of the rotate layer might involve an \fBL\fR-shaped bus.
+The natural preferred directions on one leg of the \fBL\fR are the opposite
+from the other, and thus one leg needs to be 
+marked with the rotate layer.
+.NH 1
+Subcells
+.PP
+As with painting and other operations in Magic, the Irouter's
+output is written to the cell being edited.  What the router sees, that
+is which features act as obstacles, is determined by the
+window the route is issued to (or other designated reference window -
+see the wizard
+section.)  The contents of subcells expanded in the route window 
+are visible to the Irouter, but it only sees the bounding boxes
+of unexpanded subcells.  These bounding boxes appear on a special 
+\fBSUBCELL\fR  pseudo-layer.  The spacing parameters to the \fBSUBCELL\fR
+layer determine exactly how the Irouter treats unexpanded subcells.
+(See the section on spacing parameters below.)  By default, the
+spacings to the \fBSUBCELL\fR layer are large enough to guarantee that
+no design-rules will be violated, regardless of the contents of 
+unexpanded subcells.  Routes can be terminated
+at unexpanded subcells in the same fashion that connections to 
+other pre-existing features are made.
+.NH 1
+Layer Parameters - `:iroute layers'
+.PP
+\fIRoute-layers\fR, specified in the \fBmzrouter\fR section of the
+technology file, are the layers potentially available
+to the Irouter for routing.  The \fBlayer\fR subcommand gives access
+to parameters associated with these route-layers.   Many of the
+parameters are weights for factors in the Irouter cost-function.  The
+Irouter strives for the cheapest possible route.  Thus the balance between
+the factors in the cost-function determines the character of the
+routes:  which layers are used in which directions, and the number of
+contacts and jogs can be controlled in this way.  But
+be careful!  Changes in these parameters can also
+profoundly influence performance.  Other parameters determine 
+which of the route-layers are actually available for routing and
+the width of routes on each layer.  It is a good idea to inactivate
+route-layers not being used anyway, as this speeds up routing.
+.PP
+The layers subcommand takes a variable number of arguments.
+.DS C
+\fB:iroute layers\fR
+.DE
+prints a table with one row for each route-layer giving all parameter
+values.
+.DS C
+\fB:iroute layers\fI type\fR
+.DE
+prints all parameters associated with route-layer \fItype\fR.
+.DS C
+\fB:iroute layers\fI type parameter\fR
+.DE
+prints the value of \fIparameter\fR for layer \fItype\fR.  If \fItype\fR is
+`\fB*\fR', the value of \fIparameter\fR is printed for all layers.
+.DS C
+\fB:iroute layers \fItype parameter value\fR
+.DE
+sets \fIparameter\fR to \fIvalue\fR on layer \fItype\fR.  If \fItype\fR
+is `\fB*\fR', \fIparameter\fR is set to \fIvalue\fR on
+all layers.
+.DS C
+\fB:iroute layers \fItype \fB*\fI value1 value2 \fR...\fI valuen\fR
+.DE
+sets a row in the parameter table.
+.DS C
+\fB:iroute layers *\fI parameter value1 ... valuen\fR 
+.DE
+sets a column in the table.
+.PP
+There are six layer parameters.
+.IP \fBactive\fR
+.br
+Takes the value of \fBYES\fR (the default) or \fBNO\fR.  Only
+active layers are used by the Irouter.
+.IP \fBwidth\fR
+.br
+Width of routing created by the Irouter on the given layer.  The
+default is the minimum width permitted by the design rules.
+.IP \fBhcost\fR
+.br
+Cost per unit-length for horizontal segments on this layer.
+.IP \fBvcost\fR
+.br
+Cost per unit-length for vertical segments.
+.IP \fBjogcost\fR
+.br
+Cost per jog (transition from horizontal to vertical segment).
+.IP \fBhintcost\fR
+.br
+Cost per unit-area between actual route and magnet segment.  
+.NH 1
+Contact Parameters - `:iroute contacts'
+.PP
+The \fBcontacts\fR subcommand gives access to a table of parameters for 
+contact-types used in routing, one row of parameters per type.  The syntax is 
+identical to that of the \fBlayers\fR subcommand described above, and 
+parameters are printed and set in the same way.
+.PP
+There are three contact-parameters.
+.IP \fBactive\fR
+.br
+Takes the value of \fBYES\fR (the default) or \fBNO\fR.  Only
+active contact types are used by the Irouter.
+.IP \fBwidth\fR
+.br
+Diameter of contacts of this type created by the Irouter.  The
+default is the minimum width permitted by the design-rules.
+.IP \fBcost\fR
+.br
+Cost per contact charged by the Irouter cost-function.
+.NH 1
+Spacing Parameters - `:iroute spacing'
+.PP
+The spacing parameters specify minimum
+spacings between the route-types
+(route-layers and route-contacts) and arbitrary Magic types.
+These spacings are the design-rules
+used internally by the Irouter during routing.  Default
+values are derived from the \fBdrc\fR section
+of the technology file.  These values can be
+overridden in the \fBmzrouter\fR section of the 
+technology file.  (See the \fIMagic Maintainers Manual on Technology Files\fR
+for details.)  Spacings can be examined and changed at any
+time with the \fBspacing\fR subcommand.  Spacing values can
+be \fBnil\fR, \fB0\fR, or positive integers.  A value of \fBnil\fR
+means there is no spacing constraint between the route-layer and the given type.  A
+value of \fB0\fR means the route-layer may not overlap the given type.  If
+a positive value is specified, the Irouter will maintain the
+given spacing between new routing on the specified 
+route-layer and pre-existing features of the specified type (except when
+connecting to the type at an end-point of the new route).
+.PP
+The \fBspacing\fR subcommand takes several forms.
+.DS C
+\fB:iroute spacing\fR
+.DE
+prints spacings for all route-types.  (Nil spacings are omitted.)
+.DS C
+\fB:irouter spacing\fI route-type\fR
+.DE
+prints spacings for \fIroute-type\fR.  (Nil spacings are omitted.)
+.DS C
+\fB:iroute spacing \fIroute-type type\fR
+.DE
+prints the spacing between \fIroute-type\fR and \fItype\fR.
+.DS C
+\fB:iroute spacing \fIroute-type type value\fR
+.DE
+sets the spacing between \fIroute-type\fR and \fItype\fR to \fIvalue\fR.
+.PP
+The spacings associated with each route-type are 
+the ones that are observed when the
+Irouter places that route-type.  To change the spacing between two 
+route-types, two spacing parameters must be changed:  the spacing to
+the first type when routing on the second, and the spacing to
+the second type when routing on the first.
+.PP
+Spacings to the \fBSUBCELL\fR pseudo-type give the minimum spacing between
+a route-type and unexpanded subcells.  The \fBSUBCELL\fR spacing for a given
+route-layer defaults to the maximum spacing to the route-layer required
+by the design-rules (in the
+\fBdrc\fR section of the technology file).  This ensures that
+no design-rules will be violated regardless of the contents of the
+subcell.  If subcell designs are constrained in a fashion that permits
+closer spacings to some layers, the \fBSUBCELL\fR spacings can be
+changed to take advantage of this.
+.NH 
+Search Parameters `:search'
+.PP
+The Mzrouter search is windowed.  Early in the search only partial paths 
+near the start point are considered; as the search progresses the window
+is moved towards the goal.  This prevents combinatorial explosion during
+the search, but still permits the exploration of alternatives at all stages.
+The \fBsearch\fR subcommand permits access to two parameters
+controlling the windowed search, \fBrate\fR, and \fBwidth\fR.  The \fBrate\fR
+parameter determines how fast the window is shifted towards the goal, and
+the \fBwidth\fR parameter gives the width of the window.  The units are
+comparable with those used in the cost parameters.  If the router is taking
+too long to complete, try increasing \fBrate\fR.  If the router is
+choosing poor routes, try decreasing \fBrate\fR.  The window width should
+probably be at least twice the rate. 
+.PP
+The subcommand has this form:
+.DS C
+\fB:iroute search\fR [\fIparameter\fR] [\fIvalue\fR]
+.DE
+If \fIvalue\fR is omitted, the current value is printed, if \fIparameter\fR
+is omitted as well, both parameter values are printed.
+.NH 1
+Messages - `:iroute verbosity'
+.PP
+The number of messages printed by the Irouter is controlled by 
+.DS C
+\fB:iroute verbosity\fI value\fR
+.DE
+If verbosity is set to \fB0\fR, only errors and warnings 
+are printed.  A value
+of \fB1\fR (the default) results in short messages.  A value of \fB2\fR causes
+statistics to be printed.
+.NH 1
+Version - `:iroute version'
+.PP 
+The subcommand
+.DS C
+\fB:iroute version\fR
+.DE
+prints the Irouter version in use.
+.NH 1
+Saving and Restoring Parameters - `:iroute save'
+.PP
+The command
+.DS C
+\fB:iroute save \fIfile\fB.ir\fR
+.DE
+saves away the current settings of all the Irouter parameters in file
+\fIfile\fB.ir\fR.  Parameters can be reset to these values at any time
+with the command
+.DS C
+\fB:source \fIfile\fB.ir\fR
+.DE
+This feature can be used to setup parameter-sets appropriate to different
+routing contexts.  Note that the extension \fB.ir\fR is recommended 
+for Irouter parameter-files.
+.NH 1
+Wizard Parameters - `:iroute wizard'
+.PP
+Miscellaneous parameters that are probably not of interest 
+to the casual user are
+accessed via the \fBwizard\fR subcommand.  The parameters are as follows:
+.IP \fBbloom\fR
+Takes on a non-negative integer value.  This controls the amount of
+compulsory searching from a focus, before the next focus is picked
+based on the cost-function and window position.  In practice \fB1\fR 
+(the default value)
+seems to be the best value.  This parameter may be removed in the future.
+.IP \fBboundsIncrement\fR
+Takes on the value \fBAUTOMATIC\fR or a positive integer.  Determines in
+what size chunks the layout is preprocessed for routing.  This
+preprocessing (blockage generation) takes a significant fraction of the
+routing time, thus performance may well be improved by experimenting with
+this parameter.
+.IP \fBestimate\fR
+Takes on a boolean value.  If \fBON\fR (the default) an estimation plane 
+is generated prior to each route that permits 
+cost-to-completion estimates to factor in subcells and fence regions.  This
+can be very important to efficient routing.  Its rarely useful to turn
+estimation off.
+.IP \fBexpandDests\fR
+Takes on a boolean value.  If \fBON\fR (not the default) destination areas
+are expanded to include all of any nodes they overlap.  This is particularly
+useful if the Irouter is being invoked from a script, since it is 
+difficult to determine optimal destination areas automatically.
+.IP \fBpenalty\fR
+Takes on a rational value (default is 1024.0).  It is not strictly
+true that the router searches only within its window.  Paths behind
+the window are also considered, but with cost penalized by the 
+product of their distance to the window
+and the penalty factor.  It was originally thought that small
+penalties might be desirable, but experience, so far, has shown that large
+penalties work better.  In particular it is important that the ratio between
+the actual cost of a route and the initial estimate is less than the
+value of \fBpenalty\fR, otherwise the search can explode (take 
+practically forever).  If you suspect this is happening, you can set
+\fBverbosity\fR to \fB2\fR to check, or just increase the value
+of \fBpenalty\fR.  In summary it appears that the value of penalty doesn't
+matter much as long as it is large (but not so large as to cause 
+overflows).  It will probably be removed in the future.
+.IP \fBpenetration\fR
+This parameter takes the value \fBAUTOMATIC\fR or a positive integer.  It
+determines how far into a blocked area the router will
+penetrate to make a connection.  Note however the router will in no case
+violate spacing constraints to nodes not involved in the route.
+.IP \fBwindow\fR
+This parameter takes the value \fBCOMMAND\fR (the default) or a window id 
+(small integers).  It determines the reference window for routes.  The router
+sees the world as it appears in the reference window, e.g., it sees the
+contents of subcells expanded in the reference window.  If \fBwindow\fR
+is set to \fBCOMMAND\fR the reference window is the one that contained the
+cursor when the route was invoked.  To set the reference window to a fixed
+window, place the cursor in that window and type:
+.DS L
+\fB:iroute wizard window .\fR
+.DE
+.NH 1
+References
+.IP [1]
+M.H. Arnold and W.S. Scott, ``An Interactive Maze Router with Hints'',
+\fIProceedings of the 25th Design Automation Conference\fR, June 1988,
+pp. 672-676.

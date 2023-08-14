@@ -1,0 +1,15 @@
+#! /bin/csh -f
+# rcsid $Header: :techinstall,v 1.3 89/04/03 16:02:51 mayo Exp $
+#
+# Install a technology file.
+# Usage: csh :techinstall technology version targetdir
+#
+set technology=$1
+set version=$2
+set targetdir=$3
+set tmpfile=/tmp/tech.$$
+/lib/cpp -P $technology > $tmpfile
+grep sccsid $technology | sed -e "s/^/# /" >> $tmpfile
+grep rcsid $technology | sed -e "s/^/# /" >> $tmpfile
+rm -f $targetdir/${technology}${version}
+mv $tmpfile $targetdir/${technology}${version}

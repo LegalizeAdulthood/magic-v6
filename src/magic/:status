@@ -1,0 +1,32 @@
+#! /bin/csh -f
+#
+#	check to see if modules are installed
+#
+# rcsid $Header: :status,v 1.1 89/04/03 16:15:35 mayo Exp $
+#
+
+if ($#argv == 0) then
+    set modules=*
+else
+    set modules="$argv"
+endif
+
+foreach mod ($modules)
+	if (-e ${mod}/Makefile || -e ${mod}/makefile) then
+	    echo " "
+	    echo -n ${mod}: "   	" 
+	    pushd $mod >& /dev/null
+	    if ( `make -n install |& /usr/ucb/wc -l` == 0 ) then
+	       echo -n ok
+	    else
+	       echo -n NOT installed
+	    endif
+	    if (-e RCS) then
+		if ( `rwhat |& fgrep Nothing | /usr/ucb/wc -l` == 0 ) then
+		   echo -n ", files are checked out"
+		endif
+	    endif
+	    popd >& /dev/null
+	endif
+end
+echo " "

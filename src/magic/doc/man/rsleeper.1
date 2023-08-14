@@ -1,0 +1,28 @@
+.\" sccsid "@(#)rsleeper.1	1.5 (Berkeley) 5/12/85"
+.TH RSLEEPER 1 
+.UC 4
+.SH NAME
+rsleeper \- run sleeper remotely
+.SH SYNOPSIS
+.B rsleeper
+.I remotemachine
+.br
+.SH DESCRIPTION
+\fIRsleeper\fP is used
+if you wish to run a program such as \fImagic\fP\|(1) on a different
+machine (\fIremotemachine\fP) than the one to which a
+graphics terminal is attached,
+and the local graphics terminal has a login process.
+.PP
+To use it, log in on the graphics terminal and run \fIrsleeper\fP.
+The tty printed will be on the remote machine, and can be used
+as the graphics display device for programs such as \fImagic\fP\|(1).
+.PP
+For \fIrsleeper\fP to work,
+there must be an account \fBsleeper\fP on the remote machine.
+Its login shell should be the program \fIsleeper\fP\|(1).
+Users must be able to rlogin to the \fBsleeper\fP account without
+supplying a password.
+
+.SH "SEE ALSO"
+fsleeper\|(1), magic\|(1), sleeper\|(1), displays\|(5)

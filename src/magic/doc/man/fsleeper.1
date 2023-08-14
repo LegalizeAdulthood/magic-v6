@@ -1,0 +1,50 @@
+.\" sccsid "@(#)fsleeper.1	4.1 (Berkeley) 11/29/85"
+.TH FSLEEPER 1 
+.UC 4
+.SH NAME
+fsleeper \- run sleeper remotely
+.SH SYNOPSIS
+.B fsleeper
+[
+.B \-t \fItty\fR
+] [
+.B \-l \fIuser\fR
+] [
+.I remotemachine
+]
+.br
+.SH DESCRIPTION
+\fIFsleeper\fP is used
+if you wish to run a program such as \fImagic\fP\|(1) on a different
+machine (\fIremotemachine\fP) than the one to which a
+graphics terminal is attached,
+and the local graphics terminal has no login process.
+.PP
+Normally, \fIfsleeper\fP will start a remote sleeper
+on the companion graphics terminal for your terminal.
+This graphics terminal is found by looking in the file ~cad/lib/displays,
+as described in \fIdisplays\fP\|(5).  If a different graphics terminal is
+desired, it may be specified by the \fB-t\fP flag.  Note that this
+is the terminal on the local machine, not the remote machine.
+(The remote terminal will be printed by \fIsleeper\fP\|(1) when it
+starts up on the remote machine).
+.PP
+Also, normally \fIfsleeper\fP will attempt to log in as the
+user \fBsleeper\fP on the remote machine.  If a different user
+name is desired, it may be specified with the \fB-l\fP flag.
+This user name must exist on \fIremotemachine\fP.
+
+.SH "FILES"
+.br
+~cad/lib/displays
+
+.SH "SEE ALSO"
+.PP
+magic(1), rsleeper(1), sleeper(1), displays(5)
+
+.SH AUTHOR
+Walter Scott
+
+.SH BUGS
+If no \fIremotemachine\fP is specified, it defaults to \fBucbkim\fP.
+This is fine for Berkeley, but useless elsewhere.

@@ -1,0 +1,16 @@
+This is the 'utils' module.  The file 'whence.s' is an assembly language
+file and is not portable.  If you are not running on a VAX or a SUN,
+you can simply delete all references to 'whence' from the Makefile and
+everything will be OK.  The procedures defined in 'whence.s' are only
+used by the 'prleak' debugging program, which is only enabled when malloc.c
+is compiled with the -DMALLOCTRACE flag.  See the cadman page on prleak(8)
+for details.  Files with .mo and .mpo suffixes were compiled with the
+-DMALLOCTRACE flag for use in building the libraries libmagictrace.a and
+libmagictrace_p.a.
+
+The "utils.o" file is used by magic, and contains some references to things
+in other portions of Magic.  Some programs would like to use these utilities,
+though, so they have been gathered into a library, libmagicutils.a.  This
+library includes simple versions of the referenced Magic routines, so that the
+library can be used by stand alone programs.  These simple functions appear
+in the files LIBmain.c and LIBtextio.c.

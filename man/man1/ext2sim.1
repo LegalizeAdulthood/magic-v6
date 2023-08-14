@@ -1,0 +1,106 @@
+.TH EXT2SIM 1 
+.UC 4
+.SH NAME
+ext2sim \- convert hierarchical \fIext\fR\|(5) extracted-circuit files
+to flat \fIsim\fR\|(5) files
+.SH SYNOPSIS
+.B ext2sim
+[
+.B \-a
+.I aliasfile
+] [
+.B \-l
+.I labelsfile
+] [
+.B \-o
+.I simfile
+] [
+.B \-A
+] [
+.B \-B
+] [
+.B \-F
+] [
+.B \-L
+] [
+.B \-t
+] [
+.I "extcheck-options"
+]
+.I root
+
+.SH DESCRIPTION
+Ext2sim will convert an extracted circuit from the hierarchical
+\fIext\fR\|(5) representation produced by Magic to the
+flat \fIsim\fR\|(5) representation required by many simulation tools.
+The root of the tree to be extracted is the file \fIroot\fB.ext\fR;
+it and all the files it references are recursively flattened.
+The result is a single, flat representation of the circuit that is
+written to the file \fIroot\fB.sim\fR, a list of node aliases
+written to the file \fIroot\fB.al\fR, and a list of the locations
+of all nodenames in CIF format, suitable for plotting, to the
+file \fIroot\fB.nodes\fR.  The file \fIroot\fB.sim\fR is
+suitable for use with programs such as
+\fIcrystal\fP\|(1), \fIesim\fP\|(1), or \fIsim2spice\fP\|(1).
+.LP
+The following options are recognized:
+.TP 1.0i
+.B \-a\ \fIaliasfile\fP
+Instead of leaving node aliases in the file \fIroot\fB.al\fR, leave it
+in \fIaliasfile\fP.
+.TP 1.0i
+.B \-l\ \fIlabelfile\fP
+Instead of leaving a CIF file with the locations of all node names
+in the file \fIroot\fB.nodes\fR, leave it in \fIlabelfile\fP.
+.TP 1.0i
+.B \-o\ \fIoutfile\fP
+Instead of leaving output in the file \fIroot\fB.sim\fR, leave it
+in \fIoutfile\fP.
+.TP 1.0i
+.B \-A
+Don't produce the aliases file.
+.TP 1.0i
+.B \-B
+Don't output transistor or node attributes in the \fB.sim\fR file.
+This option is necessary when preparing input for programs that
+don't know about attributes, such as \fIsim2spice\fR\|(1) (which is
+actually made obsolete by \fIext2spice\fR\|(1), anyway),
+or \fIrsim\fR\|(1).
+.TP 1.0i
+.B \-F
+Don't output nodes that aren't connected to fets (floating nodes).
+.TP 1.0i
+.B \-L
+Don't produce the label file.
+.TP 1.0i
+.B \-t\fIchar\fR
+Trim characters from node names when writing the output file.  \fIChar\fR
+should be either "#" or "!".  The option may be used twice if both characters
+are desired.
+.PP
+In addition, all of the options of \fIextcheck\fR\|(1) are accepted.
+
+.SH "SCALING AND UNITS"
+If all of the \fB.ext\fR files in the tree read by \fIext2sim\fP have the
+same geometrical scale (specified in the \fBscale\fP
+line in each \fB.ext\fR file),
+this scale is reflected through to the output, resulting in substantially
+smaller \fB.sim\fR files.
+Otherwise, the geometrical unit in the output \fB.sim\fR file
+is a centimicron.
+.PP
+Resistance and capacitance are always output in ohms and picofarads,
+respectively.
+
+.SH "SEE ALSO"
+extcheck\|(1), ext2dlys\|(1), ext2spice\|(1),
+magic\|(1), rsim\|(1), sim2spice\|(1), ext\|(5), sim\|(5)
+
+.SH AUTHOR
+Walter Scott
+
+.SH BUGS
+Transistor gate capacitance is typically not included in node
+capacitances, as most analysis tools compute the gate capacitance directly
+from the gate area.
+The \fB-c\fR flag therefore provides a limit only on non-gate capacitance.

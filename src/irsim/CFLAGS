@@ -1,0 +1,2 @@
+-USYS_V		change the -U to -D for system V
+-UNO_SIGIO	change the -U to -D if SIGIO is not supported for sockets

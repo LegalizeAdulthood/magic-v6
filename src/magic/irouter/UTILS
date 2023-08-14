@@ -1,0 +1,109 @@
+
+
+/* irTouchingTypes -- */
+
+typedef struct touchingfuncparms
+{
+    Point 		tfp_point;
+    TileTypeBitMask	tfp_types;
+} TouchingFuncParms;
+
+TileTypeBitMask 
+irTouchingTypes(cellUse,point)
+    CellUse *cellUse;
+    Point *point;
+{
+    int irTouchingTypesFunc();
+    int irTouchingSubcellsFunc();
+    SearchContext scx;
+    TouchingFuncParms parms;
+	    
+    /* Search unit radius rectangle around point for paint tiles
+     * (in cellUse or subcells expanded in cmd window) containing or 
+     * touching point
+     */
+    scx.scx_area.r_ll = *point;
+    scx.scx_area.r_ur = *point;
+    scx.scx_area.r_ll.p_x -= 1;
+    scx.scx_area.r_ll.p_y -= 1;
+    scx.scx_area.r_ur.p_x += 1;
+    scx.scx_area.r_ur.p_y += 1;
+
+    scx.scx_trans = GeoIdentityTransform;
+    scx.scx_use = cellUse;
+
+    parms.tfp_point = *point;
+    TTMaskZero(&(parms.tfp_types));
+
+    DBTreeSrTiles(
+	&scx,
+	&DBAllButSpaceAndDRCBits,
+	irWindowMask,
+	irTouchingTypesFunc,
+	(ClientData) &parms);
+
+    /* Now check for presence of unexpanded subcells */
+    scx.scx_area.r_ll = *point;
+    scx.scx_area.r_ur = *point;
+    scx.scx_area.r_ll.p_x -= 1;
+    scx.scx_area.r_ll.p_y -= 1;
+    scx.scx_area.r_ur.p_x += 1;
+    scx.scx_area.r_ur.p_y += 1;
+
+    scx.scx_trans = GeoIdentityTransform;
+    scx.scx_use = cellUse;
+    
+    DBTreeSrCells(
+        &scx,
+        irWindowMask,
+        irTouchingSubcellsFunc,
+        (ClientData) &parms);
+
+    return(parms.tfp_types);
+}
+
+int
+irTouchingTypesFunc(tile, cxp)
+    register Tile *tile;
+    TreeContext *cxp;
+{
+    SearchContext *scx = cxp->tc_scx;
+    Rect r, rDest;
+    TouchingFuncParms *parms = (TouchingFuncParms *) (cxp->tc_filter->tf_arg);
+
+    /* Transform to result coordinates */
+    TITORECT(tile, &r);
+    GEOCLIP(&r, &scx->scx_area);
+    GEOTRANSRECT(&scx->scx_trans, &r, &rDest);
+
+    if(GEO_ENCLOSE(&(parms->tfp_point), &rDest))
+        TTMaskSetType(&(parms->tfp_types),TiGetType(tile));
+
+    /* return 0 to continue search */
+    return(0);
+}
+
+int
+irTouchingSubcellsFunc(scx, cdarg)
+    SearchContext *scx;
+    ClientData cdarg;
+{
+    Rect r, rDest;
+    TouchingFuncParms *parms = (TouchingFuncParms *) cdarg;
+
+    /* Transform bounding box to result coordinates */
+    r = scx->scx_use->cu_def->cd_bbox;
+    GEOTRANSRECT(&scx->scx_trans, &r, &rDest);
+
+    if(GEO_ENCLOSE(&(parms->tfp_point), &rDest))
+    {
+	/* touching subcell found, mark in types mask, and terminate search */
+        TTMaskSetType(&(parms->tfp_types),TT_SUBCELL);
+	return 1;	/* 1 = abort search */
+    }
+    else
+    {
+        /* subcell doesn't touch point after all, continue search */
+        return 0;	/* 0 = continue search */
+    }
+}

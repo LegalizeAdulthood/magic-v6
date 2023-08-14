@@ -1,0 +1,37 @@
+#!/bin/csh  -f
+
+# Generate makefile dependencies from the source files.  
+#
+# rcsid="$Header: :depend,v 1.3 90/08/31 11:57:09 mayo Exp $"
+
+# Example usage:
+#	:depend *.c
+#
+# Output should then be placed in the Makefile.
+
+
+# be careful not to put any funny characters such as *,[,] in this line:
+set HEADER_PREFIX='${H}/'
+
+echo '# Do not put anything after this line!  The rest of this file was produced'
+echo "# by the program ~cad/src/magic/:depend on `date`."
+echo " "
+foreach i ($*)
+    echo \# include file dependencies for \"${i}\" >>/tmp/dependA$$
+    echo ${i:r}.o:\	$i >>/tmp/dependA$$
+fgrep '#include' $i \
+	| sed	-e '/</d' \
+		-e "s%#include[ 	]*%${i:r}.o:\	${HEADER_PREFIX}%" \
+		-e 's/"//g' >>/tmp/dependA$$
+    echo ' ' >>/tmp/dependA$$
+end
+
+set nonomatch
+foreach j (*.h)
+    sed "/${j}/s%\${HEADER_PREFIX}${j}%${j}%" </tmp/dependA$$ >/tmp/dependB$$
+    mv /tmp/dependB$$ /tmp/dependA$$
+end
+unset nonomatch
+
+cat /tmp/dependA$$
+rm /tmp/dependA$$

@@ -1,0 +1,11 @@
+#!/bin/csh  -f
+
+# Find the location of our cad directory.
+#
+# rcsid="$Header: :findcad,v 1.1 89/05/31 17:56:38 mayo Exp $"
+
+if ($?CAD_HOME) then
+    echo $CAD_HOME
+else
+    echo ~cad
+endif

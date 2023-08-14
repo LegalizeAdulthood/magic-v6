@@ -1,0 +1,16 @@
+#!/bin/csh -f
+#
+# :makemains modules
+#
+# rcsid $Header: :makemains,v 1.1 89/04/03 16:15:34 mayo Exp $
+#
+
+foreach mod ( $argv[1-] )
+	echo ' '
+	echo ------- Doing program $mod -------
+	echo -n "pushd "
+	pushd $mod
+	make -k 
+	echo -n "popd "
+	popd
+end

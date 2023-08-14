@@ -1,0 +1,995 @@
+.EQ
+delim $$
+gsize 12
+.EN
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+.\" sccsid "@(#)tut8	4.6 (Berkeley) 10/27/85"
+.\"
+.\" ----- Centered captions
+.\"
+.de (c
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.DS C
+..
+.de )c
+.sp .5c
+.DE
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.\"
+.\" ----- Indented captions
+.\"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+.sp
+..
+.\"
+.\" ----- Floating table
+.\"
+.de (T
+.KF
+.sp
+.RS
+..
+.de )T
+.RE
+.sp
+.KE
+..
+.\"
+.\" ----- Indented example
+.\"
+.de (X
+.DS L
+.in +1i
+..
+.de )X
+.in -1i
+.DE
+..
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Tutorial #8: Circuit Extraction\fR
+.rm CH
+.ds LH Magic Tutorial #8: Circuit Extraction
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIWalter Scott\fR
+\fI(some updates by other folks, too)\fR
+.sp 1c
+Special Studies Program
+Lawrence Livermore National Laboratory
+PO Box 808, L-270
+Livermore, CA 94550
+wss@mordor.s1.gov
+
+
+.SM
+This tutorial corresponds to Magic version 6.
+
+
+.DE
+.SM
+.LP
+\fBTutorials to read first:\fR
+.IP
+Magic Tutorial #1: Getting Started
+.br
+Magic Tutorial #2: Basic Painting and Selection
+.br
+Magic Tutorial #4: Cell Hierarchies
+.DE
+.LP
+\fBCommands introduced in this tutorial:\fR
+.IP
+:extract
+.LP
+\fBMacros introduced in this tutorial:\fR
+.IP
+\fInone\fR
+.LP
+\fBPrograms introduced in this tutorial:\fR
+.IP
+ext2sim
+.IP
+ext2spice
+.IP
+extcheck
+.LP
+\fBChanges since Magic version 4:\fR
+.IP
+New form of \fB:extract unique\fR
+.IP
+Path length extraction with \fB:extract length\fR
+.IP
+Accurate resistance extraction with \fB:extresis\fR
+.IP
+Extraction of well connectivity and substrate nodes
+.IP
+Checking for global net connectedness in \fIext2sim\fR\|(1)
+.IP
+New programs: \fIext2spice\fR\|(1) and \fIextcheck\fR\|(1)
+.br
+.NL
+.sp 1c
+.NH 1
+Introduction
+.PP
+This tutorial covers the use of Magic's
+circuit extractor.
+The extractor computes from the layout the information needed
+to run simulation tools such as \fIcrystal\fR\|(1) and \fIesim\fR\|(1).
+This information includes the sizes and shapes of transistors,
+and the connectivity, resistance, and parasitic capacitance of nodes.
+Both capacitance to substrate and several kinds of internodal
+coupling capacitances are extracted.
+.PP
+Magic's extractor is both incremental and hierarchical:
+only part of the entire layout must be re-extracted after each change,
+and the structure of the extracted
+circuit parallels the structure of the layout being extracted.
+The extractor produces a separate \fB.ext\fP file
+for each \fB.mag\fP file in a hierarchical design.
+This is in contrast to previous extractors, such as Mextra,
+which produces a single \fB.sim\fP file that represents
+the flattened (fully-instantiated) layout.
+.PP
+Sections 2 through 4 introduce Magic's \fB:extract\fP command
+and some of its more advanced features.
+Section 5 describes what information actually gets extracted, and
+discusses limitations and inaccuracies.
+Section 6 talks about extraction styles.
+Although the hierarchical \fIext\fR\|(5) format fully describes the
+circuit implemented by a layout, very few tools currently accept it.
+It is normally necessary to flatten the extracted circuit using
+one of the programs discussed in Section 7, such as \fIext2sim\fR\|(1),
+\fIext2spice\fR\|(1), or \fIextcheck\fR\|(1).
+.NH 1
+Basic Extraction
+.PP
+You can use Magic's extractor in one of several ways.
+Normally it is not necessary to extract all cells in a layout.
+To extract only those cells that have changed since they were extracted, use:
+.(X
+\fB:load\fP \fIroot\fR
+\fB:extract\fP
+.)X
+The extractor looks for a \fB.ext\fP file for every cell in the tree
+that descends from the cell \fIroot\fP.
+The \fB.ext\fR file is searched for in the same directory that
+contains the cell's \fB.mag\fR file.
+Any cells that have been modified since they were last extracted,
+and all of their parents, are re-extracted.
+Cells having no \fB.ext\fP files are also re-extracted.
+.PP
+To try out the extractor on an example, copy all the \fBtut8\fIx\fR cells
+to your current directory with the following shell commands:
+.(X
+\fBcp\ \ ~cad/lib/magic/tutorial/tut8*.mag\ \ .\fR
+.)X
+Start magic on the cell \fBtut8a\fR and type \fB:extract\fR.
+Magic will print the name of each cell (\fBtut8a\fR, \fBtut8b\fR,
+\fBtut8c\fR, and \fBtut8d\fR) as it is extracted.
+Now type \fB:extract\fR a second time.  This time nothing gets
+printed, since Magic didn't have to re-extract any cells.
+Now delete the piece of poly labelled ``\fBdelete me\fR''
+and type \fB:extract\fR again.  This time, only the cell
+\fBtut8a\fR is extracted as it is the only one that changed.
+If you make a change to cell \fBtut8b\fR (do it) and then
+extract again, both \fBtut8b\fR and \fBtut8a\fR will be re-extracted,
+since \fBtut8a\fR is the parent of \fBtut8b\fR.
+.PP
+To force all cells in the subtree rooted at cell \fIroot\fP
+to be re-extracted, use \fB:extract\ all\fR:
+.(X
+\fB:load\fI root\fR
+\fB:extract all\fP
+.)X
+Try this also on \fBtut8a\fR.
+.PP
+You can also use the \fB:extract\fP command to extract a single cell
+as follows:
+.(X
+\fB:extract cell\fP \fIname\fP
+.)X
+will extract just the selected (current) cell, and place the output
+in the file \fIname\fP.
+Select the cell \fBtut8b\fR (\fBtut8b_0\fR) and type
+\fB:extract cell differentFile\fR to try this out.
+After this command, the file \fBdifferentFile.ext\fR will
+contain the extracted circuit for the cell \fBtut8b\fR.
+The children of \fBtut8b\fR (in this case, the single cell \fBtut8d\fR)
+will not be re-extracted by this command.
+If more than one cell is selected, the upper-leftmost one is extracted.
+.PP
+You should be careful about using \fB:extract cell\fP,
+since even though you may only make a change to a child
+cell, all of its parents may have to be re-extracted.
+To re-extract all of the parents of the selected cell, you may use
+.(X
+\fB:extract parents\fR
+.)X
+Try this out with \fBtut8b\fR still selected.  Magic will extract
+only the cell \fBtut8a\fR, since it is the only one that uses the
+cell \fBtut8b\fR.
+To see what cells would be extracted by \fB:extract parents\fR
+without actually extracting them, use
+.(X
+\fB:extract showparents\fR
+.)X
+Try this command as well.
+.NH 1
+Feedback: Errors and Warnings
+.PP
+When the extractor encounters problems, it leaves feedback in the form
+of stippled white rectangular areas on the screen.
+Each area covers the portion of the layout that caused the error.
+Each area also has an error message associated with it, which you can see
+by using the \fB:feedback\fP command.
+Type \fB:feedback help\fP while
+in Magic for assistance in using the \fB:feedback\fP command.
+.PP
+The extractor will always report extraction \fIerrors\fR.
+These are problems in
+the layout that may cause the output of the extractor to be incorrect.
+The layout should be fixed to eliminate extraction errors
+before attempting to simulate the circuit; otherwise, the
+results of the simulation may not reflect reality.
+.PP
+Extraction errors can come from violations of transistor rules.
+There are two rules about the formation of transistors:
+no transistor can be formed, and none can be destroyed,
+as a result of cell overlaps.
+For example, it
+is illegal to have poly in one cell overlap diffusion in another cell,
+as that would form a transistor in the parent where none was present
+in either child.  It is also illegal to have a buried contact in one
+cell overlap a transistor in another, as this would destroy the transistor.
+Violating these transistor rules will cause design-rule violations
+as well as extraction errors.
+These errors only relate to circuit extraction: the fabricated
+circuit may still work; it just won't be extracted correctly.
+.PP
+In general, it is an error for material of two types on the same plane
+to overlap or abut if they don't connect to each other.  For example,
+in CMOS it is illegal for p-diffusion and n-diffusion to overlap or abut.
+.PP
+In addition to errors, the extractor can give \fIwarnings\fR.
+If only warnings are present, the extracted circuit can still be
+simulated.
+By default, only some types of warnings are reported and displayed as feedback.
+To cause all warnings to be displayed, use
+.(X
+\fB:extract warn all\fP
+.)X
+The command
+.(X
+\fB:extract warn \fIwarning\fR
+.)X
+may be used to enable specific warnings selectively; see below.
+To cause no warnings to be displayed, or to disable display
+of a particular \fIwarning\fR, use respectively
+.(X
+\fB:extract warn no all\fP or
+\fB:extract warn no \fIwarning\fR
+.)X
+.PP
+Three different kinds of warnings are generated.
+The \fBdup\fR warning checks to see whether you
+have two electrically unconnected nodes in the same
+cell labelled with the same name.
+If so, you are warned because the two unconnected
+nodes will appear to be connected in the resulting \fB.ext\fP file,
+which means that the extracted circuit would not represent the actual layout.
+This is bad if you're simulating the circuit to see if it will work
+correctly: the simulator will think the two nodes are connected,
+but since there's no physical wire between them, the electrons won't!
+When two unconnected nodes share the same label (name), the extractor leaves
+feedback squares over each instance of the shared name.
+.PP
+It's an excellent idea to avoid labelling two unconnected nodes with the same
+name within a cell.  Instead, use the "correct" name for one of the
+nodes, and some mnemonic but textually distinct name for the other nodes.
+For example, in a cell with multiple power rails, you might use
+\fBVdd!\fR for one of the rails, and names like \fBVdd#1\fR for the
+others.  As an example, load the cell \fBtut8e\fR.
+If the two nodes are connected in a higher-level cell
+they will eventually be merged when the extracted circuit is flattened.
+If you want to simulate a cell out
+of context, but still want the higher-level nodes to be hooked up,
+you can always create a dummy parent cell that hooks them together,
+either with wire or by using the same name for pieces of paint that
+lie over the terminals to be connected; see the cell \fBtut8f\fR
+for an example of this latter technique.
+.PP
+You can use the command
+.(X
+\fB:extract unique\fR
+.)X
+as an automatic means
+of labelling nodes in the manner described above.  Run this command on
+the cell \fBtut8g\fR.  A second version of this command is provided
+for compatibility with previous versions of Magic.
+Running
+.(X
+\fB:extract unique #\fR
+.)X
+will only 
+append a unique numeric suffix to labels that end with a ``\fB#\fR''.
+Any other duplicate nodenames that also don't end in a ``\fB!\fR''
+(the global nodename suffix as described in Section 5)
+are flagged by feedback.  
+.PP
+A second type of warning, \fBfets\fR, checks to see whether any transistors
+have fewer diffusion terminals than the minimum for their types.
+For example, the transistor type ``\fBdfet\fR'' is defined in
+the \fBnmos\fR technology file as requiring two diffusion terminals:
+a source and a drain.
+If a capacitor with only one diffusion terminal is desired in this
+technology, the type \fBdcap\fR should be used instead.
+The \fBfets\fR warning is a consistency check for transistors
+whose diffusion terminals have been accidentally shorted together,
+or for transistors with insufficiently many diffusion terminals.
+.PP
+The third warning, \fBlabels\fR,
+is generated if you violate the following
+guideline for placement of labels:
+Whenever geometry from two subcells abuts or overlaps,
+it's a good idea to make sure that
+there is a label attached to the geometry in each subcell
+\fIin the area of the overlap or along the line of abutment\fP.
+Following this guideline isn't necessary for the extractor to work,
+but it will result in noticeably faster extraction.
+.PP
+By default, the \fBdup\fR and \fBfets\fR warnings are enabled,
+and the \fBlabels\fR warning is disabled.
+.PP
+Load the cell \fBtut8h\fR, expand all its children (\fBtut8i\fR and
+\fBtut8j\fR), and enable
+all extractor warnings with \fB:extract warn all\fR.
+Now extract \fBtut8h\fR and all of its children with
+\fB:extract\fR, and examine the feedback for examples of
+fatal errors and warnings.
+.NH 1
+Advanced Circuit Extraction
+.NH 2
+Lengths
+.PP
+The Magic extractor has a rudimentary ability to compute wire lengths
+between specific named points in a circuit.  This feature is intended for
+use with technologies where the wire length between two points is
+more important than the total capacitance on the net; this may
+occur, for example, when extracting circuits with very long wires
+being driven at high speeds (\fIe.g.\fR, bipolar circuits).
+Currently, you must indicate to Magic which pairs of points are
+to have distances computed.  You do this by providing two lists:
+one of \fIdrivers\fR and one of \fIreceivers\fR.  The extractor
+computes the distance between each driver and each receiver
+that it is connected to.
+.PP
+Load the cell \fBtut8k\fR.  There are five labels: two are drivers
+(\fBdriver1\fR and \fBdriver2\fR) and three are receivers
+(\fBreceiverA\fR, \fBreceiverB\fR, and \fBreceiverC\fR).
+Type the commands:
+.(X
+\fB:extract length driver driver1 driver2\fR
+\fB:extract length receiver receiverA receiverB receiverC\fR
+.)X
+Now enable extraction of lengths with \fB:extract do length\fR
+and then extract the cell (\fB:extract\fR).
+If you examine \fBtut8k.ext\fR, you will see several \fBdistance\fR
+lines, corresponding to the driver-receiver distances described
+above.  These distances are through the centerlines of wires
+connecting the two labels; where multiple paths exist, the
+shortest is used.
+.PP
+Normally the driver and receiver tables will be built by using
+\fB:source\fR to read a file of \fB:extract length driver\fR
+and \fB:extract length receiver\fR commands.  Once these tables
+are created in Magic, they remain until you leave Magic or type
+the command
+.(X
+\fB:extract length clear\fR
+.)X
+which wipes out both tables.
+.PP
+Because extraction of wire lengths is \fInot\fR performed hierarchically,
+it should only be done in the root cell of a design.  Also, because
+it's not hierarchical, it can take a long time for long, complex wires such
+as power and ground nets.  This feature is still experimental and
+subject to change.
+.NH 2
+Resistance
+.PP
+Magic provides for more accurate resistance extraction using the
+\fB:extresis \fRcommand. \fB:extresis\fR provides a detailed resistance/capacitance
+description for nets where parasitic resistance is likely to significantly
+affect circuit timing.  
+.NH 3
+Tutorial Introduction
+.PP
+To try out the resistance extractor, load in the cell \fBtut8r\fR.  Extract it
+using \fB:extract\fR, pause magic, and run ext2sim on the cell with the command
+.(X
+\fBext2sim tut8r\fR  
+.)X
+This should produce \fBtut8r.sim\fR, \fBtut8r.nodes\fR, 
+and \fBtut8r.al\fR. Restart magic and type  
+.(X
+\fB:extresis tolerance 10\fR
+\fB:extresis\fR
+.)X
+This will 
+extract interconnect resistances for any net where the interconnect delay 
+is at least one-tenth of the transistor delay.  Magic should give the messages:
+.(X
+\fB:extresis tolerance 10\fR
+\fB:extresis\fR
+\fBAdding  net2; Tnew = 0.428038ns,Told = 0.3798ns\fR
+\fBAdding  net1; Tnew = 0.529005ns,Told = 0.4122ns\fR
+\fBTotal Nets: 7\fR
+\fBNets extracted: 2 (0.285714)\fR
+\fBNets output: 2 (0.285714)\fR
+.)X
+These may vary slightly depending on your technology parameters.
+The \fBAdding [net]\fR lines describe which networks for which magic produced 
+resistor networks.  \fBTnew\fR is the estimated delay on the net including the
+resistor parasitics, while \fBTold\fR is the delay without parasitics.  
+The next line describes where magic thinks the slowest node in the net is.  
+The final 3
+lines give a brief summary of the total number of nets, the nets requiring
+extraction, and the number for which resistors were added to the output.
+.PP
+Running the resistance extractor also produced the file \fBcell.res.ext\fR.  To
+produce a \fB.sim\fR file containing resistors, quit magic and type:
+.(X
+\fBcat tut8r.ext tut8r.res.ext >tut8r.2.ext\fR
+\fBext2sim -R -t! -t# tut8r.2\fR
+.)X
+Comparing the two files, \fBtut8r.sim\fR and \fBtut8r.2.sim\fR, shows that the latter has the nodes net1 and net2 split into several parts, with resistors added to connect the new nodes together.
+.NH 3
+\fBGeneral Notes on using the resistance extractor\fR
+.PP
+To use \fB:extresis\fR, the circuit must first be extracted using \fB:extract\fR and
+flattened using ext2sim. When ext2sim is run, do not use the \fB-t#\fR and \fB-t!\fR
+flags (i.e. don't trim the trailing "#" and "!" characters) or the \fB-R\fR flag
+because \fB:extresis\fR needs the \fB.sim\fR and \fB.ext\fR names to correspond exactly, 
+and
+it needs the lumped resistance values that the extractor produces. Also, do
+not delete or rename the \fB.nodes\fR file; \fB:extresis\fR needs this to run. 
+Once the \fB.sim\fR and \fB.nodes\fR files have been produced, type the 
+command \fB:extresis\fR while
+running magic on the root cell.  As the resistance extractor runs, it will
+identify which nets (if any) for which it is producing RC networks, and will
+identify what it thinks is the "slowest" point in the network.  When it
+completes, it will print a brief summary of how many nets it extracted and
+how many required supplemental networks.  The resistance networks are placed
+in the file \fBroot.res.ext\fR.  To produce a \fB.sim\fR file with the supplemental
+resistors, type \fBcat root.ext root.res.ext >newname.ext\fR, and then rerun
+\fBext2sim\fR on the new file.  During this second \fBext2sim\fR run, the 
+\fB-t\fR 
+flag may be used.
+.PP
+Like extraction of wire lengths, resistance extraction is \fInot\fR performed 
+hierarchically; it should only be done in the root cell of a design and
+can take a long time for complex wires.
+.NH 3
+\fBOptions, Features, Caveats and Bugs\fR
+.PP
+The following is a list of command line options and the arguments that they
+take.
+.PP
+\fBtolerance [value]\fR - This controls how large the resistance in a network must
+be before it is added to the output description. \fBvalue\fR is defined as the
+minimum ratio of transistor resistance to interconnect resistance that
+requires a resistance network.  The default value is 1; values less than 1
+will cause fewer resistors to be output and will make the program run
+faster, while values greater than 1 will produce more a larger, more accurate
+description but will  run slower.
+.PP
+\fBall\fR - Causes all nets in the circuit to be extracted; no comparison between
+transistor size and lumped resistance is performed.  This option is not 
+recommended for large designs.
+.PP
+\fBsimplify [on/off]\fR - Turns on/off the resistance network
+simplification routines.  Magic normally simplifies the resistance network
+it extracts by removing small resistors; specifying this flag turns this
+feature off.
+.PP
+\fBextout [on/off]\fR - Turns on and off the writing of the root.res.ext 
+file.  The default value is on.
+.PP
+\fBlumped [on/off]\fR - Turns on the writing of root.res.lump.  This file
+contains an updated value of the lumped resistance for 
+each net that \fB:extresis\fR extracts.  
+.PP
+\fBsilent [on/off]\fR - This option suppresses printing of the name and 
+location of nets for which resistors are produced.
+.PP
+\fBskip mask\fR - Specifies a list of layers that the resistance extractor
+is to ignore.
+.PP
+\fBhelp\fR - Print brief list of options.
+.PP
+Attribute labels may also be used to specify certain extractor options.  For
+a description of attributes and how they work, see tutorial 2.  Following is
+a description of \fB:extresis\fR attributes.
+.PP
+\fBres:skip@\fR  - Causes this net to be skipped.  This is useful for avoiding
+extraction of power supplies or other DC signals that are not labeled Vdd or
+GND.
+.PP
+\fBres:force@\fR - Forces extraction of this net regardless of its lumped
+resistance value.  Nets with both skip and force labels attached will cause
+the extractor to complain.
+.PP
+\fBres:min=[value]@\fR - Sets the smallest resistor size for this net.  The
+default value is the resistance of the largest driving transistor divided by
+the tolerance described above.
+.PP
+\fBres:drive@\fR - Nets with no driving transistors will normally not be
+extracted.  This option allows the designer to specify from where in the net
+the signal is driven.  This is primarily useful when extracting subcells,
+where the transistors driving a given signal may be located in a different
+cell.
+.NH 3
+\fBTechnology File Changes\fR
+.PP
+Certain changes must be made in the extract section of the technology file
+to support resistance extraction.  These include the \fBfetresist\fR and \fBcontact\fR
+lines, plus a small change to the fet line. Full details can be found in
+Magic Maintainer's Manual #2.  The only thing to note is that, contrary to
+the documentation, the \fBgccap\fR and \fBgscap\fR parts of the fet line MUST 
+be set; the resistance extractor uses them to calculate RC time constants for
+the circuit.
+.NH 1
+Extraction Details and Limitations
+.PP
+This section explores in greater depth what gets extracted by Magic,
+as well as the limitations of the circuit extractor.
+A detailed explanation of the format of the \fB.ext\fP files
+output by Magic may be found in the manual page \fIext\fP\|(5).
+``Magic Maintainer's Manual\ #2: The Technology File''
+describes how extraction parameters are specified for the extractor.
+.KF
+.GS C
+file tut8.1.g
+height 1.6i
+st cf
+.GE
+.(C
+\fBFigure 1.\fP
+Each node extracted by Magic has a lumped resistance \fIR\fR and
+a lumped capacitance \fIC\fR to the substrate.  These lumped values
+can be interpreted as in the diagram above, in which each device
+connected to the node is attached to one of the points \fI1\fR,
+\fI2\fR, ..., \fIN\fR.
+.)C
+.KE
+.NH 2
+Nodes
+.PP
+Magic approximates the pieces of interconnect between transistors
+as ``nodes''.  A node is like an equipotential region, but
+also includes a lumped resistance and capacitance to substrate.
+Figure 1 shows how these lumped values are intended to be interpreted by
+the analysis programs that use the extracted circuit.
+.PP
+Each node in an extracted circuit has a name, which is either
+one of the labels attached to the geometry in the node if any exist,
+or automatically generated by the extractor.  These latter names
+are always of the form \fIp\fB_\fIx\fB_\fIy\fB#\fR, where
+\fIp\fR, \fIx\fR, and \fIy\fR are integers, \fIe.g.\fR, \fB3_104_17#\fR.
+If a label ending in the character ``\fB!\fR'' is attached to a
+node, the node is considered to be a ``global''.  Post-processing
+programs such as \fIext2sim\fR\|(1) will check to ensure that
+nodes in different cells that are labelled with the same global
+name are electrically connected.
+.PP
+Nodes may have attributes attached to them as well as names.
+Node attributes are labels ending in the special character
+``\fB@\fR'', and provide a mechanism for passing information
+to analysis programs such as \fIcrystal\fR\|(1).  The man
+page \fIext\fR\|(5) provides additional information about
+node attributes.
+.NH 2
+Resistance
+.PP
+Magic extracts a lumped resistance for each node, rather than a
+point-to-point resistance between each pair of devices connected
+to that node.  The result is that all such
+point-to-point resistances are approximated by the
+worst-case resistance between any two points in that node.
+.PP
+By default,
+node resistances are approximated rather than computed exactly.
+For a node comprised entirely of a single type of material,
+Magic will compute the node's total perimeter and area.
+It then solves a quadratic equation to find the width and height of a simple
+rectangle with this same perimeter and area, and approximates the
+resistance of the node as the resistance of this ``equivalent''
+rectangle.  The resistance is always taken in
+the longer dimension of the rectangle.
+When a node contains more than a single type of material, Magic
+computes an equivalent rectangle for each type, and then sums
+the resistances as though the rectangles were laid end-to-end.
+.PP
+This approximation for resistance does not take into account any
+branching, so it can be significantly in error for nodes that have
+side branches.  Figure 2 gives an example.
+For global signal trees such as clocks or power, Magic's estimate of
+resistance will likely be several times higher than the actual
+resistance between two points.
+.KF
+.GS C
+file tut8.2.g
+height 1.6i
+st cf
+.GE
+.(C
+\fBFigure 2.\fP
+Magic approximates the resistance of a node by assuming that it
+is a simple wire.
+The length and width of the wire are estimated from the node's
+perimeter and area.
+(a) For non-branching nodes, this approximation is a good one.
+(b) The computed resistance for this
+node is the same as for (a) because the side branches are counted,
+yet the actual resistance between points 1 and 2 is significantly less
+than in (a).
+.)C
+.KE
+.PP
+The approximated resistance also does not lend itself well to
+hierarchical adjustments, as does capacitance.  To allow programs
+like \fBext2sim\fR to incorporate hierarchical adjustments into
+a resistance approximation, each node in the \fB.ext\fR file
+also contains a perimeter and area for each ``resistance class''
+that was defined in the technology file (see ``Maintainer's
+Manual #2: The Technology File,'' and \fIext\fR\|(5)).
+When flattening a circuit, \fBext2sim\fR uses this information
+along with adjustments to perimeter and area
+to produce the value it actually uses for node resistance.
+.PP
+If you wish to disable the extraction of resistances and node
+perimeters and areas, use
+the command
+.(X
+\fB:extract no resistance\fR
+.)X
+which will cause all node resistances, perimeters, and areas in
+the \fB.ext\fR file to be zero.
+To re-enable extraction of resistance, use
+the command
+.(X
+\fB:extract do resistance\fR.
+.)X
+.PP
+Sometimes it's important that resistances be computed more accurately
+than is possible using the lumped approximation above.
+Magic's \fB:extresist\fR command does this by computing explicit
+two-terminal resistors and modifying the circuit network to
+include them so it reflects more exactly the topology of the layout.
+See the section on \fBAdvanced Extraction\fR for more details
+on explicit resistance extraction with \fB:extresist\fR.
+.KF
+.GS C
+height 2.0i
+file tut8.3.g
+st cf
+.GE
+.(C
+\fBFigure 3.\fR
+Each type of edge has capacitance to substrate per unit length.
+Here, the diffusion-space perimeter of 13 units
+has one value per unit length,
+and the diffusion-buried perimeter of 3 units another.
+In addition, each type of material has capacitance per unit area.
+.)C
+.KE
+.NH 2
+Capacitance
+.PP
+Capacitance to substrate comes from two different sources.
+Each type of material has a capacitance to substrate per unit area.
+Each type of edge (i.e, each pair of types) has a capacitance
+to substrate per unit length.  See Figure 3.
+The computation of capacitance may be disabled with
+.(X
+\fB:extract no capacitance\fR
+.)X
+which causes all
+substrate capacitance values in the \fB.ext\fR file
+to be zero.  It may be re-enabled with
+.(X
+\fB:extract do capacitance\fR.
+.)X
+.PP
+Internodal capacitance comes from three sources, as shown in Figure 4.
+When materials of two different types overlap, the capacitance to
+substrate of the one on top (as determined by the technology) is
+replaced by an internodal capacitance to the one on the bottom.
+Its computation may be disabled with
+.(X
+\fB:extract no coupling\fR
+.)X
+which will also cause the extractor to run 30% to 50% faster.
+Extraction of coupling capacitances can be re-enabled with
+.(X
+\fB:extract do coupling\fR.
+.)X
+.KF
+.GS C
+width 3.8i
+file tut8.4.g
+st cf
+.GE
+.(C
+\fBFigure 4.\fR
+Magic extracts three kinds of internodal coupling capacitance.
+This figure is a cross-section (side view, not a top view)
+of a set of masks that shows all three kinds of capacitance.
+\fIOverlap\fP capacitance is parallel-plate capacitance between
+two different kinds of material when they overlap.
+\fISidewall\fP capacitance is parallel-plate capacitance
+between the vertical edges of two pieces of the same kind of material.
+\fISidewall overlap\fP capacitance is orthogonal-plate
+capacitance between the vertical edge of one piece of material
+and the horizontal surface of another piece of material that overlaps
+the first edge.
+.)C
+.KE
+.KF
+.GS C
+width 4.5i
+file tut8.5.g
+st cf
+.GE
+.(C
+\fBFigure 5.\fR
+.EQ
+gsize 10
+.EN
+(a) When transistors are rectangular, it is possible to compute
+$L / W$ exactly.  Here $gateperim~=~4$, $srcperim~=~6$,
+$drainperim~=~6$, and $L/W~=~ 2/6$.
+(b) The $L/W$ of non-branching transistors can be approximated.
+Here $gateperim~=~4$, $srcperim~=~6$, $drainperim~=~10$.
+By averaging $srcperim$ and $drainperim$ we get $L/W~=~2/8$.
+(c) The $L/W$ of branching transistors is not well approximated.
+Here $gateperim~=~16$, $srcperim~=~2$, $drainperim~=~2$.
+Magic's estimate of $L/W$ is $8/2$, whereas in fact because
+of current spreading, $W$ is effectively larger than $2$ and $L$
+effectively smaller than $8$, so $L/W$ is overestimated.
+.EQ
+gsize 12
+.EN
+.)C
+.KE
+.PP
+Whenever material from two subcells overlaps or abuts, the extractor
+computes adjustments to substrate capacitance, coupling
+capacitance, and node perimeter and area.  Often, these adjustments
+make little difference to the type of analysis you are performing,
+as when you wish only to compare netlists.  Even when running
+Crystal for timing analysis, the adjustments can make less than
+a 5% difference in the timing of critical paths in designs with
+only a small amount of inter-cell overlap.
+To disable the computation of these adjustments, use
+.(X
+\fB:extract no adjustment\fR
+.)X
+which will result in
+approximately 50% faster extraction.  This speedup is
+not entirely additive with the speedup resulting from
+\fB:extract no coupling\fR.  To re-enable computation of adjustments, use
+\fB:extract do adjustment\fR.
+.NH 2
+Transistors
+.PP
+Like the resistances of nodes, the lengths and widths of transistors are
+approximated.  Magic computes the contribution to the total perimeter
+by each of the terminals of the transistor.  See Figure 5.
+For rectangular transistors, this yields an exact $L / W$.
+For non-branching, non-rectangular transistors, it is still
+possible to approximate $L / W$ fairly well, but substantial
+inaccuracies can be introduced if the channel of a transistor contains
+branches.
+Since most transistors are rectangular, however, Magic's approximation
+works well in practice.
+.KF
+.TS
+center box tab(%);
+cIp10 cIp10 cIp10 CIp10 cIp10 cIp10 cIp10.
+Type%Loc%A P%Subs%Gate%Source%Drain
+.T&
+lp10 rp10 rp10 lp10 lp10 lp10 lp10.
+fet nfet%59  1 60  2%8 12%GND!%Mid2 4 \fBN3\fR%Out 4 0%Vss#0 4 0
+fet nfet%36  1 37  2%8 12%Float%Mid1 4 \fBN2\fR%Mid2 4 0%Vss#0 4 0
+fet nfet% 4  1  5  2%8 12%Vss#0%In 4 \fBN1\fR%Mid1 4 0%Vss#0 4 0
+fet pfet%59 25 60 26%8 12%Vdd!%Mid2 4 \fBP3\fR%Vdd#0 4 0%Out 4 0
+fet pfet%36 25 37 26%8 12%VBias%Mid1 4 \fBP2\fR%Vdd#0 4 0%Mid2 4 0
+fet pfet% 4 25  5 26%8 12%Vdd#0%In 4 \fBP1\fR%Vdd#0 4 0%Mid1 4 0
+.TE
+\fB\s-2Table 1\s+2\fR\s-2.  The transistor section of \fBtut8l.ext\fR.\s+2
+.sp
+.KE
+.PP
+In addition to having gate, source, and drain terminals, MOSFET
+transistors also have a substrate terminal.  By default,
+this terminal is connected to a global node that depends
+on the transistor's type.  For example, p-channel transistors
+might have a substrate terminal of \fBVdd!\fR, while n-channel
+transistors would have one of \fBGND!\fR.
+However, when a transistor is surrounded by explicit ``well'' material
+(as defined in the technology file), Magic will override the
+default substrate terminal with the node to which the well
+material is connected.  This has several advantages: it allows
+simulation of analog circuits in which wells are biased to
+different potentials, and it provides a form of checking
+to ensure that wells in a CMOS process are explicitly tied
+to the appropriate DC voltage.
+.PP
+Transistor substrate nodes are discovered by the extractor only if
+the transistor and the overlapping well layer are in the same cell.
+If they appear in different cells, the transistor's substrate terminal
+will be set to the default for the type of transistor.
+.PP
+Load the cell \fBtut8l\fR, extract it, and look at the file
+\fBtut8l.ext\fR.  Table 1 shows the lines for the six
+transistors in the file.  You'll notice that the substrate terminals
+(the \fISubs\fR column) for all transistors are different.
+Since each transistor in this design has a different gate attribute attached
+to it (shown in bold in the table, \fIe.g.\fR, \fBN1\fR, \fBP2\fR, etc), we'll
+use them in the following discussion.
+.PP
+The simplest two transistors are \fBN3\fR and \fBP3\fR, which don't
+appear in any explicitly drawn wells.  The substrate terminals for
+these are \fBGND!\fR and \fBVdd!\fR respectively, since that's what
+the technology file says is the default for the two types of transistors.
+\fBN1\fR and \fBP1\fR are standard transistors that lie in wells tied
+to the ground and power rails, labelled in this cell as \fBVss#0\fR
+and \fBVdd#0\fR respectively.  (They're not labelled \fBGND!\fR and
+\fBVdd!\fR so you'll see the difference between \fBN1\fR and \fBN3\fR).
+\fBP2\fR lies in a well that is tied to a different bias voltage,
+\fBVBias\fR, such as might occur in an analog design.
+Finally, \fBN2\fR is in a well that isn't tied to any wire.
+The substrate node appears as \fBFloat\fR because that's the label that
+was attached to the well surrounding \fBN2\fR.
+.PP
+The ability to extract transistor substrate nodes allows you to perform
+a simple check for whether or not transistors are in properly connected
+(\fIe.g.\fR, grounded) wells.  In a p-well CMOS process, for example, you
+might set the default substrate node for n-channel transistors to be
+some distinguished global node other than ground, \fIe.g.\fR,
+\fBNSubstrateNode!\fR.  You could then extract the circuit, flatten
+it using \fIext2spice\fR\|(1) (which preserves substrate nodes,
+unlike \fIext2sim\fR\|(1) which ignores them), and
+look at the substrate node fields of all the n-channel transistors:
+if there were any whose substrate nodes weren't connected to \fBGND!\fR,
+then these transistors appear either outside of any explicit well
+(their substrate nodes will be the default of \fBNSubstrateNode\fR),
+or in a well that isn't tied to \fBGND!\fR with a substrate contact.
+.NH 1
+Extraction styles
+.PP
+Magic usually knows several different ways to extract
+a circuit from a given layout.
+Each of these ways is called a \fIstyle\fR.
+Different styles can be used to handle different
+fabrication facilities, which may differ in the parameters
+they have for parasitic capacitance and resistance.
+For a scalable technology, such as the default \fBscmos\fR,
+there can be a different extraction style for each scale factor.
+The exact number and nature of the extraction styles is
+described in the technology file that Magic reads when it starts.
+At any given time, there is one current extraction style.
+.PP
+To print a list of the extraction styles available, type
+the command
+.(X
+\fB:extract style\fR.
+.)X
+The \fBscmos\fR technology currently has the styles \fBlambda=1.5\fR, 
+\fBlambda=1.0\fR, and \fBlambda=0.6\fR, though this changes over time as
+technology evolves.
+To change the extraction style
+to \fIstyle\fR, use the command
+.(X
+\fB:extract style\fI style\fR
+.)X
+.PP
+Each style has a specific scale factor between Magic units and
+physical units (\fIe.g.\fR, microns);  you can't use a
+particular style with a different scale factor.  To change
+the scalefactor, you'll have to edit the appropriate
+style in the \fBextract\fR section of the technology file.
+This process is described in
+``Magic Maintainer's Manual #2: The Technology File.''
+.NH 1
+Flattening Extracted Circuits
+.PP
+Unfortunately, very few tools exist to
+take advantage of the \fIext\fR\|(5) format
+files produced by Magic's extractor.
+To use these files for simulation
+or timing analysis,
+you will most likely need to convert them to a flattened
+format, such as \fIsim\fR\|(5) or \fIspice\fR\|(5).
+.PP
+There are several programs for flattening \fIext\fR\|(5) files.
+\fIExt2sim\fR\|(1) produces \fIsim\fR\|(5) files suitable
+for use with \fIcrystal\fR\|(1), \fIesim\fR\|(1), or \fIrsim\fR\|(1).
+\fIExt2spice\fR\|(1) is used to produce \fIspice\fR\|(5) files
+for use with the circuit-level simulator \fIspice\fR\|(1).
+Finally, \fIextcheck\fR\|(1) can be used to perform connectivity
+checking and will summarize the number of flattened nodes,
+transistors, capacitors, and resistors in a circuit.
+All of these programs make use of a library known as
+\fIextflat\fR\|(3), so the conventions for each and the
+checks they perform are virtually identical.  The documentation
+for \fIextcheck\fR covers the options common to all of
+these programs.
+.PP
+To see how \fIext2sim\fR works, load the cell \fBtut8n\fR
+and expand all the \fBtutm\fR subcells.
+Notice how the \fBGND!\fR bus is
+completely wired, but the \fBVdd!\fR bus is in three
+disconnected pieces.
+Now extract everything with \fB:extract\fR, then
+exit Magic and run \fBext2sim tut8n\fR.
+You'll see the following sort of output:
+.(X
+\fB
+*** Global name Vdd! not fully connected:
+One portion contains the names:
+    left/Vdd!
+The other portion contains the names:
+    center/Vdd!
+I'm merging the two pieces into a single node, but you
+should be sure eventually to connect them in the layout.
+
+*** Global name Vdd! not fully connected:
+One portion contains the names:
+    left/Vdd!
+    center/Vdd!
+The other portion contains the names:
+    right/Vdd!
+I'm merging the two pieces into a single node, but you
+should be sure eventually to connect them in the layout.
+
+Memory used: 56k
+\fR
+.)X
+The warning messages are telling you that the global name
+\fBVdd!\fR isn't completely wired in the layout.  The flattener
+warns you, but goes ahead and connects the pieces together
+anyway to allow you to simulate the circuit as though it
+had been completely wired.
+The output of \fIext2sim\fR will be three files:
+\fBtut8n.sim\fR, \fBtut8n.al\fR, and \fBtut8n.nodes\fR;
+see \fIext2sim\fR\|(1) or \fIsim\fR\|(5) for more information
+on the contents of these files.
+``\fBMagic Tutorial #11:  Using RSIM with Magic\fR'' explains how to use the
+output of \fIext2sim\fR with the switch-level simulator,
+\fIrsim\fR\|(1).

@@ -1,0 +1,68 @@
+.rm CM
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+\" sccsid "@(#)text	1.10 (Berkeley) 11/30/85"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.sp .5c
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.DS C
+.LG
+.LG
+.sp |3c
+\fBMagic Technology Manual #2: Scalable CMOS\fR
+.rm CH
+.ds LH Magic Technology Manual #2: Scalable CMOS
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIShih-Lien Lu\fR
+
+Information Sciences Institute
+University of Southern California
+4676 Admiralty Way
+Marina del Rey, CA  90291
+
+
+\fIJohn Ousterhout\fR
+
+Computer Science Division
+Electrical Engineering and Computer Sciences
+University of California
+Berkeley, CA  94720
+
+
+.NL
+.sp 1c
+.DE
+.NH 1
+Introduction
+.PP
+NOTE:  This manual is no longer maintained by the Magic team, as
+MOSIS has taken over responsibility for it.
+For the latest copy, send an electronic mail message to "mosis@mosis.edu"
+with the following lines:
+.DS I
+REQUEST:  INFORMATION
+TOPIC:  SCMOS_MANUAL.INF
+NET-ADDRESS:  \fI<put your e-mail address here>\fR
+REQUEST:  END
+.DE
+The Net-Address line is optional -- leave it out if you aren't sure of 
+your e-mail address.  In almost all cases MOSIS can figure out your return
+address.
+.PP
+The latest technology file is also available.  Send a message similar to
+the above message, but request topic SCMOS.TECH instead of SCMOS_MANUAL.

@@ -1,0 +1,298 @@
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+\" sccsid "@(#)text	1.5 (Berkeley) 11/24/85"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.sp .5c
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Technology Manual #1: NMOS\fR
+.rm CH
+.ds LH Magic Technology Manual #1: NMOS
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIJohn Ousterhout\fR
+.sp 1c
+Computer Science Division
+Electrical Engineering and Computer Sciences
+University of California
+Berkeley, CA  94720
+
+
+\fI(Warning:  Process details often change.  Contact MOSIS\fR
+\fIor your fab line to verify information in this document.)\fR
+.DE
+.NH 1
+Introduction
+.PP
+This document describes Magic's NMOS technology.  It includes
+information about the layers, design rules, routing, CIF generation,
+and extraction.  This technology is 
+available by the name \fBnmos\fR (run Magic
+with the shell command \fBmagic -T nmos\fR).
+The design rules described here are for
+the standard Mead and Conway NMOS process with butting contacts
+omitted and buried contacts added.  There is a single layer each
+of metal and polysilicon.
+If you've been reading the Mead and
+Conway text, or if you've already done circuit layout with
+a different editing system, don't forget that
+these are not the layers that actually end up on masks.  Contacts
+and transistors are drawn in a stylized form that omits implants,
+vias, and buried windows.
+
+.NH 1
+Layers and Design Rules
+.NH 2
+Metal
+.GS C
+height 1.5
+file nmos1.g
+st cf
+.GE
+.PP
+There is only one layer of metal, and it is drawn in blue.  Magic
+accepts the names \fBmetal\fR or \fBblue\fR for this layer.  Metal
+must always be at least 3 units wide and must be separated from
+other metal by at least 3 units.
+.NH 2
+Polysilicon
+.GS C
+file nmos2.g
+height 1.2
+st cf
+.GE
+.PP
+Polysilicon is drawn in red, and can be referred to in Magic as
+either \fBpolysilicon\fR or \fBred\fR.  It has a minimum width of
+2 units and a minimum spacing of 2 units.
+.NH 2
+Diffusion
+.GS C
+height 1.4
+file nmos3.g
+st cf
+.GE
+.PP
+Diffusion is drawn in green, and can be referred to in Magic as
+either \fBdiffusion\fR or \fBgreen\fR.  It has a minimum width of
+2 units and a minimum spacing of 3 units.
+.NH 2
+Contacts to Metal
+.GS C
+height 2
+file nmos4.g
+st cf
+.GE
+.PP
+Contacts between metal and polysilicon, and between metal and
+diffusion, have similar forms.  Poly-metal contacts can be
+referred to as \fBpmc\fR or \fBpoly_metal_contact\fR;  they are
+drawn to look like metal running on top of poly, with an ``X''
+over the area of the contact.  Diffusion-metal contacts are
+similar, except that they look like metal running on top of
+diffusion, and have names \fBdmc\fR and \fBdiff_metal_contact\fR.
+Contacts are drawn differently in Magic than they will appear
+in the CIF:  you do \fInot\fR draw the via hole.  Instead, you
+draw the outer area of the metal pad around the contact, which
+must be at least 4 units on each side.  Magic will fill in the
+appropriate via when CIF is generated.  If you draw contacts
+larger than 4 units on a side, Magic will fill in as many 2-by-2
+CIF via holes (with 2-unit spacings) as it can.
+Contacts areas must be rectangular in shape:  contacts of the
+same type may not abut.
+.PP
+An additional kind of contact, called \fBglass_contact\fR, is
+used to generate holes in the overglass layer for use in bonding
+to pads.  This layer is drawn as gray stripes over blue, and
+includes both metal and the overglass hole.
+.NH 2
+Transistors
+.GS C
+width 5
+file nmos5.g
+st cf
+.GE
+.PP
+There are three transistor structures in the NMOS technology.
+Enhancement transistors are known by the names \fBefet\fR
+and \fBenhancement_fet\fR, and are drawn to look like red over
+green, with green stripes.  You get efet automatically
+when you paint poly over diffusion or vice versa.  Depletion
+transistors are known by the names \fBdfet\fR and
+\fBdepletion_fet\fR, and are drawn the same
+way, except with yellow stripes.  A third type of material is
+called \fBdepletion_capacitor\fR or \fBdcap\fR.  It is displayed with
+yellow crosses over the transistor area, and is identical to dfet
+except that there are no overhang design rules for it since it is
+assumed to be used only as a capacitor.  You do not drawn any
+implants in Magic, but just use a different material for the
+transistor.  Magic will generate the implants automatically.
+All transistors must be at least 2 units on each side, and
+there must be a poly or diffusion overhang for 2 units on each
+side of efet or dfet (this is not
+required for dcap).  Poly must be separated from
+diffusion by at least one unit except where it is forming a
+transistor.  Dfet and dcap must be at least 3 units from efet in
+order to keep the implant from contaminating the enhancement
+transistor.
+.bp
+.NH 2
+Buried Contacts
+.GS C
+width 4
+file nmos6.g
+st cf
+.GE
+.PP
+Buried contacts go by the names \fBbc\fR and \fBburied_contact\fR.
+They are drawn in a brownish color (the same as transistors),
+except with solid black squares over their area.  As with other
+contacts, you draw just the area where the two connecting materials
+(poly and diffusion) overlap;  Magic will generate the CIF buried
+window, which is actually larger than the overlap area.
+Buried contacts come in two forms.  The normal form is 2 units on
+a side, and no poly or diffusion overhang is required.  The
+second form is used only next to depletion transistors, and is a
+3-by-2 structure abutting the depletion transistor.  This form
+is a little controversial, since it results in larger-than-normal
+variations in the size of the depletion transistor.  As a
+consequence, Magic reports design-rule violations wherever buried
+contacts abut depletion transistors less than 4 units long.
+In butting bc-dfet structure, you should measure the transistor length
+from the bc-dfet boundary.
+.PP
+WARNING:  there is one additional rule for buried contacts that is
+NOT enforced by Magic.  Where diffusion enters a buried contact,
+there must be no unrelated polysilicon for 3 units on that side
+of the buried contact.  This rule is necessary because the
+buried window extends outward from the buried contact by one unit
+on the diffusion side, and polysilicon must be far
+enough away to avoid shorting to the diffusion through the buried
+window.  Unfortunately,
+there is no way to check this rule in Magic without being
+extremely conservative (the rule would have to require no poly
+whatsoever on the diffusion side, even if the poly was connected
+to the buried contact).  So, for now, this rule is not checked.
+Be careful!
+.br
+.ne 8c
+.NH 2
+Transistor Spacings
+.GS C
+width 5
+file nmos7.g
+st cf
+.GE
+.PP
+Transistors must be spaced at least 1 unit from any contact to
+metal, in order to keep the contact from shorting the transistor.
+In addition, buried contacts must be at least 4 units from
+enhancement transistors in the diffusion direction.  This rule
+applies only to the side of buried contact where diffusion
+leaves the contact.
+.NH 2
+Hierarchical Constraints
+.PP
+The design-rule checker enforces several constraints on how
+subcells may overlap.  The general rule is that overlaps may
+be used to connect portions of cells, but the overlaps must
+not change the structure of the circuit.  Thus, for example,
+it is acceptable for poly in one cell to overlap poly-metal
+contact in another cell, but it is not acceptable for poly
+in one cell to overlap diffusion in another (thereby forming
+a transistor).
+.PP
+For contacts, there are additional restrictions.
+A contact in one cell may not overlap a contact
+in any other cell unless the two contacts have same type
+and they occupy exactly the same area.  Partial overlaps are
+not permitted, nor are abutting contacts of the same type
+(contacts of different types may abut, as long as the abutment
+doesn't violate any other design rules).  The contact restrictions
+are necessary to guarantee that CIF can be generated correctly
+in a hierarchical fashion.
+
+.NH 1
+Routing
+.PP
+If you use Magic's automatic routing tools on an NMOS design,
+the routing will be run in metal and polysilicon, with metal
+as the primary layer.  The routing will be placed on a
+7-unit grid.
+
+.NH 1
+Reading and Writing CIF
+.PP
+There is only one CIF output style available in the NMOS technology:
+\fBlambda=2\fR.  The CIF layers in this style, and their meanings,
+are:
+.TS
+center box;
+l l.
+Name	Meaning
+_
+NP	polysilicon
+ND	diffusion
+NM	metal
+NI	depletion implant: generated around depletion
+\^	transistors and depletion contacts
+NC	contact via:  generated as small squares inside
+\^	poly-metal contacts and diffusion-metal contacts
+NB	buried window: generated around buried contacts
+NG	overglass via: generated for overglass contacts
+.TE
+.LP
+To see exactly where each CIF layer is generated for a particular
+design, use the \fB:cif see\fR command.
+There is also just one CIF input style.  It is called \fBlambda=2\fR
+and can be used to read files written by Magic in the \fBlambda=2\fR
+style, or files written by Caesar using the standard NMOS technology
+with a scale factor of 200.
+.ne 10c
+.NH 1
+Extraction
+.PP
+Transistors of type \fBefet\fP or \fBdfet\fR
+in the NMOS technology must have at least two diffusion terminals.
+A diffusion terminal is a contiguous region along the perimeter of the
+transistor channel that connects to diffusion, as shown below:
+.GS C
+height 3.5
+file nmos8.g
+st cf
+.GE
+.LP
+A transistor may have more than two diffusion terminals, in which case
+it is modeled as a collection of two-terminal transistors.
+If only one diffusion terminal is present, the the extractor
+flags this as an error and outputs a transistor with the source
+and drain shorted together.
+.PP
+Transistors of the special type \fBdcap\fP may have as few as one
+diffusion terminal.
+Although their normal use is as capacitors, the extractor will
+output them as though they were a \fBdfet\fP.  It is up to simulation
+programs to compute the capacitance of a \fBdcap\fR from the
+area and perimeter of its channel.
+.PP
+The NMOS technology file currently contains little information on
+parasitic coupling capacitances.
+As a result, overlap
+capacitance, and sidewall overlap capacitance will always be zero.

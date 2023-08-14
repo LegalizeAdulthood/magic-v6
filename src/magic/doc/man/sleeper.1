@@ -1,0 +1,44 @@
+.\" sccsid "@(#)sleeper.1	1.6 (Berkeley) 5/12/85"
+.TH SLEEPER 1 
+.UC 4
+.SH NAME
+sleeper \- acquire a graphics terminal and hang around
+.SH SYNOPSIS
+.B sleeper
+.br
+.SH DESCRIPTION
+Certain programs such as \fImagic\fP\|(1) can require the use of
+a graphics terminal separate from the terminal used to run the
+program.  If the graphics terminal has an ordinary login process
+running on it, it is necessary to run \fIsleeper\fP to acquire
+ownership of the terminal, set up its modes appropriately,
+and prevent the login process from eating input destined for the CAD tool.
+.PP
+When \fIsleeper\fP is run, it will print a message of the form:
+.sp
+.in +1i
+\fBtty is:\fP
+.br
+\fB/dev/tty\fIname\fR
+.in -1i
+.sp
+Here, \fB/dev/tty\fIname\fR is the device name of the graphics terminal.
+This is particularly useful when sleeper is run over the network,
+or when using \fIfsleeper\fP\|(1) or \fIrsleeper\fP\|(1).
+.PP
+\fISleeper\fR may be killed by sending it two \fBQUIT\fP signals
+within ten seconds of each other.  This is most easily done by
+typing two quit characters (usually CTRL-\e or CTRL-SHIFT-L)
+in a row on the graphics terminal.
+.PP
+For \fIsleeper\fP to work best, there should be an account named
+\fBsleeper\fP, whose login shell is ~cad/bin/sleeper and with no password.
+This enables users to log in as the user \fBsleeper\fP,
+and is also necessary for
+the programs \fIfsleeper\fP\|(1) and \fIrsleeper\fP\|(1) to work.
+(Note that you will have to include the full pathname of ~cad/bin/sleeper
+in /etc/passwd; the initial ~cad does not get expanded).
+
+.SH "SEE ALSO"
+.PP
+fsleeper(1), magic(1), rsleeper(1)

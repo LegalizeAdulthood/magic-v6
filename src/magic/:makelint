@@ -1,0 +1,17 @@
+#!/bin/csh -f
+#
+# :makelint modules
+#
+# Make the lint file in the library.
+#
+# rcsid $Header: :makelint,v 1.1 89/04/03 16:15:32 mayo Exp $
+#
+
+foreach mod ( $argv[1-] )
+	echo -n "pushd "
+	pushd $mod
+	make -k ../lib/lint/${mod}.ln
+	echo -n "popd "
+	popd
+end
+

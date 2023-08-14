@@ -1,0 +1,145 @@
+/*
+ * nmInt.h --
+ *
+ * Defines things needed inside the netmenu module, but
+ * not needed outside the module.
+ *
+ *     ********************************************************************* 
+ *     * Copyright (C) 1985, 1990 Regents of the University of California. * 
+ *     * Permission to use, copy, modify, and distribute this              * 
+ *     * software and its documentation for any purpose and without        * 
+ *     * fee is hereby granted, provided that the above copyright          * 
+ *     * notice appear in all copies.  The University of California        * 
+ *     * makes no representations about the suitability of this            * 
+ *     * software for any purpose.  It is provided "as is" without         * 
+ *     * express or implied warranty.  Export of this software outside     * 
+ *     * of the United States of America may require an export license.    * 
+ *     *********************************************************************
+ *
+ *
+ * rcsid "$Header: nmInt.h,v 6.0 90/08/28 18:51:03 mayo Exp $"
+ */
+
+#define _NMINT
+
+#ifndef	_GEOMETRY
+    err1 = Need_To_Include_Geometry_Header;
+#endif	_GEOMETRY
+#ifndef _WINDOWS
+    err2 = Need_To_Include_Windows_Header;
+#endif	_WINDOWS
+
+/* The declarations below define the elements displayed in the
+ * net-list menu.  There are three kinds of things:
+ *
+ * 1. Buttons:  these are boxes, drawn with a solid color fill
+ *    and a black outline and (possibly) text centered in the
+ *    middle.  Each button corresponds to a command or commands.
+ *
+ * 2. Extra text:  this is just extra text, displayed to make the
+ *    menu more readable.
+ *
+ * 3. Extra boxes:  more stuff, not necessarily corresponding to
+ *    commands, that makes the menu more readable.
+ *
+ */
+
+typedef struct
+{
+    char *nmb_text;		/* Text to display in button. */
+    int nmb_style;		/* Style for color fill. */
+    Rect nmb_area;		/* Area of button. */
+    Void (*nmb_leftDown)();	/* Procedure to call when left button
+			         * goes down in button.  NULL means don't
+			         * call anything on this transition.  The
+				 * procedure gets passed four parameters:
+				 * the window, the address of this NetButton,
+				 * the TxCommand, and the cursor position in
+				 * surface coords.  See NMcommand's code for
+				 * details.
+			         */
+    Void (*nmb_leftUp)();
+    Void (*nmb_middleDown)();
+    Void (*nmb_middleUp)();
+    Void (*nmb_rightDown)();
+    Void (*nmb_rightUp)();
+} NetButton;
+
+typedef struct
+{
+    char *nml_text;		/* Text to display. */
+    int nml_style;		/* Style for text. */
+    Rect nml_area;		/* Bounding area for text. */
+} NetLabel;
+
+typedef struct
+{
+    int nmr_style;		/* Style for rectangle. */
+    Rect nmr_area;		/* Rectangle's area. */
+} NetRect;
+
+/* Button action procedures: */
+
+extern Void NMGetLabels();
+extern Void NMNextLabel();
+extern Void NMPrevLabel();
+extern Void NMChangeNum();
+extern Void NMPutLabel();
+extern Void NMReOrientLabel();
+extern Void NMSwitchHandler();
+extern Void NMButtonNetList();
+extern Void NMButtonDisconnect();
+extern Void NMButtonPrint();
+extern Void NMFindLabel();
+extern Void NMButtonProc();
+
+/* Command routines: */
+
+extern Void NMCmdAdd(), NMCmdCleanup(), NMCmdCull(), NMCmdDnet(),
+    NMCmdDterm(), NMCmdExtract(), NMCmdFindLabels(), NMCmdFlush(), NMCmdJoin(),
+    NMCmdMeasure(), NMCmdNetlist(), NMCmdPrint(), NMCmdRipup(),
+    NMCmdSavenetlist(), NMCmdShownet(), NMCmdShowterms(),
+    NMCmdTrace(), NMCmdVerify(), NMCmdWriteall();
+
+extern NetButton NMButtons[];
+extern Window *NMWindow;
+
+extern void NMAddPoint();
+extern void NMDeletePoint();
+extern void NMClearPoints();
+extern void NMUpdatePoints();
+extern Void NMRedrawPoints();
+
+extern Void NMRedrawCell();
+extern void NMShowCell();
+extern void NMUnsetCell();
+extern Void NMShowUnderBox();
+extern Void NMShowRoutedNet();
+extern void NMShowLabel();
+
+extern Void NMRipup();
+extern Void NMRipupList();
+extern Void NMExtract();
+extern void NMSelectNet();
+
+extern bool NMCheckWritten();
+extern Void NMWriteAll();
+
+extern void NMUndo();
+extern void NMUndoInit();
+
+/* Various global variables (within this module): */
+
+extern char * NMCurNetName;
+
+#define NMLabelButton (NMButtons[0])
+#define NMNum1Button (NMButtons[2])
+#define NMNum2Button (NMButtons[3])
+#define NMNetListButton (NMButtons[5])
+
+/* Arguments for the routine NMUndo: */
+
+#define NMUE_ADD 1
+#define NMUE_REMOVE 2
+#define NMUE_SELECT 3
+#define NMUE_NETLIST 4

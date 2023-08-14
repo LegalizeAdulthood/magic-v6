@@ -1,0 +1,69 @@
+.TH EXT2SPICE 1 
+.SH NAME
+ext2spice \- convert hierarchical \fIext\fR\|(5) extracted-circuit files
+to input files for \fIspice\fR\|(1)
+.SH SYNOPSIS
+.B ext2spice
+[
+.B \-i
+.I icfile
+] [
+.B \-o
+.I spicefile
+] [
+.B \-F
+] [
+.I "extcheck-options"
+]
+.I root
+
+.SH DESCRIPTION
+Ext2spice will convert an extracted circuit from the hierarchical
+representation in the \fIext\fR\|(5) format produced by Magic to the
+flat representation in \fIspice\fR\|(5) format
+suitable for input to the SPICE circuit-level simulator.
+The root of the tree to be extracted is the file \fIroot\fB.ext\fR;
+it and all the files it references are recursively flattened.
+The result is a single, flat representation of the circuit network
+that is written to the file \fIroot\fB.spice\fR.  Equivalences
+between the node numbers required by SPICE and the node names
+from the extracted circuit appear as comments in the SPICE deck
+of the form ``\fB** NODE: \fInum\fB = \fIname\fR''.
+.PP
+Nodes are output as explicit capacitors to ground, if their capacitance
+exceeds the threshold for capacitance specified on the command line.
+In addition, if a node's lumped resistance exceeds the threshold
+specified with the \fB\-r\fR flag (see \fIextcheck\fR\|(1) for details),
+all connections from transistors to that node are made through an
+explicit resistor whose resistance is half of the lumped node resistance.
+One terminal of the resistor will be the node; the other will be a dummy
+node that exists solely to connect the resistor and transistor terminals
+together.
+.PP
+The following options are recognized:
+.TP
+.B \-i\ \fIicfile\fP
+If specified, read the file \fIicfile\fR, which contains
+lines of the form ``\fInodename nodevalue\fR''.
+Causes a Spice \fB.IC\fR line to be output setting the
+value of each \fInodename\fR to its associated \fInodevalue\fR
+(which must be an integer volatage).
+.TP
+.B \-o\ \fIoutfile\fP
+Instead of leaving output in the file \fIroot\fB.spice\fR, leave it
+in \fIoutfile\fP.
+.TP
+.B \-F
+Don't output nodes that aren't connected to fets (floating nodes).
+If this flag isn't specified, floating nodes are indicated in the
+output with the string ``\fB===FLOATING===\fR'' appended to
+the ``\fB** NODE:\fR'' comment line that identifies the node.
+.PP
+In addition, all of the options of \fIextcheck\fR\|(1) are accepted.
+
+.SH "SEE ALSO"
+magic\|(1), extcheck\|(1), ext2dlys\|(1), ext2sim\|(1), spice\|(1),
+ext\|(5), sim\|(5)
+
+.SH AUTHOR
+Walter Scott

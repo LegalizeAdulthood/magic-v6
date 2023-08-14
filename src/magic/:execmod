@@ -1,0 +1,25 @@
+#!/bin/csh -f
+#
+# :execmod cmd modules
+#
+# Execute a command, once in each module directory.
+#
+# Example usage:
+#	:execmod "echo hi" parser commands utils
+#
+# rcsid $Header: :execmod,v 1.2 90/08/20 20:51:05 mayo Exp $
+#
+
+set cmd="$1"
+foreach mod ( $argv[2-] )
+	echo ' '
+	echo ------- Module $mod -------
+	echo -n "pushd "
+	pushd $mod
+	echo Executing: $cmd 
+	$cmd
+	echo -n "popd "
+	popd
+end
+
+

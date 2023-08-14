@@ -1,0 +1,23 @@
+#!/bin/csh -f
+#
+# :makelib modules
+#
+# Make the 'module.o' file in the library.
+# Has the side effect of removing stuff from the installed directory.
+#
+# rcsid $Header: :makelib,v 1.1 89/04/03 16:15:30 mayo Exp $
+#
+
+foreach mod ( $argv[1-] )
+	echo ' '
+	echo ------- Doing $mod -------
+	mkdir installed/$mod
+	echo -n "pushd "
+	pushd $mod
+	make -k ../lib/${mod}.o
+	echo -n "popd "
+	popd
+	rm -rf installed/$mod
+end
+
+

@@ -1,0 +1,5 @@
+#/bin/csh
+
+foreach rcsfile ( $* )
+	if( ! -e $rcsfile ) co $rcsfile
+end

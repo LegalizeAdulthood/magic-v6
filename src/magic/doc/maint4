@@ -1,0 +1,225 @@
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+.\" sccsid "@(#)maint3	4.1 MAGIC (Berkeley) 10/27/85";
+.\"
+.\" ----- Centered captions
+.\"
+.de (c
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.DS C
+..
+.de )c
+.sp .5c
+.DE
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.\"
+.\" ----- Indented captions
+.\"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+.sp
+..
+.\"
+.\" ----- Floating table
+.\"
+.de (T
+.KF
+.sp
+.RS
+..
+.de )T
+.RE
+.sp
+.KE
+..
+.\"
+.\" ----- Indented example
+.\"
+.de (X
+.DS L
+.in +1i
+..
+.de )X
+.in -1i
+.DE
+..
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Maintainer's Manual #4:
+.sp
+Using Magic Under X Windows\fR
+.rm CH
+.ds LH Magic Maintainer's Manual #4
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIDon Stark\fR
+.sp 1c
+Computer Systems Laboratory
+Stanford, University
+Stanford, CA  94305
+
+
+.SM
+This tutorial corresponds to Magic version 6.
+
+
+.DE
+.SM
+.LP
+\fBTutorials and man  pages to read first:\fR
+.IP
+.DC L
+Magic Tutorial #1: Getting Started
+.br
+\fIX(1)\fR
+.br
+.DE
+.DE
+.LP
+\fBCommands covered in this tutorial:\fR
+.IP
+\fInone\fR
+.LP
+\fBMacros covered in this tutorial:\fR
+.IP
+\fInone\fR
+.br
+.NL
+.sp 1c
+.NH 1
+Introduction
+.PP
+This document provides information on Magic's X drivers that may be of help
+to system maintainers.
+.NH 1
+Compiling the Correct X Driver for your system.
+.PP
+Unfortunately, it is not possible to link with both the X10 and X11
+libraries, so you will have to compile Magic differently depending 
+on the version of X that you are running.
+.NH 2
+Compiling for X11
+.PP
+.DS l
+1. Add the flag -DX11 to misc/DFLAGS
+2. Add -lX11 to magic/LIBS
+3. Change the SRCS line in graphics/Makefile to  ${BASE_SRCS} ${X11_SRCS}
+4. Change the OBJS line to  ${BASE_OBJS} ${X11_OBJS}
+5. Change the POBJS line to  ${BASE_POBJS} ${X11_POBJS}
+6. Change the HELPER_SRCS line  ${X11HELPER_SRCS}
+7. Change the HELPER_SRCS line  ${X11HELPER_PROG}
+8. Compile the module graphics.o
+9. Relink magic
+.DE
+.NH 2
+Compiling for X10
+.PP
+.DS l
+1. Add the flag -DX10 to misc/DFLAGS
+2. Add -lX10 to magic/LIBS
+3. Change the SRCS line in graphics/Makefile to  ${BASE_SRCS} ${X10_SRCS}
+4. Change the OBJS line to  ${BASE_SRCS} ${X10_OBJS}
+5. Change the POBJS line to  ${BASE_SRCS} ${X10_POBJS}
+6. Change the HELPER_SRCS line  ${X10HELPER_SRCS}
+7. Change the HELPER_SRCS line  ${X10HELPER_PROG}
+8. Compile the module graphics.o
+9. Relink magic
+.DE
+.NH 1
+Troubleshooting the X Drivers
+.PP
+The following is a list of problems sometimes encountered in running Magic
+under X and some suggestions about how to get around the problem.
+.NH 2
+X11 Driver
+.IP "Fonts" 20 
+We have tried to pick a set of fonts that most machines running
+X11 Revision 3 will have, but there is nothing to guarantee that
+a given machine will have a font. If you're getting "unable to load font"
+messages, you will need to change the fonts that Magic uses.  The simplest 
+way to do this is to specify them in your .Xdefaults file as described in
+section 2.1. To change the default values that Magic uses, change the 
+"fontnames" array in the file grX11su3.c of the graphics module.
+The program \fIxlsfonts\fR will tell you what fonts are available on your
+machine.
+.IP "Strange Color Effects" 20
+Magic often co-exists rather uneasily with 
+other X applications because it is picky about which colors it is allocated.
+If possible, it tries to allocate the colors it requires out of the 
+display's default colormap because this perturbs other applications the least.
+If this fails, however, Magic makes its own colormap.  When this colormap
+gets installed is a function of the window manager; most window managers 
+install it when the cursor is in the magic window.  Unfortunately, there is
+no way to guarantee that the window manager installs the magic colormap 
+correctly;  if you get erratic colormap behavior, try using a lower number 
+of planes or reducing the number of colors that other applications use.
+.IP
+When magic's colormap is being used, other windows may change color, 
+possibly to some unusable combination such as black on black or white 
+on white.  This problem can sometimes be ameliorated by changing the 
+constants X_COLORMAP_BASE and X_COLORMAP_RESERVED in grX11su2.c; a more complete
+description of what these constants do is included in that file.
+Values for these constants that are incompatible with your machine
+will sometimes generate Xerrors in XQueryColors.
+.IP "Failure to prompt user for window position" 20
+Whether or not the 
+designer is prompted for a window's location is dependent on the window 
+manager.  Certain window managers, notably \fItwm\fR, do not always 
+do this.
+.NH 2
+X10 Driver
+.PP
+In general, the Version 10 driver is less reliable than the X11 one.
+If you have the choice, you are better off running under X11.
+.IP "grX2.GrXSetCMap: Failed to get color cells" 20
+Magic gives this
+error when it can't get sufficient colors to run.  This can be caused
+by running Magic on a machine with an insufficient number of planes
+(8 planes are generally required to run a 7 bit dstyles file), or by 
+having too many colors already used by other applications.  Try 
+using only black and white xterms, xclocks, etc., and see if the problem 
+goes away.
+.IP "Couldn\'t get 7 planes; allocating by color" 20
+Certain X10 servers, 
+most notably the VaxstationII-GPX, allocate colors in such a way that 
+Magic can never get the 7 color planes that it wants.  When this 
+happens, Magic instead allocates 128 colors. This is better than nothing, 
+but not by much; strange colors often result when layers overlap. 
+.NH 1
+Acknowledgments
+.PP
+Many people share the credit (and the blame) for the Magic X drivers.   
+The original X10 port was done by Mark Linton and Doug Pan at Stanford 
+University.  Walter Scott and Eric Lunow of Lawrence Livermore 
+National Laboratories modified the driver and the windows module 
+so that magic windows act like normal X windows.  Meanwhile, Dave Durfee and
+Markus G. Wloka of Brown University improved the reliability of the Stanford 
+X10  driver and added support for a variable number of planes.  Marco Papa 
+of USC converted the Brown X10 driver to X11.  Concurrently, someone at 
+the University of Washington converted the Stanford X10 driver to X11.  
+The X11 driver in this distribution is predominantly a merge of the UW 
+driver with the multiwindow features of the LLNL driver.  Some of the ideas
+for supporting differing plane counts were borrowed from the USC/Brown work.
+Thanks to the Digital Equipment Corporation Western Research Laboratory 
+(DECWRL) for use of their computer facilities, and to Mike Chow of 
+Apple Computer for the Macintosh II-specific changes.

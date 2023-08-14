@@ -1,0 +1,100 @@
+SRCS = access.c binsim.c cad_dir.c config.c conn_list.c eval.c fio.c hist.c intr.c incsim.c mem.c prints.c netchange.c network.c newrstep.c nsubrs.c parallel.c rsim.c sched.c sim.c sstep.c stack.c tpos.c usage.c version.c
+OBJS = access.o binsim.o cad_dir.o config.o conn_list.o eval.o fio.o hist.o intr.o incsim.o mem.o prints.o netchange.o network.o newrstep.o nsubrs.o parallel.o rsim.o sched.o sim.o sstep.o stack.o tpos.o usage.o version.o
+HDSR = ../include/net.h
+LIBS = $(XLIB) -lm
+SYSF =
+CSW = -O
+X = 11
+CDIRS = -I../include
+CFLAGS = $(CDIRS) $(CSW) $(SYSF)
+irsim : spiketbl.c stables.c $(OBJS) ../ana$(X)/ana.o
+	cc $(CFLAGS) -o irsim $(OBJS) ../ana$(X)/ana.o $(LIBS)
+$(SRCS) gentbl.c genspktbl.c : 
+	co $@
+stables.c : gentbl
+	gentbl
+gentbl : gentbl.c
+	cc $(CFLAGS) -o gentbl gentbl.c
+spiketbl.c : genspktbl
+	genspktbl spiketbl.c
+genspktbl : genspktbl.c
+	cc -o genspktbl genspktbl.c -lm
+version.o: \
+	../include/defs.h
+usage.o: \
+	../include/defs.h
+tpos.o: \
+	../include/defs.h \
+	../include/net.h
+stack.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/net_macros.h
+sstep.o: \
+	../include/net.h \
+	../include/defs.h
+sim.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/net_macros.h
+sched.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/ASSERT.h
+rsim.o: \
+	../include/defs.h \
+	../include/net.h
+parallel.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/net_macros.h
+nsubrs.o: \
+	../include/defs.h \
+	../include/net.h
+newrstep.o: \
+	../include/defs.h \
+	../include/net.h \
+	spiketbl.c
+network.o: \
+	../include/defs.h \
+	../include/net.h
+netchange.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/net_macros.h
+prints.o: \
+	../include/defs.h
+mem.o: \
+	../include/defs.h
+incsim.o: \
+	../include/defs.h \
+	../include/net.h
+intr.o: \
+	../include/defs.h
+hist.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/ASSERT.h \
+	../include/bin_io.h
+fio.o: \
+	../include/defs.h
+eval.o: \
+	../include/defs.h \
+	../include/net.h
+conn_list.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/net_macros.h \
+	../include/ASSERT.h
+config.o: \
+	../include/defs.h \
+	../include/net.h
+cad_dir.o: \
+	../include/defs.h
+binsim.o: \
+	../include/defs.h \
+	../include/net.h \
+	../include/bin_io.h \
+	../include/net_macros.h
+access.o: \
+	../include/defs.h

@@ -1,0 +1,42 @@
+.TH vdmpc 5
+.SH NAME
+vdmpc \- format of vdmpc color bitmaps (raster images for printing)
+.SH SYNTAX
+\fI(none)\fR
+.br
+.SH DESCRIPTION
+.NXR "vdmpc" "format"
+.NXR "file" "color printing"
+.PP
+Vdmpc color bitmap files are processed by the vdmpc filter, which comes 
+with the Magic VLSI layout editor from Berkeley.
+.PP
+A vdmpc file consists of 5 parts:  a 1024 byte header and four bitmaps, one for
+each of the following colors in order:  black, cyan, magenta, and yellow.
+This format is inspired by the 3000-series Versatec color plotters.
+.PP
+The 1024 byte header starts with a 1-word magic number:  0xA5CF4DFB.
+Thus, the first 4 bytes of the file are:  0x4D, 0xFB, 0xA5, 0xCF.
+The second word (four bytes) contain the length of the bitmap in pixels.
+The third word gives the width of the bitmap.
+The width must be a multiple of 8.
+It does not have to match the physical width of the plotter, as it will
+be clipped or padded as needed.
+The remaining words of the header are currently unused, and should be set to
+zero.
+.PP
+The rest of the file contains the bitmaps.  There are no separation or
+formatting characters between the bitmaps -- they follow immediately after
+the header block and are packed back-to-back.
+Each bitmap is of size width*height bits,
+where width and height are defined in the header.
+Each bitmap consists of a sequence of bits packed into bytes.  The bits are
+ordered from the top-left of the image moving towards the top-right.  After
+a complete scan-line is represented this way, the data for the next lower
+scan line
+is represented.  Bits are packed into bytes such that the leftmost bit
+on the physical device is placed into the high-order bit position of the byte.
+.SH "SEE ALSO"
+vdmpc(8)
+.SH AUTHOR
+Bob Mayo

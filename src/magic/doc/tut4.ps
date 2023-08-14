@@ -1,0 +1,5079 @@
+%!PS-Adobe-1.0
+%%Creator: jove.pa.dec.com:mayo (Bob Mayo,WRL,8536630)
+%%Title: stdin (ditroff)
+%%CreationDate: Wed Sep 19 11:40:29 1990
+%%EndComments
+% lib/psdit.pro -- prolog for psdit (ditroff) files
+% Copyright (c) 1984, 1985 Adobe Systems Incorporated. All Rights Reserved.
+% last edit: shore Sat Nov 23 20:28:03 1985
+% RCSID: $Header: psdit.pro,v 1.1 87/05/28 11:20:28 reid Exp $
+
+/$DITroff 140 dict def $DITroff begin
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0 0 .001 0 0] def
+/FontBBox [-260 -260 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -140 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{500 360 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+
+% Changed by Edward Wang (edward@ucbarpa.berkeley.edu) to handle graphics,
+% 17 Feb, 87.
+
+/Dt{/Dlinewidth exch def}def 1 Dt
+/Ds{/Ddash exch def}def -1 Ds
+/Di{/Dstipple exch def}def 1 Di
+/Dpatterns[
+[%cf[widthbits]
+[8<0000000000000010>]
+[8<0411040040114000>]
+[8<0204081020408001>]
+[8<0000103810000000>]
+[8<6699996666999966>]
+[8<0000800100001008>]
+[8<81c36666c3810000>]
+[8<0f0e0c0800000000>]
+[8<0000000000000010>]
+[8<0411040040114000>]
+[8<0204081020408001>]
+[8<0000001038100000>]
+[8<6699996666999966>]
+[8<0000800100001008>]
+[8<81c36666c3810000>]
+[8<0f0e0c0800000000>]
+[8<0042660000246600>]
+[8<0000990000990000>]
+[8<0804020180402010>]
+[8<2418814242811824>]
+[8<6699996666999966>]
+[8<8000000008000000>]
+[8<00001c3e363e1c00>]
+[8<0000000000000000>]
+[32<00000040000000c00000004000000040000000e0000000000000000000000000>]
+[32<00000000000060000000900000002000000040000000f0000000000000000000>]
+[32<000000000000000000e0000000100000006000000010000000e0000000000000>]
+[32<00000000000000002000000060000000a0000000f00000002000000000000000>]
+[32<0000000e0000000000000000000000000000000f000000080000000e00000001>]
+[32<0000090000000600000000000000000000000000000007000000080000000e00>]
+[32<00010000000200000004000000040000000000000000000000000000000f0000>]
+[32<0900000006000000090000000600000000000000000000000000000006000000>]]
+[%ug
+[8<0000020000000000>]
+[8<0000020000002000>]
+[8<0004020000002000>]
+[8<0004020000402000>]
+[8<0004060000402000>]
+[8<0004060000406000>]
+[8<0006060000406000>]
+[8<0006060000606000>]
+[8<00060e0000606000>]
+[8<00060e000060e000>]
+[8<00070e000060e000>]
+[8<00070e000070e000>]
+[8<00070e020070e000>]
+[8<00070e020070e020>]
+[8<04070e020070e020>]
+[8<04070e024070e020>]
+[8<04070e064070e020>]
+[8<04070e064070e060>]
+[8<06070e064070e060>]
+[8<06070e066070e060>]
+[8<06070f066070e060>]
+[8<06070f066070f060>]
+[8<060f0f066070f060>]
+[8<060f0f0660f0f060>]
+[8<060f0f0760f0f060>]
+[8<060f0f0760f0f070>]
+[8<0e0f0f0760f0f070>]
+[8<0e0f0f07e0f0f070>]
+[8<0e0f0f0fe0f0f070>]
+[8<0e0f0f0fe0f0f0f0>]
+[8<0f0f0f0fe0f0f0f0>]
+[8<0f0f0f0ff0f0f0f0>]
+[8<1f0f0f0ff0f0f0f0>]
+[8<1f0f0f0ff1f0f0f0>]
+[8<1f0f0f8ff1f0f0f0>]
+[8<1f0f0f8ff1f0f0f8>]
+[8<9f0f0f8ff1f0f0f8>]
+[8<9f0f0f8ff9f0f0f8>]
+[8<9f0f0f9ff9f0f0f8>]
+[8<9f0f0f9ff9f0f0f9>]
+[8<9f8f0f9ff9f0f0f9>]
+[8<9f8f0f9ff9f8f0f9>]
+[8<9f8f1f9ff9f8f0f9>]
+[8<9f8f1f9ff9f8f1f9>]
+[8<bf8f1f9ff9f8f1f9>]
+[8<bf8f1f9ffbf8f1f9>]
+[8<bf8f1fdffbf8f1f9>]
+[8<bf8f1fdffbf8f1fd>]
+[8<ff8f1fdffbf8f1fd>]
+[8<ff8f1fdffff8f1fd>]
+[8<ff8f1ffffff8f1fd>]
+[8<ff8f1ffffff8f1ff>]
+[8<ff9f1ffffff8f1ff>]
+[8<ff9f1ffffff9f1ff>]
+[8<ff9f9ffffff9f1ff>]
+[8<ff9f9ffffff9f9ff>]
+[8<ffbf9ffffff9f9ff>]
+[8<ffbf9ffffffbf9ff>]
+[8<ffbfdffffffbf9ff>]
+[8<ffbfdffffffbfdff>]
+[8<ffffdffffffbfdff>]
+[8<ffffdffffffffdff>]
+[8<fffffffffffffdff>]
+[8<ffffffffffffffff>]]
+[%mg
+[8<8000000000000000>]
+[8<0822080080228000>]
+[8<0204081020408001>]
+[8<40e0400000000000>]
+[8<66999966>]
+[8<8001000010080000>]
+[8<81c36666c3810000>]
+[8<f0e0c08000000000>]
+[16<07c00f801f003e007c00f800f001e003c007800f001f003e007c00f801f003e0>]
+[16<1f000f8007c003e001f000f8007c003e001f800fc007e003f001f8007c003e00>]
+[8<c3c300000000c3c3>]
+[16<0040008001000200040008001000200040008000000100020004000800100020>]
+[16<0040002000100008000400020001800040002000100008000400020001000080>]
+[16<1fc03fe07df0f8f8f07de03fc01f800fc01fe03ff07df8f87df03fe01fc00f80>]
+[8<80>]
+[8<8040201000000000>]
+[8<84cc000048cc0000>]
+[8<9900009900000000>]
+[8<08040201804020100800020180002010>]
+[8<2418814242811824>]
+[8<66999966>]
+[8<8000000008000000>]
+[8<70f8d8f870000000>]
+[8<0814224180402010>]
+[8<aa00440a11a04400>]
+[8<018245aa45820100>]
+[8<221c224180808041>]
+[8<88000000>]
+[8<0855800080550800>]
+[8<2844004482440044>]
+[8<0810204080412214>]
+[8<00>]]]def
+/Dfill{
+ transform /maxy exch def /maxx exch def
+ transform /miny exch def /minx exch def
+ minx maxx gt{/minx maxx /maxx minx def def}if
+ miny maxy gt{/miny maxy /maxy miny def def}if
+ Dpatterns Dstipple 1 sub get exch 1 sub get
+ aload pop /stip exch def /stipw exch def /stiph 128 def
+ /imatrix[stipw 0 0 stiph 0 0]def
+ /tmatrix[stipw 0 0 stiph 0 0]def
+ /minx minx cvi stiph idiv stiph mul def
+ /miny miny cvi stipw idiv stipw mul def
+ gsave eoclip 0 setgray
+ miny stiph maxy{
+  tmatrix exch 5 exch put
+  minx stipw maxx{
+   tmatrix exch 4 exch put tmatrix setmatrix
+   stipw stiph true imatrix {stip} imagemask
+  }for
+ }for
+ grestore
+}def
+/Dsetlinewidth{2 Dlinewidth mul setlinewidth}def
+/Dsetdash{Ddash 4 eq{[8 12]}{Ddash 16 eq{[32 36]}
+ {Ddash 20 eq{[32 12 8 12]}{[]}ifelse}ifelse}ifelse 0 setdash}def
+/Dstroke{gsave Dsetlinewidth Dsetdash 1 setlinecap stroke grestore
+ currentpoint newpath moveto}def
+/Dp{Dfill Dstroke}def
+/DP{Dfill currentpoint newpath moveto}def
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Helvetica)xf 5 f
+6(Helvetica-Bold)xf 6 f
+7(Courier)xf 7 f
+8(Courier-Bold)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 1 1
+10 s 10 xH 0 xS 1 f
+12 s
+3 f
+16 s
+1303 1141(M)N
+1424(agic)X
+1677(Tutorial)X
+2165(#4:)X
+2368(Cell)X
+2621(H)X
+2721(ierarchies)X
+2 f
+12 s
+1961 1479(John)N
+2172(Ousterhout)X
+1 f
+1751 1817(Computer)N
+2160(Science)X
+2484(Division)X
+1383 1929 0.3542(Electrical)AN
+1778(Engineering)X
+2273(and)X
+2436(Computer)X
+2845(Sciences)X
+1820 2041(University)N
+2250(of)X
+2354(California)X
+1874 2153(Berkeley,)N
+2270(CA)X
+2451(94720)X
+2 f
+1798 2377(\(Updated)N
+2185(by)X
+2300(others,)X
+2588(too.\))X
+1 f
+10 s
+1561 2601(This)N
+1723(tutorial)X
+1974(corresponds)X
+2382(to)X
+2464(Magic)X
+2689(version)X
+2945(6.)X
+3 f
+12 s
+555 3013(Tutorials)N
+958(to)X
+1062(read)X
+1273(\256rst:)X
+1 f
+843 3173(Magic)N
+1113(Tutorial)X
+1448(#1:)X
+1595(Getting)X
+1908(Started)X
+843 3285(Magic)N
+1113(Tutorial)X
+1448(#2:)X
+1595(Basic)X
+1833(Painting)X
+2178(and)X
+2341(Selection)X
+3 f
+555 3473(Commands)N
+1047(introduced)X
+1519(in)X
+1623(this)X
+1796(tutorial:)X
+1 f
+755 3613(:array,)N
+1028(:edit,)X
+1248(:expand,)X
+1601(:\257ush,)X
+1862(:getcell,)X
+2195(:identify,)X
+2570(:load,)X
+2811(:path,)X
+3052(:see,)X
+3250(:unexpand)X
+3 f
+555 3753(Macros)N
+889(introduced)X
+1361(in)X
+1465(this)X
+1638(tutorial:)X
+1 f
+755 3893(x,)N
+851(X,)X
+968(\303X)X
+3 f
+555 4343(1.)N
+675(Introduction)X
+1 f
+755 4483(In)N
+876(Magic,)X
+1187(a)X
+1271(layout)X
+1553(is)X
+1658(a)X
+1742(hierarchical)X
+2238(collection)X
+2659(of)X
+2779(cells.)X
+3044(Each)X
+3277(cell)X
+3457(contains)X
+3818(three)X
+555 4595(things:)N
+849(paint,)X
+1098(labels,)X
+1379(and)X
+1550(subcells.)X
+1940(Tutorial)X
+2282(#2)X
+2409(showed)X
+2733(you)X
+2908(how)X
+3104(to)X
+3210(create)X
+3472(and)X
+3642(edit)X
+3818(paint)X
+555 4707(and)N
+737(labels.)X
+1053(This)X
+1267(tutorial)X
+1589(describes)X
+1990(Magic's)X
+2348(facilities)X
+2724(for)X
+2879(building)X
+3243(up)X
+3382(cell)X
+3564(hierarchies.)X
+555 4819(Strictly)N
+905(speaking,)X
+1337(hierarchical)X
+1859(structure)X
+2262(isn't)X
+2499(necessary:)X
+2990(any)X
+3195(design)X
+3511(that)X
+3721(can)X
+3920(be)X
+555 4931(represented)N
+1027 0.2500(hierarchically)AX
+1586(can)X
+1748(also)X
+1931(be)X
+2050(represented)X
+2521(``\257at'')X
+2799(\(with)X
+3029(all)X
+3153(the)X
+3298(paint)X
+3518(and)X
+3684(labels)X
+3936(in)X
+555 5043(a)N
+641(single)X
+914(cell\).)X
+1177(However,)X
+1596(many)X
+1853(things)X
+2131(are)X
+2292(greatly)X
+2602(improved)X
+3013(if)X
+3114(you)X
+3300(use)X
+3470(a)X
+3555(hierarchical)X
+555 5155(structure,)N
+942(including)X
+1332(the)X
+1476(ef\256ciency)X
+1882(of)X
+1988(the)X
+2132(design)X
+2409(tools,)X
+2646(the)X
+2790(speed)X
+3034(with)X
+3230(which)X
+3490(you)X
+3659(can)X
+3818(enter)X
+555 5267(the)N
+697(design,)X
+996(and)X
+1159(the)X
+1301(ease)X
+1491(with)X
+1686(which)X
+1945(you)X
+2113(can)X
+2271(modify)X
+2573(it)X
+2651(later.)X
+2203 6160(-)N
+2259(1)X
+2331(-)X
+
+2 p
+%%Page: 2 2
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+3 f
+555 688(2.)N
+675(Selecting)X
+1068(and)X
+1246(Viewing)X
+1606(Hierarchical)X
+2150(Designs)X
+1 f
+755 828(``Hierarchical)N
+1345(structure'')X
+1795(means)X
+2090(that)X
+2284(each)X
+2510(cell)X
+2699(can)X
+2882(contain)X
+3214(other)X
+3460(cells)X
+3685(as)X
+3813(com-)X
+555 940(ponents.)N
+929(To)X
+1062(look)X
+1259(at)X
+1355(an)X
+1472(example)X
+1825(of)X
+1931(a)X
+2000(hierarchical)X
+2482(layout,)X
+2773(enter)X
+2992(Magic)X
+3264(with)X
+3461(the)X
+3605(shell)X
+3813(com-)X
+555 1052(mand)N
+3 f
+799(magic)X
+1075(tut4a)X
+1 f
+1288(.)X
+1366(The)X
+1546(cell)X
+3 f
+1716(tut4a)X
+1 f
+1959(contains)X
+2310(four)X
+2500(subcells)X
+2840(plus)X
+3029(some)X
+3261(blue)X
+3456(paint.)X
+3726(Two)X
+3931(of)X
+555 1164(the)N
+711(subcells)X
+1059(are)X
+1215(instances)X
+1606(of)X
+1723(cell)X
+3 f
+1900(tut4x)X
+1 f
+2150(and)X
+2326(two)X
+2507(are)X
+2662(instances)X
+3052(of)X
+3 f
+3169(tut4y)X
+1 f
+3382(.)X
+3467(Initially,)X
+3834(each)X
+555 1276(subcell)N
+862(is)X
+960(displayed)X
+1363(in)X
+2 f
+1472(unexpanded)X
+1 f
+1971(form.)X
+2240(This)X
+2445(means)X
+2725(that)X
+2904(no)X
+3034(details)X
+3320(of)X
+3434(the)X
+3586(subcell)X
+3893(are)X
+555 1388(displayed;)N
+1010(all)X
+1142(you)X
+1321(see)X
+1479(is)X
+1578(the)X
+1731(cell's)X
+1975(bounding)X
+2373(box,)X
+2576(plus)X
+2771(two)X
+2950(names)X
+3231(inside)X
+3496(the)X
+3648(bounding)X
+555 1500(box.)N
+776(The)X
+955(top)X
+1107(name)X
+1345(is)X
+1438(the)X
+1585(name)X
+1823(of)X
+1932(the)X
+2079(subcell)X
+2381(\(the)X
+2560(name)X
+2798(you)X
+2971(would)X
+3239(type)X
+3433(when)X
+3669(invoking)X
+555 1612(Magic)N
+827(to)X
+928(edit)X
+1099(the)X
+1243(cell\).)X
+1489(The)X
+1665(cell's)X
+1899(contents)X
+2245(are)X
+2388(stored)X
+2648(in)X
+2748(a)X
+2816(\256le)X
+2964(with)X
+3160(this)X
+3324(name)X
+3558(plus)X
+3743(a)X
+3 f
+3811(.mag)X
+1 f
+555 1724(extension.)N
+1007(The)X
+1192(bottom)X
+1500(name)X
+1744(inside)X
+2009(each)X
+2221(bounding)X
+2618(box)X
+2796(is)X
+2894(called)X
+3159(an)X
+2 f
+3284(instance)X
+3639(identi\256er)X
+1 f
+3987(,)X
+555 1836(and)N
+724(is)X
+818(used)X
+1024(to)X
+1129(distinguish)X
+1581(different)X
+1943(instances)X
+2326(of)X
+2436(the)X
+2584(same)X
+2812(subcell.)X
+3163(Instance)X
+3514(id's)X
+3688(are)X
+3835(used)X
+555 1948(for)N
+691(routing)X
+993(and)X
+1156(circuit)X
+1427(extraction,)X
+1861(and)X
+2024(are)X
+2166(discussed)X
+2558(in)X
+2657(Section)X
+2970(6.)X
+755 2088(Subcells)N
+1113(can)X
+1279(be)X
+1402(manipulated)X
+1911(using)X
+2151(the)X
+2301(same)X
+2531(selection)X
+2906(mechanism)X
+3376(that)X
+3552(you)X
+3727(learned)X
+555 2200(in)N
+665(Tutorial)X
+1011(#2.)X
+1190(To)X
+1331(select)X
+1585(a)X
+1662(subcell,)X
+1993(place)X
+2231(the)X
+2383(cursor)X
+2657(over)X
+2862(the)X
+3014(subcell)X
+3321(and)X
+3494(type)X
+3 f
+3694(f)X
+1 f
+3760(\(``)X
+3 f
+3856(f)X
+1 f
+3888(ind)X
+555 2312(cell''\),)N
+843(which)X
+1106(is)X
+1198(a)X
+1269(macro)X
+1538(for)X
+3 f
+1678(:select)X
+1963(cell)X
+1 f
+2103(.)X
+2179(You)X
+2371(can)X
+2532(also)X
+2714(select)X
+2961(a)X
+3031(cell)X
+3198(by)X
+3321(typing)X
+3 f
+3594(s)X
+1 f
+3658(when)X
+3893(the)X
+555 2424(cursor)N
+825(is)X
+918(over)X
+1118(a)X
+1190(location)X
+1530(where)X
+1794(there's)X
+2085(no)X
+2210(paint;)X
+3 f
+2483(f)X
+1 f
+2544(is)X
+2637(probably)X
+3008(more)X
+3235(convenient,)X
+3711(particu-)X
+555 2536(larly)N
+757(for)X
+894(cells)X
+1096(that)X
+1266(are)X
+1409(completely)X
+1863(covered)X
+2193(with)X
+2389(paint.)X
+2654(When)X
+2908(you)X
+3076(select)X
+3320(a)X
+3387(cell)X
+3551(the)X
+3693(box)X
+3861(will)X
+555 2648(be)N
+673(set)X
+807(to)X
+909(the)X
+1054(cell's)X
+1290(bounding)X
+1680(box,)X
+1875(the)X
+2020(cell's)X
+2256(name)X
+2492(will)X
+2669(be)X
+2786(highlighted,)X
+3275(and)X
+3440(a)X
+3509(message)X
+3861(will)X
+555 2760(be)N
+677(printed)X
+981(on)X
+1108(the)X
+1257(text)X
+1433(display.)X
+1790(All)X
+1944(the)X
+2093(selection)X
+2467(operations)X
+2899(\()X
+3 f
+2931(:move)X
+1 f
+3182(,)X
+3 f
+3237(:copy)X
+1 f
+3461(,)X
+3 f
+3515(:delete)X
+1 f
+3788(,)X
+3842(etc.\))X
+555 2872(apply)N
+794(to)X
+894(subcells.)X
+1277(Try)X
+1441(selecting)X
+1809(and)X
+1973(moving)X
+2292(the)X
+2435(top)X
+2583(subcell)X
+2881(in)X
+3 f
+2980(tut4a)X
+1 f
+3193(.)X
+3265(You)X
+3454(can)X
+3612(also)X
+3791(select)X
+555 2984(subcells)N
+898(using)X
+1139(area)X
+1333(selection)X
+1709(\(the)X
+3 f
+1892(a)X
+1 f
+1973(and)X
+3 f
+2145(A)X
+1 f
+2246(macros\):)X
+2615(any)X
+2786(unexpanded)X
+3283(subcells)X
+3625(that)X
+3802(inter-)X
+555 3096(sect)N
+729(the)X
+871(area)X
+1056(of)X
+1160(the)X
+1302(box)X
+1470(will)X
+1644(be)X
+1759(selected.)X
+755 3236(To)N
+888(see)X
+1037(what's)X
+1319(inside)X
+1575(a)X
+1644(cell)X
+1809(instance,)X
+2174(you)X
+2343(must)X
+2 f
+2555(expand)X
+1 f
+2858(it.)X
+2985(Select)X
+3246(one)X
+3410(of)X
+3515(the)X
+3658(instances)X
+555 3348(of)N
+3 f
+659(tut4y)X
+1 f
+872(,)X
+920(then)X
+1110(type)X
+1300(the)X
+1442(command)X
+3 f
+1983 3508(:expand)N
+2337(toggle)X
+1 f
+555 3668(or)N
+663(invoke)X
+953(the)X
+1099(macro)X
+3 f
+1368(\303X)X
+1 f
+1497(which)X
+1760(is)X
+1852(equivalent.)X
+2329(This)X
+2527(causes)X
+2805(the)X
+2950(internals)X
+3309(of)X
+3416(that)X
+3588(instance)X
+3931(of)X
+3 f
+555 3780(tut4y)N
+1 f
+793(to)X
+893(be)X
+1009(displayed.)X
+1451(If)X
+1540(you)X
+1709(type)X
+3 f
+1900(\303X)X
+1 f
+2026(again,)X
+2284(the)X
+2427(instance)X
+2768(is)X
+2857(unexpanded)X
+3347(so)X
+3457(you)X
+3626(only)X
+3821(see)X
+3968(a)X
+555 3892(bounding)N
+945(box)X
+1116(again.)X
+1400(The)X
+3 f
+1577(:expand)X
+1934(toggle)X
+1 f
+2206(command)X
+2612(expands)X
+2953(all)X
+3076(of)X
+3182(the)X
+3326(selected)X
+3663(cells)X
+3866(that)X
+555 4004(are)N
+700(unexpanded,)X
+1216(and)X
+1382(unexpands)X
+1819(all)X
+1942(those)X
+2171(that)X
+2342(are)X
+2486(expanded.)X
+2929(Type)X
+3 f
+3153(\303X)X
+1 f
+3280(a)X
+3349(third)X
+3557(time)X
+3755(so)X
+3866(that)X
+3 f
+555 4116(tut4y)N
+1 f
+792(is)X
+880(expanded.)X
+755 4256(As)N
+898(you)X
+1079(can)X
+1250(see)X
+1410(now,)X
+3 f
+1636(tut4y)X
+1 f
+1886(contains)X
+2244(an)X
+2372(array)X
+2607(of)X
+3 f
+2724(tut4x)X
+1 f
+2974(cells)X
+3188(plus)X
+3385(some)X
+3625(additional)X
+555 4368(paint.)N
+827(In)X
+938(Magic,)X
+1239(an)X
+1361(array)X
+1590(is)X
+1685(a)X
+1759(special)X
+2058(kind)X
+2260(of)X
+2371(instance)X
+2718(containing)X
+3155(multiple)X
+3507(copies)X
+3783(of)X
+3893(the)X
+555 4480(same)N
+817(subcell)X
+1154(spaced)X
+1480(at)X
+1614(\256xed)X
+1869(intervals.)X
+2312(Arrays)X
+2636(can)X
+2833(be)X
+2987(one-dimensional)X
+3692(or)X
+3835(two-)X
+555 4592(dimensional.)N
+1103(The)X
+1282(whole)X
+1546(array)X
+1773(is)X
+1866(always)X
+2162(treated)X
+2454(as)X
+2563(a)X
+2635(single)X
+2894(instance:)X
+3290(any)X
+3458(command)X
+3866(that)X
+555 4704(operates)N
+910(on)X
+1039(one)X
+1211(element)X
+1550(of)X
+1663(the)X
+1814(array)X
+2045(also)X
+2233(operates)X
+2587(on)X
+2716(all)X
+2846(the)X
+2997(other)X
+3228(elements)X
+3604(simultane-)X
+555 4816(ously.)N
+844(The)X
+1027(instance)X
+1376(identi\256ers)X
+1794(for)X
+1939(the)X
+2090(elements)X
+2466(of)X
+2579(the)X
+2730(array)X
+2961(are)X
+3112(the)X
+3262(same)X
+3492(except)X
+3776(for)X
+3920(an)X
+555 4928(index.)N
+846(Now)X
+1061(select)X
+1310(one)X
+1478(of)X
+1587(the)X
+1733(elements)X
+2104(of)X
+2212(the)X
+2358(array)X
+2584(and)X
+2751(expand)X
+3057(it.)X
+3187(Notice)X
+3472(that)X
+3645(the)X
+3791(entire)X
+555 5040(array)N
+777(is)X
+865(expanded)X
+1258(at)X
+1352(the)X
+1494(same)X
+1716(time.)X
+755 5180(When)N
+1022(you)X
+1203(have)X
+1421(expanded)X
+1826(the)X
+1980(array,)X
+2238(you'll)X
+2504(see)X
+2663(that)X
+2844(the)X
+2998(paint)X
+3227(in)X
+3338(the)X
+3492(top-level)X
+3871(cell)X
+3 f
+555 5292(tut4a)N
+1 f
+793(is)X
+882(displayed)X
+1276(more)X
+1499(brightly)X
+1829(than)X
+2019(the)X
+2161(paint)X
+2378(in)X
+2477(the)X
+3 f
+2619(tut4x)X
+1 f
+2856(instances.)X
+3 f
+3281(Tut3a)X
+1 f
+3550(is)X
+3638(called)X
+3893(the)X
+2 f
+555 5404(edit)N
+726(cell)X
+1 f
+866(,)X
+916(because)X
+1246(its)X
+1362(contents)X
+1708(are)X
+1851(currently)X
+2224(editable.)X
+2603(The)X
+2778(paint)X
+2996(in)X
+3096(the)X
+3239(edit)X
+3409(cell)X
+3574(is)X
+3663(normally)X
+555 5516(displayed)N
+951(more)X
+1176(brightly)X
+1508(than)X
+1701(other)X
+1926(paint)X
+2146(to)X
+2248(make)X
+2484(it)X
+2565(clear)X
+2780(that)X
+2951(you)X
+3121(can)X
+3281(change)X
+3580(it.)X
+3708(As)X
+3840(long)X
+555 5628(as)N
+3 f
+661(tut4a)X
+1 f
+900(is)X
+990(the)X
+1134(edit)X
+1305(cell,)X
+1495(you)X
+1664(cannot)X
+1946(modify)X
+2249(the)X
+2392(paint)X
+2610(in)X
+3 f
+2710(tut4x)X
+1 f
+2923(.)X
+2996(Try)X
+3160(erasing)X
+3463(paint)X
+3681(from)X
+3893(the)X
+555 5740(area)N
+741(of)X
+846(one)X
+1010(of)X
+1115(the)X
+3 f
+1258(tut4x)X
+1 f
+1496(instances:)X
+1901(nothing)X
+2220(will)X
+2394(be)X
+2509(changed.)X
+2902(Section)X
+3215(4)X
+3287(tells)X
+3472(how)X
+3661(to)X
+3760(switch)X
+555 5852(the)N
+697(edit)X
+866(cell.)X
+2203 6160(-)N
+2259(2)X
+2331(-)X
+
+3 p
+%%Page: 3 3
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+755 688(Place)N
+994(the)X
+1142(cursor)X
+1412(over)X
+1613(one)X
+1782(of)X
+1891(the)X
+3 f
+2038(tut4x)X
+1 f
+2280(array)X
+2507(elements)X
+2879(again.)X
+3165(At)X
+3290(this)X
+3458(point,)X
+3709(the)X
+3856(cur-)X
+555 800(sor)N
+708(is)X
+808(actually)X
+1150(over)X
+1357(three)X
+1586(different)X
+1954(cells:)X
+3 f
+2193(tut4x)X
+1 f
+2441(\(an)X
+2599(element)X
+2940(of)X
+3055(an)X
+3181(array)X
+3414(instance)X
+3765(within)X
+3 f
+555 912(tut4y)N
+1 f
+768(\),)X
+3 f
+849(tut4y)X
+1 f
+1087(\(an)X
+1235(instance)X
+1576(within)X
+3 f
+1847(tut4a)X
+1 f
+2060(\),)X
+2141(and)X
+3 f
+2305(tut4)X
+1 f
+2470(.)X
+2543(Even)X
+2766(the)X
+2908(topmost)X
+3242(cell)X
+3406(in)X
+3505(the)X
+3647(hierarchy)X
+555 1024(is)N
+648(treated)X
+939(as)X
+1047(an)X
+1166(instance)X
+1510(by)X
+1634(Magic.)X
+1956(When)X
+2214(you)X
+2386(press)X
+2611(the)X
+3 f
+2757(s)X
+1 f
+2822(key)X
+2989(to)X
+3092(select)X
+3340(a)X
+3411(cell,)X
+3603(Magic)X
+3877(ini-)X
+555 1136(tially)N
+798(chooses)X
+1146(the)X
+1308(smallest)X
+1667(instance)X
+2026(visible)X
+2326(underneath)X
+2797(the)X
+2958(cursor,)X
+3 f
+3265(tut4x)X
+1 f
+3521(in)X
+3639(this)X
+3821(case.)X
+555 1248(However,)N
+965(if)X
+1058(you)X
+1236(invoke)X
+1532(the)X
+3 f
+1684(s)X
+1 f
+1755(macro)X
+2030(again)X
+2273(\(or)X
+2419(type)X
+3 f
+2619(:select)X
+1 f
+2876(\))X
+2942(without)X
+3269(moving)X
+3596(the)X
+3747(cursor,)X
+555 1360(Magic)N
+830(will)X
+1009(step)X
+1193(through)X
+1521(all)X
+1647(of)X
+1756(the)X
+1903(instances)X
+2285(under)X
+2532(the)X
+2678(cursor)X
+2946(in)X
+3049(order.)X
+3328(Try)X
+3495(this)X
+3662(out.)X
+3861(The)X
+555 1472(same)N
+777(is)X
+865(true)X
+1039(of)X
+1143(the)X
+3 f
+1285(f)X
+1 f
+1341(macro)X
+1606(and)X
+3 f
+1769(:select)X
+2050(cell)X
+1 f
+2190(.)X
+755 1612(When)N
+1013(there)X
+1234(are)X
+1380(many)X
+1622(different)X
+1982(expanded)X
+2379(cells)X
+2584(on)X
+2708(the)X
+2854(screen,)X
+3152(you)X
+3324(can)X
+3486(use)X
+3641(the)X
+3786(selec-)X
+555 1724(tion)N
+734(commands)X
+1180(to)X
+1284(select)X
+1533(paint)X
+1755(from)X
+1971(any)X
+2139(of)X
+2248(them.)X
+2518(You)X
+2712(can)X
+2875(select)X
+3123(anything)X
+3488(that's)X
+3730(visible,)X
+555 1836(regardless)N
+986(of)X
+1106(which)X
+1381(cell)X
+1561(it's)X
+1724(in.)X
+1887(However,)X
+2303(as)X
+2423(mentioned)X
+2870(above,)X
+3164(you)X
+3348(can)X
+3522(only)X
+3733(modify)X
+555 1948(paint)N
+790(in)X
+907(the)X
+1066(edit)X
+1252(cell.)X
+1481(If)X
+1586(you)X
+1771(use)X
+3 f
+1940(:move)X
+1 f
+2232(or)X
+3 f
+2353(:upsidedown)X
+1 f
+2915(or)X
+3036(similar)X
+3345(commands)X
+3803(when)X
+555 2060(you've)N
+853(selected)X
+1195(information)X
+1681(outside)X
+1990(the)X
+2139(edit)X
+2315(cell,)X
+2510(the)X
+2659(information)X
+3145(outside)X
+3454(the)X
+3602(edit)X
+3777(cell)X
+3947(is)X
+555 2172(removed)N
+916(from)X
+1127(the)X
+1269(selection)X
+1636(before)X
+1906(performing)X
+2363(the)X
+2505(operation.)X
+755 2312(There)N
+1018(are)X
+1174(two)X
+1356(additional)X
+1780(commands)X
+2234(you)X
+2415(can)X
+2586(use)X
+2751(for)X
+2900(expanding)X
+3338(and)X
+3514(unexpanding)X
+555 2424(cells:)N
+3 f
+2118 2584(:expand)N
+2065 2696(:unexpand)N
+1 f
+555 2856(Both)N
+767(of)X
+872(these)X
+1095(commands)X
+1537(operate)X
+1846(on)X
+1966(the)X
+2108(area)X
+2293(underneath)X
+2745(the)X
+2887(box.)X
+3103(The)X
+3 f
+3277(:expand)X
+1 f
+3631(command)X
+555 2968(will)N
+738(recursively)X
+1199(expand)X
+1510(every)X
+1757(cell)X
+1930(that)X
+2108(intersects)X
+2505(the)X
+2656(box)X
+2833(until)X
+3043(there)X
+3268(are)X
+3418(no)X
+3546(unexpanded)X
+555 3080(cells)N
+761(left)X
+919(under)X
+1167(the)X
+1314(box.)X
+1535(The)X
+3 f
+1714(:unexpand)X
+1 f
+2179(command)X
+2587(will)X
+2765(unexpand)X
+3167(every)X
+3409(cell)X
+3577(whose)X
+3850(area)X
+555 3192(intersects)N
+968(the)X
+1135(box)X
+1328(but)X
+1500(doesn't)X
+1832(completely)X
+2309(contain)X
+2641(it.)X
+2791(The)X
+2989(macro)X
+3 f
+3278(x)X
+1 f
+3374(is)X
+3486(equivalent)X
+3936(to)X
+3 f
+555 3304(:expand)N
+1 f
+885(,)X
+934(and)X
+3 f
+1098(X)X
+1 f
+1192(is)X
+1281(equivalent)X
+1708(to)X
+3 f
+1808(:unexpand)X
+1 f
+2244(.)X
+2317(Try)X
+2480(out)X
+2627(the)X
+2769(various)X
+3076(expansion)X
+3490(and)X
+3653(unexpan-)X
+555 3416(sion)N
+739(facilities)X
+1096(on)X
+3 f
+1216(tut4a)X
+1 f
+1429(.)X
+3 f
+555 3752(3.)N
+675(Manipulating)X
+1259(Subcells)X
+1 f
+755 3892(There)N
+1019(are)X
+1176(a)X
+1258(few)X
+1440(other)X
+1676(commands,)X
+2155(in)X
+2268(addition)X
+2622(to)X
+2735(the)X
+2891(selection)X
+3272(commands)X
+3727(already)X
+555 4004(described,)N
+972(that)X
+1141(you'll)X
+1395(need)X
+1601(in)X
+1700(order)X
+1927(to)X
+2026(manipulate)X
+2479(subcells.)X
+2861(The)X
+3035(command)X
+3 f
+2019 4164(:getcell)N
+2 f
+2338(name)X
+1 f
+555 4324(will)N
+740(\256nd)X
+924(the)X
+1077(\256le)X
+2 f
+1235(name)X
+3 f
+1443(.mag)X
+1 f
+1677(on)X
+1807(disk,)X
+2025(read)X
+2225(the)X
+2377(cell)X
+2551(it)X
+2639(contains,)X
+3018(and)X
+3191(create)X
+3456(an)X
+3581(instance)X
+3931(of)X
+555 4436(that)N
+729(cell)X
+898(with)X
+1098(its)X
+1218(lower-left)X
+1627(corner)X
+1902(aligned)X
+2215(with)X
+2414(the)X
+2560(lower-left)X
+2968(corner)X
+3242(of)X
+3350(the)X
+3496(box.)X
+3716(Use)X
+3893(the)X
+3 f
+555 4548(getcell)N
+1 f
+855(command)X
+1272(to)X
+1384(get)X
+1539(an)X
+1667(instance)X
+2020(of)X
+2137(the)X
+2292(cell)X
+3 f
+2469(tut4z)X
+1 f
+2677(.)X
+2761(After)X
+3000(the)X
+3 f
+3154(getcell)X
+1 f
+3453(command,)X
+3893(the)X
+555 4660(new)N
+742(instance)X
+1085(is)X
+1176(selected)X
+1514(so)X
+1626(you)X
+1796(can)X
+1956(move)X
+2196(it)X
+2276(or)X
+2382(copy)X
+2595(it)X
+2675(or)X
+2781(delete)X
+3038(it.)X
+3166(The)X
+3 f
+3342(getcell)X
+1 f
+3631(command)X
+555 4772(recognizes)N
+997(additional)X
+1413(arguments)X
+1844(that)X
+2019(permit)X
+2301(the)X
+2449(cell)X
+2619(to)X
+2724(be)X
+2844(positioned)X
+3274(using)X
+3511(labels)X
+3765(and/or)X
+555 4884(explicit)N
+869(coordinates.)X
+1385(See)X
+1548(the)X
+2 f
+1690(man)X
+1 f
+1879(page)X
+2085(for)X
+2221(details.)X
+755 5024(To)N
+902(turn)X
+1097(a)X
+1180(normal)X
+1493(instance)X
+1849(into)X
+2039(an)X
+2170(array,)X
+2432(select)X
+2692(the)X
+2850(instance)X
+3206(and)X
+3385(then)X
+3591(invoke)X
+3893(the)X
+3 f
+555 5136(:array)N
+1 f
+841(command.)X
+1293(It)X
+1376(has)X
+1528(two)X
+1696(forms:)X
+3 f
+1941 5296(:array)N
+2 f
+2227(xsize)X
+2438(ysize)X
+3 f
+1868 5408(:array)N
+2 f
+2154(xlo)X
+2296(xhi)X
+2438(ylo)X
+2580(yhi)X
+1 f
+555 5568(In)N
+677(the)X
+837(\256rst)X
+1028(form,)X
+2 f
+1281(xsize)X
+1 f
+1509(indicates)X
+1893(how)X
+2099(many)X
+2354(elements)X
+2738(the)X
+2897(array)X
+3136(should)X
+3433(have)X
+3656(in)X
+3772(the)X
+3931(x-)X
+555 5680(direction,)N
+953(and)X
+2 f
+1123(ysize)X
+1 f
+1340(indicates)X
+1713(how)X
+1908(many)X
+2152(elements)X
+2525(it)X
+2609(should)X
+2895(have)X
+3107(in)X
+3212(the)X
+3360(y-direction.)X
+3861(The)X
+555 5792(spacing)N
+895(between)X
+1261(elements)X
+1649(is)X
+1758(controlled)X
+2194(by)X
+2335(the)X
+2498(box's)X
+2756(width)X
+3020(\(for)X
+3209(the)X
+3372(x-direction\))X
+3872(and)X
+2203 6160(-)N
+2259(3)X
+2331(-)X
+
+4 p
+%%Page: 4 4
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(height)N
+831(\(for)X
+1010(the)X
+1163(y-direction\).)X
+1701(By)X
+1848(changing)X
+2236(the)X
+2389(box)X
+2568(size,)X
+2776(you)X
+2954(can)X
+3122(space)X
+3370(elements)X
+3747(so)X
+3866(that)X
+555 800(they)N
+747(overlap,)X
+1086(abut,)X
+1302(or)X
+1408(have)X
+1615(gaps)X
+1816(between)X
+2162(them.)X
+2428(The)X
+2603(elements)X
+2971(are)X
+3114(given)X
+3353(indices)X
+3651(from)X
+3863(0)X
+3936(to)X
+2 f
+555 912(xsize)N
+1 f
+742(-1)X
+847(in)X
+947(the)X
+1090(x-direction)X
+1538(and)X
+1702(from)X
+1914(0)X
+1987(to)X
+2 f
+2086(ysize)X
+1 f
+2273(-1)X
+2377(in)X
+2476(the)X
+2618(y-direction.)X
+3113(The)X
+3287(second)X
+3578(form)X
+3789(of)X
+3893(the)X
+555 1024(command)N
+968(is)X
+1065(identical)X
+1431(to)X
+1539(the)X
+1690(\256rst)X
+1872(except)X
+2157(that)X
+2335(the)X
+2486(elements)X
+2862(are)X
+3013(given)X
+3260(indices)X
+3566(from)X
+2 f
+3786(xlo)X
+1 f
+3936(to)X
+2 f
+555 1136(xhi)N
+1 f
+702(in)X
+806(the)X
+953(x-direction)X
+1405(and)X
+1573(from)X
+2 f
+1789(ylo)X
+1 f
+1936(to)X
+2 f
+2040(yhi)X
+1 f
+2187(in)X
+2290(the)X
+2436(y-direction.)X
+2935(Try)X
+3102(making)X
+3419(a)X
+3490(4x4)X
+3662(array)X
+3888(out)X
+555 1248(of)N
+659(the)X
+3 f
+801(tut4z)X
+1 f
+1033(cell)X
+1197(with)X
+1392(gaps)X
+1592(between)X
+1937(the)X
+2079(cells.)X
+755 1388(You)N
+968(can)X
+1150(also)X
+1353(invoke)X
+1663(the)X
+3 f
+1829(:array)X
+1 f
+2139(command)X
+2567(on)X
+2711(an)X
+2850(existing)X
+3203(array)X
+3449(to)X
+3572(change)X
+3893(the)X
+555 1500(number)N
+881(of)X
+993(elements)X
+1368(or)X
+1480(spacing.)X
+1854(Use)X
+2035(a)X
+2110(size)X
+2291(of)X
+2402(1)X
+2481(for)X
+2 f
+2624(xsize)X
+1 f
+2842(or)X
+2 f
+2953(ysize)X
+1 f
+3171(in)X
+3277(order)X
+3511(to)X
+3617(get)X
+3766(a)X
+3840(one-)X
+555 1612(dimensional)N
+1065(array.)X
+1350(If)X
+1453(there)X
+1685(are)X
+1841(several)X
+2152(cells)X
+2367(selected,)X
+2740(the)X
+3 f
+2896(:array)X
+1 f
+3196(command)X
+3614(will)X
+3802(make)X
+555 1724(each)N
+772(of)X
+891(them)X
+1123(into)X
+1312(an)X
+1442(array)X
+1679(of)X
+1798(the)X
+1955(same)X
+2192(size)X
+2381(and)X
+2559(spacing.)X
+2940(It)X
+3038(also)X
+3232(works)X
+3505(on)X
+3640(paint)X
+3872(and)X
+555 1836(labels:)N
+872(if)X
+972(paint)X
+1206(and)X
+1386(labels)X
+1652(are)X
+1811(selected)X
+2163(when)X
+2412(you)X
+2597(invoke)X
+3 f
+2900(:array)X
+1 f
+3162(,)X
+3227(they)X
+3433(will)X
+3623(be)X
+3754(copied)X
+555 1948(many)N
+802(times)X
+1044(over)X
+1248(to)X
+1356(create)X
+1620(the)X
+1771(array.)X
+2050(Try)X
+2222(using)X
+2463(the)X
+2613(array)X
+2843(command)X
+3255(to)X
+3362(replicate)X
+3727(a)X
+3802(small)X
+555 2060(strip)N
+750(of)X
+854(paint.)X
+3 f
+555 2396(4.)N
+675(Switching)X
+1104(the)X
+1256(Edit)X
+1456(Cell)X
+1 f
+755 2536(At)N
+881(any)X
+1050(given)X
+1294(time,)X
+1520(you)X
+1694(are)X
+1842(editing)X
+2140(the)X
+2288(de\256nition)X
+2687(of)X
+2797(a)X
+2870(single)X
+3130(cell.)X
+3348(This)X
+3549(de\256nition)X
+3947(is)X
+555 2648(called)N
+823(the)X
+2 f
+978(edit)X
+1159(cell)X
+1 f
+1299(.)X
+1383(You)X
+1584(can)X
+1754(modify)X
+2068(paint)X
+2297(and)X
+2472(labels)X
+2733(in)X
+2844(the)X
+2998(edit)X
+3179(cell,)X
+3379(and)X
+3554(you)X
+3734(can)X
+3904(re-)X
+555 2760(arrange)N
+869(its)X
+985(subcells.)X
+1368(You)X
+1558(may)X
+1749(not)X
+1897(re-arrange)X
+2318(or)X
+2423(delete)X
+2679(the)X
+2821(subcells)X
+3155(of)X
+3259(any)X
+3422(cells)X
+3623(other)X
+3845(than)X
+555 2872(the)N
+698(edit)X
+867(cell,)X
+1055(nor)X
+1207(may)X
+1397(you)X
+1565(modify)X
+1867(the)X
+2009(paint)X
+2226(or)X
+2330(labels)X
+2579(of)X
+2683(any)X
+2846(cells)X
+3047(except)X
+3323(the)X
+3465(edit)X
+3634(cell.)X
+3846(You)X
+555 2984(may,)N
+781(however,)X
+1172(copy)X
+1395(information)X
+1886(from)X
+2109(other)X
+2343(cells)X
+2555(into)X
+2740(the)X
+2893(edit)X
+3073(cell,)X
+3272(using)X
+3515(the)X
+3668(selection)X
+555 3096(commands.)N
+1049(To)X
+1185(help)X
+1380(clarify)X
+1661(what)X
+1877(is)X
+1970(and)X
+2138(isn't)X
+2337(modi\256able,)X
+2801(Magic)X
+3075(displays)X
+3418(the)X
+3564(paint)X
+3785(of)X
+3893(the)X
+555 3208(edit)N
+724(cell)X
+888(in)X
+987(brighter)X
+1316(colors)X
+1575(than)X
+1765(other)X
+1987(paint.)X
+755 3348(When)N
+1011(you)X
+1180(rearrange)X
+1569(subcells)X
+1904(of)X
+2009(the)X
+2152(edit)X
+2322(cell,)X
+2511(you)X
+2680(aren't)X
+2930(changing)X
+3308(the)X
+3451(subcells)X
+3786(them-)X
+555 3460(selves.)N
+865(All)X
+1015(you)X
+1186(can)X
+1347(do)X
+1470(is)X
+1561(change)X
+1861(the)X
+2006(way)X
+2193(they)X
+2386(are)X
+2531(used)X
+2734(in)X
+2836(the)X
+2981(edit)X
+3152(cell)X
+3318(\(location,)X
+3711(orienta-)X
+555 3572(tion,)N
+756(etc.\).)X
+1000(When)X
+1257(you)X
+1428(delete)X
+1686(a)X
+1756(subcell,)X
+2079(nothing)X
+2399(happens)X
+2740(to)X
+2841(the)X
+2985(\256le)X
+3134(containing)X
+3567(the)X
+3711(subcell;)X
+555 3684(the)N
+697(command)X
+1101(merely)X
+1393(deletes)X
+1685(the)X
+1827(instance)X
+2167(from)X
+2378(the)X
+2520(edit)X
+2689(cell.)X
+755 3824(Besides)N
+1089(the)X
+1242(edit)X
+1422(cell,)X
+1621(there)X
+1849(is)X
+1948(one)X
+2122(other)X
+2355(special)X
+2658(cell)X
+2833(in)X
+2943(Magic.)X
+3272(It's)X
+3434(called)X
+3699(the)X
+2 f
+3851(root)X
+555 3936(cell)N
+1 f
+732(and)X
+908(is)X
+1009(the)X
+1164(topmost)X
+1511(cell)X
+1688(in)X
+1800(the)X
+1955(hierarchy,)X
+2380(the)X
+2534(one)X
+2709(you)X
+2889(named)X
+3182(when)X
+3426(you)X
+3606(ran)X
+3765(Magic)X
+555 4048(\()N
+3 f
+587(tut4a)X
+1 f
+836(in)X
+947(this)X
+1122(case\).)X
+1404(As)X
+1546(you)X
+1726(will)X
+1912(see)X
+2071(in)X
+2182(Tutorial)X
+2529(#5,)X
+2684(there)X
+2912(can)X
+3081(actually)X
+3422(be)X
+3548(several)X
+3856(root)X
+555 4160(cells)N
+761(at)X
+860(any)X
+1028(given)X
+1271(time,)X
+1496(one)X
+1664(in)X
+1768(each)X
+1974(window.)X
+2359(For)X
+2520(now,)X
+2737(there)X
+2958(is)X
+3050(only)X
+3249(a)X
+3320(single)X
+3578(window)X
+3915(on)X
+555 4272(the)N
+705(screen,)X
+1007(and)X
+1178(thus)X
+1370(only)X
+1573(a)X
+1647(single)X
+1908(root)X
+2094(cell.)X
+2313(The)X
+2494(window)X
+2834(caption)X
+3149(at)X
+3250(the)X
+3399(top)X
+3553(of)X
+3664(the)X
+3813(color)X
+555 4384(display)N
+857(contains)X
+1202(the)X
+1344(name)X
+1577(of)X
+1681(the)X
+1823(window's)X
+2225(root)X
+2404(cell)X
+2568(and)X
+2731(also)X
+2910(the)X
+3052(name)X
+3285(of)X
+3389(the)X
+3531(edit)X
+3700(cell.)X
+755 4524(Up)N
+897(until)X
+1099(now,)X
+1313(the)X
+1456(root)X
+1636(cell)X
+1801(and)X
+1965(the)X
+2108(edit)X
+2278(cell)X
+2442(have)X
+2648(been)X
+2854(the)X
+2996(same.)X
+3266(However,)X
+3666(this)X
+3829(need)X
+555 4636(not)N
+719(always)X
+1027(be)X
+1159(the)X
+1317(case.)X
+1571(You)X
+1776(can)X
+1950(switch)X
+2241(the)X
+2399(edit)X
+2584(cell)X
+2764(to)X
+2879(any)X
+3058(cell)X
+3238(in)X
+3353(the)X
+3511(hierarchy)X
+3915(by)X
+555 4748(selecting)N
+922(an)X
+1037(instance)X
+1377(of)X
+1481(the)X
+1623(de\256nition)X
+2016(you'd)X
+2264(like)X
+2433(to)X
+2532(edit,)X
+2725(and)X
+2888(then)X
+3078(typing)X
+3348(the)X
+3490(command)X
+3 f
+2189 4908(:edit)N
+1 f
+555 5068(Use)N
+731(this)X
+897(command)X
+1304(to)X
+1406(switch)X
+1684(the)X
+1829(edit)X
+2001(cell)X
+2168(to)X
+2270(one)X
+2436(of)X
+2543(the)X
+3 f
+2688(tut4x)X
+1 f
+2928(instances)X
+3308(in)X
+3 f
+3409(tut4a)X
+1 f
+3622(.)X
+3696(Its)X
+3818(paint)X
+555 5180(brightens,)N
+971(while)X
+1219(the)X
+1371(paint)X
+1598(in)X
+3 f
+1707(tut4a)X
+1 f
+1954(becomes)X
+2325(dim.)X
+2557(If)X
+2655(you)X
+2833(want)X
+3054(to)X
+3163(edit)X
+3342(an)X
+3467(element)X
+3807(of)X
+3920(an)X
+555 5292(array,)N
+816(select)X
+1075(the)X
+1231(array,)X
+1491(place)X
+1733(the)X
+1889(cursor)X
+2167(over)X
+2376(the)X
+2532(element)X
+2876(you'd)X
+3138(like)X
+3321(to)X
+3434(edit,)X
+3641(then)X
+3845(type)X
+3 f
+555 5404(:edit)N
+1 f
+742(.)X
+814(The)X
+988(particular)X
+1382(element)X
+1712(underneath)X
+2164(the)X
+2306(cursor)X
+2570(becomes)X
+2931(the)X
+3073(edit)X
+3242(cell.)X
+755 5544(When)N
+1014(you)X
+1187(edit)X
+1361(a)X
+1433(cell,)X
+1626(you)X
+1799(are)X
+1945(editing)X
+2241(the)X
+2387(master)X
+2672(de\256nition)X
+3069(of)X
+3177(that)X
+3350(cell.)X
+3566(This)X
+3765(means)X
+555 5656(that)N
+733(if)X
+825(the)X
+976(cell)X
+1149(is)X
+1246(used)X
+1455(in)X
+1563(several)X
+1869(places)X
+2143(in)X
+2251(your)X
+2460(design,)X
+2768(the)X
+2919(edits)X
+3134(will)X
+3317(be)X
+3441(re\257ected)X
+3806(in)X
+3914(all)X
+555 5768(those)N
+788(places.)X
+1107(Try)X
+1276(painting)X
+1622(and)X
+1791(erasing)X
+2099(in)X
+2204(the)X
+3 f
+2352(tut4x)X
+1 f
+2595(cell)X
+2765(that)X
+2940(you)X
+3114(just)X
+3283(made)X
+3522(the)X
+3670(edit)X
+3844(cell:)X
+2203 6160(-)N
+2259(4)X
+2331(-)X
+
+5 p
+%%Page: 5 5
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(the)N
+697(modi\256cations)X
+1245(will)X
+1419(appear)X
+1700(in)X
+1799(all)X
+1920(of)X
+2024(its)X
+2139(instances.)X
+755 828(There)N
+1004(is)X
+1092(a)X
+1159(second)X
+1450(way)X
+1634(to)X
+1733(change)X
+2030(the)X
+2172(edit)X
+2341(cell.)X
+2553(This)X
+2748(is)X
+2836(the)X
+2978(command)X
+3 f
+2063 988(:load)N
+2 f
+2295(name)X
+1 f
+555 1148(The)N
+3 f
+730(:load)X
+1 f
+962(command)X
+1366(loads)X
+1593(a)X
+1660(new)X
+1844(hierarchy)X
+2232(into)X
+2406(the)X
+2548(window)X
+2881(underneath)X
+3333(the)X
+3475(cursor.)X
+2 f
+3787(Name)X
+1 f
+555 1260(is)N
+648(the)X
+795(name)X
+1033(of)X
+1142(the)X
+1289(root)X
+1472(cell)X
+1640(in)X
+1743(the)X
+1889(hierarchy.)X
+2329(If)X
+2421(no)X
+2 f
+2545(name)X
+1 f
+2781(is)X
+2873(given,)X
+3139(a)X
+3210(new)X
+3398(unnamed)X
+3779(cell)X
+3947(is)X
+555 1372(loaded)N
+838(and)X
+1003(you)X
+1172(start)X
+1363(editing)X
+1656(from)X
+1868(scratch.)X
+2214(The)X
+3 f
+2389(:load)X
+1 f
+2622(command)X
+3027(only)X
+3223(changes)X
+3558(the)X
+3701(edit)X
+3871(cell)X
+555 1484(if)N
+638(there)X
+855(is)X
+943(not)X
+1090(already)X
+1398(an)X
+1513(edit)X
+1682(cell)X
+1846(in)X
+1945(another)X
+2258(window.)X
+3 f
+555 1820(5.)N
+675(Subcell)X
+998(Usage)X
+1267(Conventions)X
+1 f
+755 1960(Overlaps)N
+1127(between)X
+1473(cells)X
+1675(are)X
+1818(occasionally)X
+2325(useful)X
+2585(to)X
+2684(share)X
+2911(busses)X
+3185(and)X
+3348(control)X
+3645(lines)X
+3851(run-)X
+555 2072(ning)N
+759(along)X
+1006(the)X
+1157(edges.)X
+1457(However,)X
+1866(overlaps)X
+2225(cause)X
+2472(the)X
+2622(analysis)X
+2964(tools)X
+3183(to)X
+3290(work)X
+3519(much)X
+3765(harder)X
+555 2184(than)N
+746(they)X
+937(would)X
+1202(if)X
+1286(there)X
+1503(were)X
+1714(no)X
+1834(overlaps:)X
+2235(wherever)X
+2617(cells)X
+2818(overlap,)X
+3155(the)X
+3297(tools)X
+3508(have)X
+3714(to)X
+3813(com-)X
+555 2296(bine)N
+753(the)X
+903(information)X
+1390(from)X
+1609(the)X
+1759(two)X
+1935(separate)X
+2283(cells.)X
+2540(Thus,)X
+2787(you)X
+2962(shouldn't)X
+3356(use)X
+3515(overlaps)X
+3872(any)X
+555 2408(more)N
+806(than)X
+1025(absolutely)X
+1474(necessary.)X
+1949(For)X
+2135(example,)X
+2539(suppose)X
+2900(you)X
+3096(want)X
+3335(to)X
+3462(create)X
+3745(a)X
+3840(one-)X
+555 2520(dimensional)N
+1059(array)X
+1290(of)X
+1403(cells)X
+1613(that)X
+1791(alternates)X
+2194(between)X
+2548(two)X
+2725(cell)X
+2898(types,)X
+3158(A)X
+3260(and)X
+3432(B:)X
+3580(``ABABA-)X
+555 2632(BABABAB''.)N
+1155(One)X
+1340(way)X
+1525(to)X
+1625(do)X
+1746(this)X
+1910(is)X
+1999(\256rst)X
+2173(to)X
+2273(make)X
+2507(an)X
+2623(array)X
+2846(of)X
+2951(A)X
+3045(instances)X
+3423(with)X
+3618(large)X
+3835(gaps)X
+555 2744(between)N
+905(them)X
+1127(\(``A)X
+1345(A)X
+1467(A)X
+1589(A)X
+1711(A)X
+1833(A''\),)X
+2051(then)X
+2246(make)X
+2484(an)X
+2604(array)X
+2831(of)X
+2940(B)X
+3033(instances)X
+3415(with)X
+3614(large)X
+3835(gaps)X
+555 2856(between)N
+910(them)X
+1137(\(``B)X
+1354(B)X
+1475(B)X
+1596(B)X
+1717(B)X
+1838(B''\),)X
+2055(and)X
+2227(\256nally)X
+2506(place)X
+2743(one)X
+2915(array)X
+3146(on)X
+3275(top)X
+3431(of)X
+3544(the)X
+3695(other)X
+3926(so)X
+555 2968(that)N
+734(the)X
+886(B's)X
+1052(nestle)X
+1310(in)X
+1418(between)X
+1772(the)X
+1923(A's.)X
+2142(The)X
+2325(problem)X
+2679(with)X
+2883(this)X
+3055(approach)X
+3441(is)X
+3538(that)X
+3716(the)X
+3867(two)X
+555 3080(arrays)N
+817(overlap)X
+1133(almost)X
+1417(completely,)X
+1897(so)X
+2009(Magic)X
+2282(will)X
+2459(have)X
+2668(to)X
+2770(go)X
+2893(to)X
+2994(a)X
+3063(lot)X
+3191(of)X
+3297(extra)X
+3516(work)X
+3739(to)X
+3840(han-)X
+555 3192(dle)N
+705(the)X
+855(overlaps)X
+1213(\(in)X
+1352(this)X
+1523(case,)X
+1744(there)X
+1968(isn't)X
+2170(much)X
+2415(overlap)X
+2735(of)X
+2846(actual)X
+3108(paint,)X
+3356(but)X
+3510(Magic)X
+3787(won't)X
+555 3304(know)N
+795(this)X
+961(and)X
+1127(will)X
+1304(spend)X
+1555(a)X
+1625(lot)X
+1754(of)X
+1861(time)X
+2060(worrying)X
+2439(about)X
+2680(it\).)X
+2841(A)X
+2937(better)X
+3184(solution)X
+3520(is)X
+3610(to)X
+3711(create)X
+3968(a)X
+555 3416(new)N
+743(cell)X
+911(that)X
+1084(contains)X
+1433(one)X
+1599(instance)X
+1942(of)X
+2049(A)X
+2145(and)X
+2311(one)X
+2477(instance)X
+2820(of)X
+2927(B,)X
+3042(side)X
+3224(by)X
+3347(side.)X
+3577(Then)X
+3802(make)X
+555 3528(an)N
+676(array)X
+904(of)X
+1013(the)X
+1160(new)X
+1349(cell.)X
+1566(This)X
+1766(approach)X
+2148(makes)X
+2423(it)X
+2506(clear)X
+2723(to)X
+2827(Magic)X
+3102(that)X
+3276(there)X
+3498(isn't)X
+3698(any)X
+3866(real)X
+555 3640(overlap)N
+868(between)X
+1213(the)X
+1355(A's)X
+1517(and)X
+1680(B's.)X
+755 3780(If)N
+847(you)X
+1019(do)X
+1143(create)X
+1402(overlaps,)X
+1780(you)X
+1952(should)X
+2236(use)X
+2392(the)X
+2538(overlaps)X
+2891(only)X
+3089(to)X
+3191(connect)X
+3518(the)X
+3663(two)X
+3834(cells)X
+555 3892(together,)N
+923(and)X
+1090(not)X
+1241(to)X
+1344(change)X
+1644(their)X
+1848(structure.)X
+2260(This)X
+2458(means)X
+2731(that)X
+2903(the)X
+3048(overlap)X
+3364(should)X
+3647(not)X
+3797(cause)X
+555 4004(transistors)N
+984(to)X
+1092(appear,)X
+1406(disappear,)X
+1832(or)X
+1945(change)X
+2251(size.)X
+2482(The)X
+2665(result)X
+2912(of)X
+3025(overlapping)X
+3518(the)X
+3669(two)X
+3846(sub-)X
+555 4116(cells)N
+769(should)X
+1062(be)X
+1190(the)X
+1345(same)X
+1580 0.3182(electrically)AX
+2047(as)X
+2164(if)X
+2260(you)X
+2441(placed)X
+2730(the)X
+2885(two)X
+3066(cells)X
+3280(apart)X
+3510(and)X
+3686(then)X
+3888(ran)X
+555 4228(wires)N
+789(to)X
+890(hook)X
+1108(parts)X
+1321(of)X
+1427(one)X
+1592(cell)X
+1758(to)X
+1859(parts)X
+2072(of)X
+2178(the)X
+2321(other.)X
+2592(The)X
+2767(convention)X
+3220(is)X
+3309(necessary)X
+3708(in)X
+3808(order)X
+555 4340(to)N
+656(be)X
+773(able)X
+960(to)X
+1061(do)X
+1183(hierarchical)X
+1665(circuit)X
+1937(extraction)X
+2348(easily)X
+2598(\(it)X
+2709(makes)X
+2980(it)X
+3059(possible)X
+3399(for)X
+3536(each)X
+3738(subcell)X
+555 4452(to)N
+654(be)X
+769 0.2500(circuit-extracted)AX
+1426(independently\).)X
+755 4592(Three)N
+1009(kinds)X
+1246(of)X
+1355(overlaps)X
+1710(are)X
+1857(\257agged)X
+2169(as)X
+2278(errors)X
+2531(by)X
+2656(the)X
+2802(design-rule)X
+3263(checker.)X
+3639(First,)X
+3867(you)X
+555 4704(may)N
+763(not)X
+928(overlap)X
+1259(polysilicon)X
+1729(in)X
+1846(one)X
+2027(subcell)X
+2342(with)X
+2555(diffusion)X
+2944(in)X
+3061(another)X
+3392(cell)X
+3574(in)X
+3691(order)X
+3936(to)X
+555 4816(create)N
+820(transistors.)X
+1297(Second,)X
+1638(you)X
+1816(may)X
+2016(not)X
+2173(overlap)X
+2496(transistors)X
+2925(or)X
+3038(contacts)X
+3387(in)X
+3495(one)X
+3667(cell)X
+3840(with)X
+555 4928(different)N
+913(kinds)X
+1147(of)X
+1253(transistors)X
+1674(or)X
+1780(contacts)X
+2122(in)X
+2223(another)X
+2538(cell)X
+2704(\(there)X
+2955(are)X
+3098(a)X
+3166(few)X
+3335(exceptions)X
+3772(to)X
+3872(this)X
+555 5040(rule)N
+736(in)X
+842(some)X
+1076(technologies\).)X
+1674(Third,)X
+1943(if)X
+2032(contacts)X
+2378(from)X
+2595(different)X
+2957(cells)X
+3164(overlap,)X
+3507(they)X
+3703(must)X
+3920(be)X
+555 5152(the)N
+705(same)X
+935(type)X
+1133(of)X
+1245(contact)X
+1556(and)X
+1727(must)X
+1946(coincide)X
+2305(exactly:)X
+2643(you)X
+2819(may)X
+3016(not)X
+3170(have)X
+3383(partial)X
+3661(overlaps.)X
+555 5264(This)N
+750(rule)X
+924(is)X
+1012(necessary)X
+1410(in)X
+1509(order)X
+1736(to)X
+1835(guarantee)X
+2234(that)X
+2403(Magic)X
+2673(can)X
+2831(generate)X
+3182(CIF)X
+3355(for)X
+3491(fabrication.)X
+755 5404(You)N
+946(will)X
+1122(make)X
+1357(life)X
+1511(a)X
+1579(lot)X
+1706(easier)X
+1956(on)X
+2077(yourself)X
+2417(\(and)X
+2613(on)X
+2734(Magic\))X
+3037(if)X
+3121(you)X
+3290(spend)X
+3539(a)X
+3607(bit)X
+3734(of)X
+3839(time)X
+555 5516(to)N
+666(choose)X
+969(a)X
+1048(clean)X
+1288(hierarchical)X
+1780(structure.)X
+2201(In)X
+2317(general,)X
+2660(the)X
+2813(less)X
+2992(cell)X
+3167(overlap)X
+3491(the)X
+3644(better.)X
+3947(If)X
+555 5628(you)N
+728(use)X
+885(extensive)X
+1278(overlaps)X
+1633(you'll)X
+1892(\256nd)X
+2070(that)X
+2244(the)X
+2391(tools)X
+2607(run)X
+2763(very)X
+2962(slowly)X
+3246(and)X
+3413(that)X
+3586(it's)X
+3737(hard)X
+3936(to)X
+555 5740(make)N
+788(modi\256cations)X
+1336(to)X
+1435(the)X
+1577(circuit.)X
+2203 6160(-)N
+2259(5)X
+2331(-)X
+
+6 p
+%%Page: 6 6
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+3 f
+555 688(6.)N
+675(Instance)X
+1045(Identi\256ers)X
+1 f
+755 828(Instance)N
+1120(identi\256ers)X
+1549(are)X
+1711(used)X
+1931(to)X
+2050(distinguish)X
+2516(the)X
+2678(different)X
+3053(subcells)X
+3406(within)X
+3695(a)X
+3781(single)X
+555 940(parent.)N
+872(The)X
+1050(cell)X
+1217(de\256nition)X
+1613(names)X
+1886(cannot)X
+2170(be)X
+2288(used)X
+2491(for)X
+2630(this)X
+2796(purpose)X
+3127(because)X
+3459(there)X
+3679(could)X
+3920(be)X
+555 1052(many)N
+809(instances)X
+1201(of)X
+1320(a)X
+1402(single)X
+1671(de\256nition.)X
+2127(Magic)X
+2412(will)X
+2601(create)X
+2871(default)X
+3178(instance)X
+3533(id's)X
+3716(for)X
+3867(you)X
+555 1164(when)N
+794(you)X
+968(create)X
+1229(new)X
+1419(instances)X
+1802(with)X
+2003(the)X
+3 f
+2151(:get)X
+1 f
+2336(or)X
+3 f
+2446(:copy)X
+1 f
+2700(commands.)X
+3195(The)X
+3375(default)X
+3673(id)X
+3778(for)X
+3920(an)X
+555 1276(instance)N
+911(will)X
+1101(be)X
+1232(the)X
+1389(name)X
+1637(of)X
+1756(the)X
+1913(de\256nition)X
+2321(with)X
+2531(a)X
+2613(unique)X
+2914(integer)X
+3221(added)X
+3490(on.)X
+3673(You)X
+3877(can)X
+555 1388(change)N
+857(an)X
+977(id)X
+1081(by)X
+1206(selecting)X
+1578(an)X
+1698(instance)X
+2043(\(which)X
+2339(must)X
+2555(be)X
+2674(a)X
+2745(child)X
+2966(of)X
+3074(the)X
+3220(edit)X
+3393(cell\))X
+3593(and)X
+3760(invok-)X
+555 1500(ing)N
+702(the)X
+844(command)X
+3 f
+1982 1660(:identify)N
+2 f
+2353(newid)X
+1 f
+555 1820(where)N
+2 f
+836(newid)X
+1 f
+1112(is)X
+1222(the)X
+1386(identi\256er)X
+1780(you)X
+1970(would)X
+2256(like)X
+2446(the)X
+2609(instance)X
+2970(to)X
+3090(have.)X
+2 f
+3365(Newid)X
+1 f
+3656(must)X
+3888(not)X
+555 1932(already)N
+863(be)X
+978(used)X
+1178(as)X
+1282(an)X
+1397(instance)X
+1737(identi\256er)X
+2109(of)X
+2213(any)X
+2376(subcell)X
+2673(within)X
+2943(the)X
+3085(edit)X
+3254(cell.)X
+755 2072(Any)N
+969(node)X
+1205(or)X
+1334(instance)X
+1699(can)X
+1882(be)X
+2022(described)X
+2440(uniquely)X
+2826(by)X
+2971(listing)X
+3261(a)X
+3353(path)X
+3567(of)X
+3695(instance)X
+555 2184(identi\256ers,)N
+1003(starting)X
+1331(from)X
+1557(the)X
+1714(root)X
+1908(cell.)X
+2135(The)X
+2323(standard)X
+2687(form)X
+2912(of)X
+3030(such)X
+3244(names)X
+3528(is)X
+3630(similar)X
+3936(to)X
+555 2296(Unix)N
+776(\256le)X
+928(names.)X
+1251(For)X
+1413(example,)X
+1793(if)X
+3 f
+1881(id1)X
+1 f
+2038(is)X
+2131(the)X
+2278(name)X
+2516(of)X
+2625(an)X
+2744(instance)X
+3088(within)X
+3362(the)X
+3508(root)X
+3691(cell,)X
+3 f
+3883(id2)X
+1 f
+555 2408(is)N
+648(an)X
+768(instance)X
+1113(within)X
+3 f
+1388(id1)X
+1 f
+1516(,)X
+1568(and)X
+3 f
+1735(node)X
+1 f
+1960(is)X
+2052(a)X
+2123(node)X
+2338(name)X
+2575(within)X
+3 f
+2849(id2)X
+1 f
+2977(,)X
+3029(then)X
+3 f
+3223(id1/id2/node)X
+1 f
+3758(can)X
+3920(be)X
+555 2520(used)N
+764(unambiguously)X
+1390(to)X
+1498(refer)X
+1713(to)X
+1821(the)X
+1972(node.)X
+2240(When)X
+2503(you)X
+2680(select)X
+2933(a)X
+3009(cell,)X
+3206(Magic)X
+3485(prints)X
+3737(out)X
+3893(the)X
+555 2632(complete)N
+933(path)X
+1123(name)X
+1356(of)X
+1460(the)X
+1602(instance.)X
+755 2772(Arrays)N
+1050(are)X
+1202(treated)X
+1499(specially.)X
+1924(When)X
+2188(you)X
+2366(use)X
+3 f
+2528(:identify)X
+1 f
+2909(to)X
+3017(give)X
+3216(an)X
+3340(array)X
+3571(an)X
+3695(instance)X
+555 2884(identi\256er,)N
+966(each)X
+1182(element)X
+1526(of)X
+1644(the)X
+1800(array)X
+2036(is)X
+2138(given)X
+2390(the)X
+2546(instance)X
+2900(identi\256er)X
+3286(you)X
+3468(speci\256ed,)X
+3872(fol-)X
+555 2996(lowed)N
+815(by)X
+935(one)X
+1098(or)X
+1202(two)X
+1370(array)X
+1592(subscripts)X
+2000(enclosed)X
+2361(in)X
+2460(square)X
+2735(brackets,)X
+3104(e.g,)X
+3 f
+3267(id3[2])X
+1 f
+3531(or)X
+3 f
+3635(id4[3][7])X
+1 f
+3987(.)X
+555 3108(When)N
+845(the)X
+1023(array)X
+1281(is)X
+1405(one-dimensional,)X
+2131(there)X
+2384(is)X
+2508(a)X
+2610(single)X
+2899(subscript;)X
+3332(when)X
+3599(it)X
+3712(is)X
+3835(two-)X
+555 3220(dimensional,)N
+1074(the)X
+1216(\256rst)X
+1389(subscript)X
+1760(is)X
+1848(for)X
+1984(the)X
+2126(y-dimension)X
+2631(and)X
+2794(the)X
+2936(second)X
+3227(for)X
+3363(the)X
+3505(x-dimension.)X
+3 f
+555 3556(7.)N
+675(Writing)X
+1025(and)X
+1203(Flushing)X
+1584(Cells)X
+1 f
+755 3696(When)N
+1017(you)X
+1193(make)X
+1434(changes)X
+1776(to)X
+1883(your)X
+2091(circuit)X
+2370(in)X
+2477(Magic,)X
+2779(there)X
+3003(is)X
+3098(no)X
+3225(immediate)X
+3664(effect)X
+3915(on)X
+555 3808(the)N
+709(disk)X
+905(\256les)X
+1101(that)X
+1282(hold)X
+1489(the)X
+1643(cells.)X
+1904(You)X
+2105(must)X
+2328(explicitly)X
+2729(save)X
+2936(each)X
+3148(cell)X
+3323(that)X
+3503(has)X
+3666(changed,)X
+555 3920(using)N
+801(either)X
+1059(the)X
+3 f
+1215(:save)X
+1 f
+1461(command)X
+1879(or)X
+1997(the)X
+3 f
+2153(:writeall)X
+1 f
+2539(command.)X
+3005(Magic)X
+3289(keeps)X
+3546(track)X
+3776(of)X
+3893(the)X
+555 4032(cells)N
+764(that)X
+941(have)X
+1155(changed)X
+1508(since)X
+1738(the)X
+1888(last)X
+2054(time)X
+2258(they)X
+2456(were)X
+2675(saved)X
+2926(on)X
+3054(disk.)X
+3293(If)X
+3388(you)X
+3563(try)X
+3701(to)X
+3807(leave)X
+555 4144(Magic)N
+830(without)X
+1153(saving)X
+1433(all)X
+1559(the)X
+1706(cells)X
+1911(that)X
+2084(have)X
+2294(changed,)X
+2667(the)X
+2813(system)X
+3108(will)X
+3286(warn)X
+3506(you)X
+3678(and)X
+3845(give)X
+555 4256(you)N
+736(a)X
+816(chance)X
+1121(to)X
+1233(return)X
+1500(to)X
+1612(Magic)X
+1895(to)X
+2006(save)X
+2213(them.)X
+2490(Magic)X
+2772(never)X
+3022(\257ushes)X
+3324(cells)X
+3537(behind)X
+3835(your)X
+555 4368(back,)N
+792(and)X
+962(never)X
+1207(throws)X
+1499(away)X
+1733(de\256nitions)X
+2170(that)X
+2346(it)X
+2431(has)X
+2590(read)X
+2787(in.)X
+2941(Thus,)X
+3188(if)X
+3278(you)X
+3453(edit)X
+3629(a)X
+3702(cell)X
+3872(and)X
+555 4480(then)N
+758(use)X
+3 f
+923(:load)X
+1 f
+1168(to)X
+1280(edit)X
+1462(another)X
+1788(cell,)X
+1989(the)X
+2144(\256rst)X
+2330(cell)X
+2507(is)X
+2607(still)X
+2788(saved)X
+3043(in)X
+3154(Magic)X
+3436(even)X
+3654(though)X
+3957(it)X
+555 4592(doesn't)N
+874(appear)X
+1167(anywhere)X
+1577(on)X
+1709(the)X
+1863(screen.)X
+2193(If)X
+2293(you)X
+2473(then)X
+2675(invoke)X
+3 f
+2973(:load)X
+1 f
+3217(a)X
+3296(second)X
+3598(time)X
+3805(to)X
+3915(go)X
+555 4704(back)N
+761(to)X
+860(the)X
+1002(\256rst)X
+1175(cell,)X
+1363(you'll)X
+1617(get)X
+1759(the)X
+1901(edited)X
+2161(copy.)X
+755 4844(If)N
+853(you)X
+1031(decide)X
+1317(that)X
+1496(you'd)X
+1754(really)X
+2008(like)X
+2187(to)X
+2296(discard)X
+2607(the)X
+2758(edits)X
+2973(you've)X
+3273(made)X
+3515(to)X
+3623(a)X
+3699(cell)X
+3872(and)X
+555 4956(recover)N
+869(the)X
+1012(old)X
+1160(version,)X
+1492(there)X
+1710(are)X
+1853(two)X
+2022(ways)X
+2244(you)X
+2413(can)X
+2572(do)X
+2693(it.)X
+2820(The)X
+2995(\256rst)X
+3169(way)X
+3353(is)X
+3441(using)X
+3673(the)X
+3 f
+3815(\257ush)X
+1 f
+555 5068(option)N
+825(in)X
+3 f
+924(:writeall)X
+1 f
+1272(.)X
+1344(The)X
+1518(second)X
+1809(way)X
+1993(is)X
+2081(to)X
+2180(use)X
+2332(the)X
+2474(command)X
+3 f
+1951 5228(:\257ush)N
+1 f
+2203([)X
+2 f
+2235(cellname)X
+1 f
+2583(])X
+555 5388(If)N
+647(no)X
+2 f
+770(cellname)X
+1 f
+1145(is)X
+1236(given,)X
+1501(then)X
+1694(the)X
+1839(edit)X
+2011(cell)X
+2178(is)X
+2269(\257ushed.)X
+2621(Otherwise,)X
+3067(the)X
+3212(cell)X
+3379(named)X
+2 f
+3663(cellname)X
+1 f
+555 5500(is)N
+662(\257ushed.)X
+1030(The)X
+3 f
+1223(:\257ush)X
+1 f
+1494(command)X
+1917(will)X
+2110(expunge)X
+2479(Magic's)X
+2837(internal)X
+3175(copy)X
+3405(of)X
+3528(the)X
+3689(cell)X
+3872(and)X
+555 5612(replace)N
+858(it)X
+936(with)X
+1131(the)X
+1273(disk)X
+1457(copy.)X
+2203 6160(-)N
+2259(6)X
+2331(-)X
+
+7 p
+%%Page: 7 7
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+755 688(When)N
+1019(you)X
+1197(are)X
+1349(editing)X
+1651(large)X
+1878(chips,)X
+2139(Magic)X
+2419(may)X
+2619(claim)X
+2868(that)X
+3047(cells)X
+3258(have)X
+3474(changed)X
+3829(even)X
+555 800(though)N
+851(you)X
+1024(haven't)X
+1342(modi\256ed)X
+1713(them.)X
+1983(Whenever)X
+2408(you)X
+2581(modify)X
+2888(a)X
+2960(cell,)X
+3153(Magic)X
+3427(makes)X
+3701(changes)X
+555 912(in)N
+667(the)X
+822(parents)X
+1137(of)X
+1254(the)X
+1409(cell,)X
+1610(and)X
+1786(their)X
+1999(parents,)X
+2337(and)X
+2512(so)X
+2633(on)X
+2765(up)X
+2897(to)X
+3008(the)X
+3162(root)X
+3353(of)X
+3469(the)X
+3623(hierarchy.)X
+555 1024(These)N
+810(changes)X
+1145(record)X
+1416(new)X
+1601(design-rule)X
+2059(violations,)X
+2488(as)X
+2593(well)X
+2784(as)X
+2889(timestamp)X
+3316(and)X
+3480(bounding)X
+3867(box)X
+555 1136(information)N
+1041(used)X
+1248(by)X
+1375(Magic)X
+1652(to)X
+1758(keep)X
+1970(track)X
+2193(of)X
+2303(design)X
+2584(changes)X
+2924(and)X
+3093(enable)X
+3375(fast)X
+3544(cell)X
+3714(read-in.)X
+555 1248(Thus,)N
+800(whenever)X
+1203(you)X
+1376(change)X
+1678(one)X
+1846(cell)X
+2015(you'll)X
+2273(generally)X
+2660(need)X
+2870(to)X
+2973(write)X
+3199(out)X
+3350(new)X
+3538(copies)X
+3812(of)X
+3920(its)X
+555 1360(parents)N
+858(and)X
+1022(grandparents.)X
+1592(If)X
+1680(you)X
+1848(don't)X
+2075(write)X
+2297(out)X
+2444(the)X
+2586(parents,)X
+2912(or)X
+3016(if)X
+3099(you)X
+3267(edit)X
+3436(a)X
+3503(child)X
+3720(``out)X
+3931(of)X
+555 1472(context'')N
+929(\(by)X
+1083(itself,)X
+1326(without)X
+1646(the)X
+1790(parents)X
+2094(loaded\),)X
+2433(then)X
+2625(you'll)X
+2881(incur)X
+3105(extra)X
+3324(overhead)X
+3702(the)X
+3845(next)X
+555 1584(time)N
+768(you)X
+952(try)X
+1099(to)X
+1214(edit)X
+1399(the)X
+1557(parents.)X
+1923(``Timestamp)X
+2461(mismatch'')X
+2940(warnings)X
+3332(are)X
+3490(printed)X
+3803(when)X
+555 1696(you've)N
+849(edited)X
+1111(cells)X
+1314(out)X
+1463(of)X
+1569(context)X
+1879(and)X
+2044(then)X
+2236(later)X
+2434(go)X
+2556(back)X
+2764(and)X
+2929(read)X
+3121(in)X
+3222(the)X
+3366(cell)X
+3532(as)X
+3638(part)X
+3814(of)X
+3920(its)X
+555 1808(parent.)N
+871(These)X
+1128(aren't)X
+1380(serious)X
+1679(problems;)X
+2115(they)X
+2308(just)X
+2474(mean)X
+2710(that)X
+2882(Magic)X
+3155(is)X
+3246(doing)X
+3492(extra)X
+3712(work)X
+3936(to)X
+555 1920(update)N
+836(information)X
+1315(in)X
+1414(the)X
+1556(parent)X
+1821(to)X
+1920(re\257ect)X
+2185(the)X
+2327(child's)X
+2613(new)X
+2797(state.)X
+3 f
+555 2256(8.)N
+675(Search)X
+982(Paths)X
+1 f
+755 2396(When)N
+1011(many)X
+1251(people)X
+1534(are)X
+1678(working)X
+2024(on)X
+2146(a)X
+2215(large)X
+2434(design,)X
+2735(the)X
+2879(design)X
+3155(will)X
+3330(probably)X
+3697(be)X
+3813(more)X
+555 2508(manageable)N
+1046(if)X
+1134(different)X
+1495(pieces)X
+1765(of)X
+1874(it)X
+1957(can)X
+2120(be)X
+2240(located)X
+2548(in)X
+2652(different)X
+3013(directories)X
+3449(of)X
+3558(the)X
+3705(\256le)X
+3857(sys-)X
+555 2620(tem.)N
+791(Magic)X
+1080(provides)X
+1454(a)X
+1540(simple)X
+1840(mechanism)X
+2322(for)X
+2477(managing)X
+2900(designs)X
+3231(spread)X
+3525(over)X
+3738(several)X
+555 2732(directories.)N
+1050(The)X
+1240(system)X
+1546(maintains)X
+1960(a)X
+2 f
+2042(search)X
+2337(path)X
+1 f
+2547(that)X
+2731(tells)X
+2931(which)X
+3205(directories)X
+3651(to)X
+3765(search)X
+555 2844(when)N
+790(trying)X
+1047(to)X
+1149(read)X
+1342(in)X
+1444(cells.)X
+1696(By)X
+1835(default,)X
+2154(the)X
+2299(search)X
+2572(path)X
+2765(is)X
+2856(``.'',)X
+3059(which)X
+3321(means)X
+3594(that)X
+3765(Magic)X
+555 2956(looks)N
+787(only)X
+982(in)X
+1081(the)X
+1223(working)X
+1567(directory.)X
+1987(You)X
+2176(can)X
+2334(change)X
+2631(the)X
+2773(path)X
+2963(using)X
+3195(the)X
+3337(command)X
+3 f
+1916 3116(:path)N
+1 f
+2158([)X
+2 f
+2190(searchpath)X
+1 f
+2617(])X
+555 3276(where)N
+2 f
+817(searchpath)X
+1 f
+1271(is)X
+1362(the)X
+1507(new)X
+1694(path)X
+1887(that)X
+2059(Magic)X
+2332(should)X
+2615(use.)X
+2 f
+2818(Searchpath)X
+1 f
+3282(consists)X
+3612(of)X
+3718(a)X
+3787(list)X
+3931(of)X
+555 3388(directories)N
+997(separated)X
+1396(by)X
+1527(colons.)X
+1861(For)X
+2029(example,)X
+2415(the)X
+2568(path)X
+2769(``.:)X
+9 f
+2884(~)X
+1 f
+2937(ouster/x:a/b'')X
+3491(means)X
+3772(that)X
+3952(if)X
+555 3500(Magic)N
+850(is)X
+963(trying)X
+1242(to)X
+1366(read)X
+1581(in)X
+1704(a)X
+1795(cell)X
+1983(named)X
+2288(``foo'',)X
+2616(it)X
+2718(will)X
+2916(\256rst)X
+3113(look)X
+3332(for)X
+3492(a)X
+3583(\256le)X
+3754(named)X
+555 3612(``foo.mag'')N
+1030(in)X
+1134(the)X
+1281(current)X
+1583(directory.)X
+2008(If)X
+2101(it)X
+2184(doesn't)X
+2496(\256nd)X
+2674(the)X
+2821(\256le)X
+2973(there,)X
+3218(it)X
+3300(will)X
+3478(look)X
+3677(for)X
+3817(a)X
+3888(\256le)X
+555 3724(named)N
+852(``)X
+9 f
+916(~)X
+1 f
+969(ouster/x/foo.mag'',)X
+1752(and)X
+1931(if)X
+2030(that)X
+2215(doesn't)X
+2538(exist,)X
+2784(then)X
+2990(it)X
+3084(will)X
+3274(try)X
+3420(``a/b/foo.mag'')X
+555 3836(last.)N
+768(To)X
+906(\256nd)X
+1086(out)X
+1240(what)X
+1458(the)X
+1607(current)X
+1911(path)X
+2108(is,)X
+2227(type)X
+3 f
+2424(:path)X
+1 f
+2673(with)X
+2875(no)X
+3001(arguments.)X
+3480(In)X
+3590(addition)X
+3936(to)X
+555 3948(your)N
+763(path,)X
+985(this)X
+1156(command)X
+1568(will)X
+1750(print)X
+1964(out)X
+2119(the)X
+2269(system)X
+2568(cell)X
+2740(library)X
+3029(path)X
+3227(\(where)X
+3526(Magic)X
+3803(looks)X
+555 4060(for)N
+697(cells)X
+904(if)X
+993(it)X
+1077(can't)X
+1300(\256nd)X
+1478(them)X
+1700(anywhere)X
+2103(in)X
+2207(your)X
+2412(path\),)X
+2663(and)X
+2831(the)X
+2978(system)X
+3274(search)X
+3549(path)X
+3744(\(where)X
+555 4172(Magic)N
+839(looks)X
+1085(for)X
+1235(\256les)X
+1432(like)X
+1614(colormaps)X
+2052(and)X
+2228(technology)X
+2693(\256les)X
+2890(if)X
+2986(it)X
+3077(can't)X
+3307(\256nd)X
+3493(them)X
+3723(in)X
+3835(your)X
+555 4284(current)N
+852(directory\).)X
+755 4424(If)N
+851(you're)X
+1134(working)X
+1486(on)X
+1614(a)X
+1689(large)X
+1914(design,)X
+2221(you)X
+2397(should)X
+2684(use)X
+2843(the)X
+2992(search)X
+3269(path)X
+3466(mechanism)X
+3936(to)X
+555 4536(spread)N
+835(your)X
+1040(layout)X
+1310(over)X
+1510(several)X
+1812(directories.)X
+2296(A)X
+2394(typical)X
+2686(large)X
+2908(chip)X
+3102(will)X
+3280(contain)X
+3592(a)X
+3663(few)X
+3835(hun-)X
+555 4648(dred)N
+763(cells;)X
+1028(if)X
+1124(you)X
+1305(try)X
+1449(to)X
+1561(place)X
+1802(all)X
+1936(of)X
+2053(them)X
+2283(in)X
+2395(the)X
+2550(same)X
+2785(directory)X
+3170(there)X
+3400(will)X
+3586(just)X
+3761(be)X
+3888(too)X
+555 4760(many)N
+806(things)X
+1078(to)X
+1190(manage.)X
+1575(For)X
+1745(example,)X
+2133(place)X
+2373(the)X
+2527(datapath)X
+2890(in)X
+3001(one)X
+3176(directory,)X
+3584(the)X
+3738(control)X
+555 4872(unit)N
+735(in)X
+840(another,)X
+1183(the)X
+1331(instruction)X
+1773(buffer)X
+2038(in)X
+2143(a)X
+2216(third,)X
+2452(and)X
+2621(so)X
+2736(on.)X
+2910(Try)X
+3079(to)X
+3184(keep)X
+3396(the)X
+3544(size)X
+3724(of)X
+3834(each)X
+555 4984(directory)N
+933(down)X
+1175(to)X
+1279(a)X
+1351(few)X
+1524(dozen)X
+1783(\256les.)X
+2020(You)X
+2214(can)X
+2377(place)X
+2610(the)X
+3 f
+2757(:path)X
+1 f
+3004(command)X
+3413(in)X
+3517(a)X
+3 f
+3589(.magic)X
+1 f
+3888(\256le)X
+555 5096(in)N
+656(your)X
+858(home)X
+1098(directory)X
+1472(or)X
+1578(the)X
+1722(directory)X
+2096(you)X
+2266(normally)X
+2640(run)X
+2794(Magic)X
+3066(from;)X
+3330(this)X
+3495(will)X
+3671(save)X
+3867(you)X
+555 5208(from)N
+768(having)X
+1056(to)X
+1157(retype)X
+1424(it)X
+1503(each)X
+1705(time)X
+1902(you)X
+2071(start)X
+2262(up)X
+2383(\(see)X
+2563(the)X
+2706(Magic)X
+2977(man)X
+3168(page)X
+3375(to)X
+3475(\256nd)X
+3649(out)X
+3797(about)X
+3 f
+555 5320(.magic)N
+1 f
+859(\256les\).)X
+1133(If)X
+1231(all)X
+1362(you)X
+1540(want)X
+1761(to)X
+1870(do)X
+2000(is)X
+2098(add)X
+2271(another)X
+2593(directory)X
+2974(onto)X
+3178(the)X
+3329(end)X
+3501(of)X
+3614(the)X
+3765(search)X
+555 5432(path,)N
+769(you)X
+937(can)X
+1095(use)X
+1247(the)X
+3 f
+1389(:addpath)X
+1 f
+1785([)X
+2 f
+1817(directory)X
+1 f
+2170(])X
+2226(command.)X
+755 5572(Because)N
+1112(there)X
+1341(is)X
+1441(only)X
+1648(a)X
+1727(single)X
+1993(search)X
+2275(path)X
+2477(that)X
+2658(is)X
+2757(used)X
+2968(everywhere)X
+3452(in)X
+3562(Magic,)X
+3867(you)X
+555 5684(must)N
+767(be)X
+883(careful)X
+1176(not)X
+1323(to)X
+1422(re-use)X
+1681(the)X
+1823(same)X
+2045(cell)X
+2209(name)X
+2442(in)X
+2541(different)X
+2897(portions)X
+3236(of)X
+3340(the)X
+3482(chip.)X
+3720(A)X
+3813(com-)X
+555 5796(mon)N
+776(problem)X
+1147(with)X
+1368(large)X
+1611(designs)X
+1949(is)X
+2063(that)X
+2257(different)X
+2638(designers)X
+3050(use)X
+3227(the)X
+3394(same)X
+3641(name)X
+3899(for)X
+2203 6160(-)N
+2259(7)X
+2331(-)X
+
+8 p
+%%Page: 8 8
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Tutorial)X
+1160(#4:)X
+1307(Cell)X
+1492(Hierarchies)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(different)N
+913(cells.)X
+1164(This)X
+1361(works)X
+1621(\256ne)X
+1790(as)X
+1895(long)X
+2091(as)X
+2196(the)X
+2339(designers)X
+2727(are)X
+2870(working)X
+3215(separately,)X
+3655(but)X
+3803(when)X
+555 800(the)N
+699(two)X
+869(pieces)X
+1136(of)X
+1242(the)X
+1386(design)X
+1663(are)X
+1807(put)X
+1956(together)X
+2298(using)X
+2532(a)X
+2601(search)X
+2873(path,)X
+3088(a)X
+3156(single)X
+3411(copy)X
+3623(of)X
+3728(the)X
+3871(cell)X
+555 912(\(the)N
+729(one)X
+892(that)X
+1061(is)X
+1149(found)X
+1397(\256rst)X
+1570(in)X
+1669(the)X
+1811(search)X
+2081(path\))X
+2303(gets)X
+2482(used)X
+2682(everywhere.)X
+755 1052(There's)N
+1082(another)X
+1404(caveat)X
+1684(in)X
+1792(the)X
+1943(use)X
+2104(of)X
+2217(search)X
+2496(paths.)X
+2780(Magic)X
+3059(looks)X
+3300(for)X
+3445(system)X
+3744(\256les)X
+3936(in)X
+555 1164(\304cad,)N
+806(but)X
+990(sometimes)X
+1463(it)X
+1578(is)X
+1703(helpful)X
+2036(to)X
+2171(put)X
+2354(Magic's)X
+2729(system)X
+3056(\256les)X
+3276(elsewhere.)X
+3769(If)X
+3893(the)X
+3 f
+555 1276(CAD_HOME)N
+1 f
+1147(shell)X
+1361(environment)X
+1880(variable)X
+2223(is)X
+2319(set,)X
+2482(then)X
+2680(Magic)X
+2957(uses)X
+3153(that)X
+3329(as)X
+3440(the)X
+3589(location)X
+3931(of)X
+555 1388(\304cad)N
+755(instead)X
+1062(of)X
+1176(the)X
+1328(location)X
+1672(in)X
+1780(the)X
+1931(password)X
+2326(\256le.)X
+2530(This)X
+2734(overrides)X
+3125(all)X
+3255(uses)X
+3453(of)X
+3566(\304cad)X
+3765(within)X
+555 1500(magic,)N
+839(including)X
+1227(the)X
+1369(\304cad)X
+1559(seen)X
+1754(in)X
+1853(the)X
+1995(search)X
+2265(paths)X
+2492(printed)X
+2789(out)X
+2936(by)X
+3 f
+3056(:path)X
+1 f
+3274(.)X
+3 f
+555 1724(9.)N
+675(Additional)X
+1136(Commands)X
+1 f
+755 1864(This)N
+965(section)X
+1277(describes)X
+1674(a)X
+1756(few)X
+1939(additional)X
+2364 0.2955(cell-related)AX
+2838(commands)X
+3293(that)X
+3476(you)X
+3658(may)X
+3862(\256nd)X
+555 1976(useful.)N
+862(One)X
+1046(of)X
+1150(them)X
+1367(is)X
+1455(the)X
+1597(command)X
+3 f
+1983 2136(:select)N
+2264(save)X
+2 f
+2464(\256le)X
+1 f
+555 2296(This)N
+762(command)X
+1178(takes)X
+1412(the)X
+1565(selection)X
+1943(and)X
+2117(writes)X
+2387(it)X
+2476(to)X
+2586(disk)X
+2781(as)X
+2896(a)X
+2974(new)X
+3169(Magic)X
+3450(cell)X
+3625(in)X
+3735(the)X
+3888(\256le)X
+2 f
+555 2408(\256le)N
+3 f
+673(.mag)X
+1 f
+873(.)X
+946(You)X
+1136(can)X
+1295(use)X
+1448(this)X
+1612(command)X
+2017(to)X
+2117(break)X
+2356(up)X
+2477(a)X
+2545(big)X
+2692(\256le)X
+2839(into)X
+3013(smaller)X
+3321(ones,)X
+3545(or)X
+3649(to)X
+3748(extract)X
+555 2520(pieces)N
+820(from)X
+1031(an)X
+1146(existing)X
+1475(cell.)X
+755 2660(The)N
+929(command)X
+3 f
+1701 2820(:dump)N
+2 f
+1996(cellName)X
+1 f
+2384([)X
+2 f
+2416(labelName)X
+1 f
+2833(])X
+555 2980(does)N
+757(the)X
+901(opposite)X
+1253(of)X
+3 f
+1359(select)X
+1609(save)X
+1 f
+(:)S
+1861(it)X
+1940(copies)X
+2211(the)X
+2354(contents)X
+2700(of)X
+2805(cell)X
+2 f
+2970(cellName)X
+1 f
+3359(into)X
+3534(the)X
+3677(edit)X
+3847(cell,)X
+555 3092(such)N
+762(that)X
+938(the)X
+1087(lower-left)X
+1498(corner)X
+1775(of)X
+1886(label)X
+2 f
+2105(labelName)X
+1 f
+2553(is)X
+2648(at)X
+2749(the)X
+2898(lower-left)X
+3309(corner)X
+3585(of)X
+3695(the)X
+3843(box.)X
+555 3204(The)N
+737(new)X
+929(material)X
+1278(will)X
+1460(also)X
+1647(be)X
+1770(selected.)X
+2161(This)X
+2364(command)X
+2775(is)X
+2870(similar)X
+3169(in)X
+3275(form)X
+3493(to)X
+3599(the)X
+3 f
+3748(getcell)X
+1 f
+555 3316(command)N
+965(except)X
+1247(that)X
+1421(it)X
+1504(copies)X
+1779(the)X
+1926(contents)X
+2276(of)X
+2385(the)X
+2532(cell)X
+2701(instead)X
+3003(of)X
+3112(using)X
+3349(the)X
+3496(cell)X
+3665(as)X
+3774(a)X
+3846(sub-)X
+555 3428(cell.)N
+767(There)X
+1016(are)X
+1158(several)X
+1455(forms)X
+1703(of)X
+3 f
+1807(dump)X
+1 f
+2046(;)X
+2121(see)X
+2268(the)X
+2 f
+2410(man)X
+1 f
+2599(page)X
+2805(for)X
+2941(details.)X
+755 3568(The)N
+936(main)X
+1160(purpose)X
+1495(of)X
+3 f
+1606(dump)X
+1 f
+1875(is)X
+1969(to)X
+2074(allow)X
+2318(you)X
+2492(to)X
+2597(create)X
+2858(a)X
+2931(library)X
+3218(of)X
+3328(cells)X
+3535(representing)X
+555 3680(commonly-used)N
+1229(structures)X
+1633(such)X
+1839(as)X
+1949(standard)X
+2304(transistor)X
+2691(shapes)X
+2976(or)X
+3085(special)X
+3382(contact)X
+3690(arrange-)X
+555 3792(ments.)N
+866(You)X
+1064(can)X
+1231(then)X
+1430(de\256ne)X
+1698(macros)X
+2009(that)X
+2187(invoke)X
+2482(the)X
+3 f
+2633(dump)X
+1 f
+2905(command)X
+3317(to)X
+3424(place)X
+3660(the)X
+3810(cells.)X
+555 3904(The)N
+729(result)X
+967(is)X
+1055(that)X
+1224(a)X
+1291(single)X
+1545(keystroke)X
+1943(is)X
+2031(all)X
+2152(you)X
+2320(need)X
+2526(to)X
+2625(copy)X
+2836(one)X
+2999(of)X
+3103(them)X
+3320(into)X
+3494(the)X
+3636(edit)X
+3805(cell.)X
+755 4044(As)N
+893(mentioned)X
+1332(earlier,)X
+1635(Magic)X
+1913(normally)X
+2293(displays)X
+2640(the)X
+2790(edit)X
+2966(cell)X
+3137(in)X
+3243(brighter)X
+3579(colors)X
+3845(than)X
+555 4156(non-edit)N
+903(cells.)X
+1155(This)X
+1353(helps)X
+1583(to)X
+1685(distinguish)X
+2134(what)X
+2348(is)X
+2439(editable)X
+2772(from)X
+2985(what)X
+3198(is)X
+3288(not,)X
+3461(but)X
+3610(may)X
+3802(make)X
+555 4268(it)N
+633(hard)X
+828(for)X
+964(you)X
+1132(to)X
+1231(view)X
+1442(non-edit)X
+1787(paint)X
+2004(since)X
+2226(it)X
+2304(appears)X
+2622(paler.)X
+2887(If)X
+2975(you)X
+3143(type)X
+3333(the)X
+3475(command)X
+3 f
+2030 4428(:see)N
+2209(allSame)X
+1 f
+555 4588(you'll)N
+819(turn)X
+1008(off)X
+1154(this)X
+1327(feature:)X
+1680(all)X
+1811(paint)X
+2038(everywhere)X
+2521(will)X
+2704(be)X
+2828(displayed)X
+3230(in)X
+3338(the)X
+3489(bright)X
+3752(colors.)X
+555 4700(The)N
+737(word)X
+3 f
+966(allSame)X
+1 f
+1324(must)X
+1543(be)X
+1665(typed)X
+1910(just)X
+2080(that)X
+2256(way,)X
+2471(with)X
+2673(one)X
+2843(capital)X
+3132(letter.)X
+3410(If)X
+3505(you'd)X
+3760(like)X
+3936(to)X
+555 4812(restore)N
+841(the)X
+983(different)X
+1339(display)X
+1641(styles,)X
+1908(type)X
+2098(the)X
+2240(command)X
+3 f
+1968 4972(:see)N
+2147(no)X
+2272(allSame)X
+1 f
+555 5132(You)N
+748(can)X
+910(also)X
+1093(use)X
+1249(the)X
+3 f
+1395(:see)X
+1 f
+1578(command)X
+1986(to)X
+2089(selectively)X
+2529(disable)X
+2829(display)X
+3134(of)X
+3241(various)X
+3551(mask)X
+3781(layers)X
+555 5244(in)N
+663(order)X
+899(to)X
+1007(make)X
+1249(the)X
+1399(other)X
+1629(ones)X
+1837(easier)X
+2094(to)X
+2201(see.)X
+2404(For)X
+2569(details,)X
+2877(read)X
+3075(about)X
+3 f
+3321(:see)X
+1 f
+3508(in)X
+3615(the)X
+3765(Magic)X
+555 5356(man)N
+745(page.)X
+2203 6160(-)N
+2259(8)X
+2331(-)X
+
+8 p
+%%Trailer
+xt
+
+xs

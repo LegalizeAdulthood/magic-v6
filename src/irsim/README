@@ -1,0 +1,21 @@
+To compile irsim run the make_irsim script.  This will compile and install
+everything that's needed.
+
+You may change the default directory (~cad) in which things get installed
+by setting CAD_HOME to whatever is appropriate in your system.
+
+The CFLAGS file contains the 2 system dependent flags.  For ultrix, hp's
+and sun's you don't need to change them.  For SYSTEM-V installations set the
+SYS_V flag (-DSYS_V).  If your system doesn't support sending SIGIO on sockets
+(asynchronous reads) then set the NO_SIGIO (-DNO_SIGIO) flag as well, if you
+are not sure about this, then set it anyhow.
+
+For systems that do not have an X11 library, you can compile irsim without
+the analyzer, for this you will have to edit the file src/irsim/Makefile
+and set X=NO, and XLIB="".
+
+The lib directory contains prm files for the scalable-cmos process.  You may
+want to install these in "~cad/lib" as well.
+
+The calibrate directory contains information on creating your own prm files.
+

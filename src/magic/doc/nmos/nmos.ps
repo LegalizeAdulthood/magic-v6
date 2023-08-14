@@ -1,0 +1,3580 @@
+%!PS-Adobe-1.0
+%%Creator: jove.pa.dec.com:mayo (Bob Mayo,WRL,8536630)
+%%Title: stdin (ditroff)
+%%CreationDate: Wed Sep 19 13:13:11 1990
+%%EndComments
+% lib/psdit.pro -- prolog for psdit (ditroff) files
+% Copyright (c) 1984, 1985 Adobe Systems Incorporated. All Rights Reserved.
+% last edit: shore Sat Nov 23 20:28:03 1985
+% RCSID: $Header: psdit.pro,v 1.1 87/05/28 11:20:28 reid Exp $
+
+/$DITroff 140 dict def $DITroff begin
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0 0 .001 0 0] def
+/FontBBox [-260 -260 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -140 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{500 360 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+
+% Changed by Edward Wang (edward@ucbarpa.berkeley.edu) to handle graphics,
+% 17 Feb, 87.
+
+/Dt{/Dlinewidth exch def}def 1 Dt
+/Ds{/Ddash exch def}def -1 Ds
+/Di{/Dstipple exch def}def 1 Di
+/Dpatterns[
+[%cf[widthbits]
+[8<0000000000000010>]
+[8<0411040040114000>]
+[8<0204081020408001>]
+[8<0000103810000000>]
+[8<6699996666999966>]
+[8<0000800100001008>]
+[8<81c36666c3810000>]
+[8<0f0e0c0800000000>]
+[8<0000000000000010>]
+[8<0411040040114000>]
+[8<0204081020408001>]
+[8<0000001038100000>]
+[8<6699996666999966>]
+[8<0000800100001008>]
+[8<81c36666c3810000>]
+[8<0f0e0c0800000000>]
+[8<0042660000246600>]
+[8<0000990000990000>]
+[8<0804020180402010>]
+[8<2418814242811824>]
+[8<6699996666999966>]
+[8<8000000008000000>]
+[8<00001c3e363e1c00>]
+[8<0000000000000000>]
+[32<00000040000000c00000004000000040000000e0000000000000000000000000>]
+[32<00000000000060000000900000002000000040000000f0000000000000000000>]
+[32<000000000000000000e0000000100000006000000010000000e0000000000000>]
+[32<00000000000000002000000060000000a0000000f00000002000000000000000>]
+[32<0000000e0000000000000000000000000000000f000000080000000e00000001>]
+[32<0000090000000600000000000000000000000000000007000000080000000e00>]
+[32<00010000000200000004000000040000000000000000000000000000000f0000>]
+[32<0900000006000000090000000600000000000000000000000000000006000000>]]
+[%ug
+[8<0000020000000000>]
+[8<0000020000002000>]
+[8<0004020000002000>]
+[8<0004020000402000>]
+[8<0004060000402000>]
+[8<0004060000406000>]
+[8<0006060000406000>]
+[8<0006060000606000>]
+[8<00060e0000606000>]
+[8<00060e000060e000>]
+[8<00070e000060e000>]
+[8<00070e000070e000>]
+[8<00070e020070e000>]
+[8<00070e020070e020>]
+[8<04070e020070e020>]
+[8<04070e024070e020>]
+[8<04070e064070e020>]
+[8<04070e064070e060>]
+[8<06070e064070e060>]
+[8<06070e066070e060>]
+[8<06070f066070e060>]
+[8<06070f066070f060>]
+[8<060f0f066070f060>]
+[8<060f0f0660f0f060>]
+[8<060f0f0760f0f060>]
+[8<060f0f0760f0f070>]
+[8<0e0f0f0760f0f070>]
+[8<0e0f0f07e0f0f070>]
+[8<0e0f0f0fe0f0f070>]
+[8<0e0f0f0fe0f0f0f0>]
+[8<0f0f0f0fe0f0f0f0>]
+[8<0f0f0f0ff0f0f0f0>]
+[8<1f0f0f0ff0f0f0f0>]
+[8<1f0f0f0ff1f0f0f0>]
+[8<1f0f0f8ff1f0f0f0>]
+[8<1f0f0f8ff1f0f0f8>]
+[8<9f0f0f8ff1f0f0f8>]
+[8<9f0f0f8ff9f0f0f8>]
+[8<9f0f0f9ff9f0f0f8>]
+[8<9f0f0f9ff9f0f0f9>]
+[8<9f8f0f9ff9f0f0f9>]
+[8<9f8f0f9ff9f8f0f9>]
+[8<9f8f1f9ff9f8f0f9>]
+[8<9f8f1f9ff9f8f1f9>]
+[8<bf8f1f9ff9f8f1f9>]
+[8<bf8f1f9ffbf8f1f9>]
+[8<bf8f1fdffbf8f1f9>]
+[8<bf8f1fdffbf8f1fd>]
+[8<ff8f1fdffbf8f1fd>]
+[8<ff8f1fdffff8f1fd>]
+[8<ff8f1ffffff8f1fd>]
+[8<ff8f1ffffff8f1ff>]
+[8<ff9f1ffffff8f1ff>]
+[8<ff9f1ffffff9f1ff>]
+[8<ff9f9ffffff9f1ff>]
+[8<ff9f9ffffff9f9ff>]
+[8<ffbf9ffffff9f9ff>]
+[8<ffbf9ffffffbf9ff>]
+[8<ffbfdffffffbf9ff>]
+[8<ffbfdffffffbfdff>]
+[8<ffffdffffffbfdff>]
+[8<ffffdffffffffdff>]
+[8<fffffffffffffdff>]
+[8<ffffffffffffffff>]]
+[%mg
+[8<8000000000000000>]
+[8<0822080080228000>]
+[8<0204081020408001>]
+[8<40e0400000000000>]
+[8<66999966>]
+[8<8001000010080000>]
+[8<81c36666c3810000>]
+[8<f0e0c08000000000>]
+[16<07c00f801f003e007c00f800f001e003c007800f001f003e007c00f801f003e0>]
+[16<1f000f8007c003e001f000f8007c003e001f800fc007e003f001f8007c003e00>]
+[8<c3c300000000c3c3>]
+[16<0040008001000200040008001000200040008000000100020004000800100020>]
+[16<0040002000100008000400020001800040002000100008000400020001000080>]
+[16<1fc03fe07df0f8f8f07de03fc01f800fc01fe03ff07df8f87df03fe01fc00f80>]
+[8<80>]
+[8<8040201000000000>]
+[8<84cc000048cc0000>]
+[8<9900009900000000>]
+[8<08040201804020100800020180002010>]
+[8<2418814242811824>]
+[8<66999966>]
+[8<8000000008000000>]
+[8<70f8d8f870000000>]
+[8<0814224180402010>]
+[8<aa00440a11a04400>]
+[8<018245aa45820100>]
+[8<221c224180808041>]
+[8<88000000>]
+[8<0855800080550800>]
+[8<2844004482440044>]
+[8<0810204080412214>]
+[8<00>]]]def
+/Dfill{
+ transform /maxy exch def /maxx exch def
+ transform /miny exch def /minx exch def
+ minx maxx gt{/minx maxx /maxx minx def def}if
+ miny maxy gt{/miny maxy /maxy miny def def}if
+ Dpatterns Dstipple 1 sub get exch 1 sub get
+ aload pop /stip exch def /stipw exch def /stiph 128 def
+ /imatrix[stipw 0 0 stiph 0 0]def
+ /tmatrix[stipw 0 0 stiph 0 0]def
+ /minx minx cvi stiph idiv stiph mul def
+ /miny miny cvi stipw idiv stipw mul def
+ gsave eoclip 0 setgray
+ miny stiph maxy{
+  tmatrix exch 5 exch put
+  minx stipw maxx{
+   tmatrix exch 4 exch put tmatrix setmatrix
+   stipw stiph true imatrix {stip} imagemask
+  }for
+ }for
+ grestore
+}def
+/Dsetlinewidth{2 Dlinewidth mul setlinewidth}def
+/Dsetdash{Ddash 4 eq{[8 12]}{Ddash 16 eq{[32 36]}
+ {Ddash 20 eq{[32 12 8 12]}{[]}ifelse}ifelse}ifelse 0 setdash}def
+/Dstroke{gsave Dsetlinewidth Dsetdash 1 setlinecap stroke grestore
+ currentpoint newpath moveto}def
+/Dp{Dfill Dstroke}def
+/DP{Dfill currentpoint newpath moveto}def
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Helvetica)xf 5 f
+6(Helvetica-Bold)xf 6 f
+7(Courier)xf 7 f
+8(Courier-Bold)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 1 1
+10 s 10 xH 0 xS 1 f
+12 s
+3 f
+16 s
+1240 1141(M)N
+1361(agic)X
+1614(Technology)X
+2279(M)X
+2400(anual)X
+2738(#1:)X
+2941(NM)X
+3154(O)X
+3254(S)X
+2 f
+12 s
+1961 1479(John)N
+2172(Ousterhout)X
+1 f
+1751 1817(Computer)N
+2160(Science)X
+2484(Division)X
+1383 1929 0.3542(Electrical)AN
+1778(Engineering)X
+2273(and)X
+2436(Computer)X
+2845(Sciences)X
+1820 2041(University)N
+2250(of)X
+2354(California)X
+1874 2153(Berkeley,)N
+2270(CA)X
+2451(94720)X
+2 f
+1168 2489(\(Warning:)N
+1616(Process)X
+1944(details)X
+2225(often)X
+2442(change.)X
+2792(Contact)X
+3121(MOSIS)X
+1214 2601(or)N
+1323(your)X
+1523(fab)X
+1670(line)X
+1839(to)X
+1938(verify)X
+2182(information)X
+2660(in)X
+2759(this)X
+2922(document.\))X
+3 f
+555 2873(1.)N
+675(Introduction)X
+1 f
+755 3013(This)N
+952(document)X
+1358(describes)X
+1742(Magic's)X
+2083(NMOS)X
+2385(technology.)X
+2887(It)X
+2971(includes)X
+3317(information)X
+3797(about)X
+555 3125(the)N
+719(layers,)X
+1019(design)X
+1316(rules,)X
+1573(routing,)X
+1921(CIF)X
+2116(generation,)X
+2593(and)X
+2778(extraction.)X
+3258(This)X
+3474(technology)X
+3947(is)X
+555 3237(available)N
+934(by)X
+1060(the)X
+1208(name)X
+3 f
+1447(nmos)X
+1 f
+1695(\(run)X
+1885(Magic)X
+2161(with)X
+2362(the)X
+2510(shell)X
+2722(command)X
+3 f
+3132(magic)X
+3408(-T)X
+3534(nmos)X
+1 f
+3752(\).)X
+3861(The)X
+555 3349(design)N
+837(rules)X
+1055(described)X
+1455(here)X
+1652(are)X
+1801(for)X
+1944(the)X
+2092(standard)X
+2448(Mead)X
+2697(and)X
+2866(Conway)X
+3216(NMOS)X
+3522(process)X
+3840(with)X
+555 3461(butting)N
+855(contacts)X
+1198(omitted)X
+1519(and)X
+1684(buried)X
+1956(contacts)X
+2298(added.)X
+2602(There)X
+2853(is)X
+2943(a)X
+3012(single)X
+3268(layer)X
+3487(each)X
+3690(of)X
+3796(metal)X
+555 3573(and)N
+722(polysilicon.)X
+1226(If)X
+1318(you've)X
+1613(been)X
+1823(reading)X
+2140(the)X
+2285(Mead)X
+2531(and)X
+2697(Conway)X
+3044(text,)X
+3240(or)X
+3347(if)X
+3433(you've)X
+3727(already)X
+555 3685(done)N
+781(circuit)X
+1067(layout)X
+1347(with)X
+1557(a)X
+1639(different)X
+2010(editing)X
+2317(system,)X
+2647(don't)X
+2889(forget)X
+3157(that)X
+3340(these)X
+3576(are)X
+3732(not)X
+3893(the)X
+555 3797(layers)N
+822(that)X
+1004(actually)X
+1347(end)X
+1523(up)X
+1656(on)X
+1788(masks.)X
+2112(Contacts)X
+2485(and)X
+2660(transistors)X
+3091(are)X
+3245(drawn)X
+3521(in)X
+3632(a)X
+3711(stylized)X
+555 3909(form)N
+766(that)X
+935(omits)X
+1173(implants,)X
+1553(vias,)X
+1756(and)X
+1919(buried)X
+2189(windows.)X
+3 f
+555 4245(2.)N
+675(Layers)X
+982(and)X
+1160(Design)X
+1461(Rules)X
+555 4469(2.1.)N
+747(Metal)X
+5 Dt
+1707 4869 MXY
+0 -288 Dl
+960 0 Dl
+0 288 Dl
+-960 0 Dl
+5445 MY
+0 -288 Dl
+960 0 Dl
+0 288 Dl
+-960 0 Dl
+3 Dt
+2187 4869 MXY
+-18 30 Dl
+18 -12 Dl
+18 12 Dl
+-18 -30 Dl
+5157 MY
+-18 -30 Dl
+18 12 Dl
+18 -12 Dl
+-18 30 Dl
+2763 4869 MXY
+-18 -30 Dl
+18 12 Dl
+18 -12 Dl
+-18 30 Dl
+4581 MY
+-18 30 Dl
+18 -12 Dl
+18 12 Dl
+-18 -30 Dl
+2187 4887 MXY
+0 252 Dl
+2763 4599 MXY
+0 252 Dl
+1 f
+10 s
+2211 5047(3)N
+2787 4759(3)N
+3 Dt
+-1 Ds
+12 s
+755 5652(There)N
+1010(is)X
+1103(only)X
+1303(one)X
+1471(layer)X
+1693(of)X
+1802(metal,)X
+2070(and)X
+2238(it)X
+2321(is)X
+2414(drawn)X
+2683(in)X
+2787(blue.)X
+3030(Magic)X
+3305(accepts)X
+3618(the)X
+3765(names)X
+3 f
+555 5764(metal)N
+1 f
+822(or)X
+3 f
+939(blue)X
+1 f
+1152(for)X
+1301(this)X
+1477(layer.)X
+1755(Metal)X
+2017(must)X
+2241(always)X
+2545(be)X
+2673(at)X
+2779(least)X
+2992(3)X
+3076(units)X
+3299(wide)X
+3522(and)X
+3697(must)X
+3920(be)X
+2203 6160(-)N
+2259(1)X
+2331(-)X
+
+2 p
+%%Page: 2 2
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(separated)N
+943(from)X
+1154(other)X
+1376(metal)X
+1615(by)X
+1735(at)X
+1829(least)X
+2030(3)X
+2102(units.)X
+3 f
+555 912(2.2.)N
+747(Polysilicon)X
+1 Dt
+2628 1715 MXY
+115 -115 Dl
+2513 1715 MXY
+230 -230 Dl
+2398 1715 MXY
+230 -230 Dl
+2282 1715 MXY
+231 -230 Dl
+2167 1715 MXY
+231 -230 Dl
+2052 1715 MXY
+230 -230 Dl
+1937 1715 MXY
+230 -230 Dl
+1822 1715 MXY
+230 -230 Dl
+1706 1715 MXY
+231 -230 Dl
+1591 1715 MXY
+231 -230 Dl
+1591 1600 MXY
+115 -115 Dl
+3 Dt
+1591 1715 MXY
+0 -230 Dl
+1152 0 Dl
+0 230 Dl
+-1152 0 Dl
+1 Dt
+2628 1254 MXY
+115 -115 Dl
+2513 1254 MXY
+230 -230 Dl
+2398 1254 MXY
+230 -230 Dl
+2282 1254 MXY
+231 -230 Dl
+2167 1254 MXY
+231 -230 Dl
+2052 1254 MXY
+230 -230 Dl
+1937 1254 MXY
+230 -230 Dl
+1822 1254 MXY
+230 -230 Dl
+1706 1254 MXY
+231 -230 Dl
+1591 1254 MXY
+231 -230 Dl
+1591 1139 MXY
+115 -115 Dl
+1 f
+10 s
+2887 1173(2)N
+2196 1404(2)N
+3 Dt
+2858 1233 MXY
+0 -187 Dl
+2167 1463 MXY
+0 -187 Dl
+2858 1254 MXY
+-21 -36 Dl
+21 15 Dl
+22 -15 Dl
+-22 36 Dl
+2167 1485 MXY
+-21 -36 Dl
+21 14 Dl
+22 -14 Dl
+-22 36 Dl
+2858 1024 MXY
+-21 36 Dl
+21 -14 Dl
+22 14 Dl
+-22 -36 Dl
+2167 1254 MXY
+-21 36 Dl
+21 -14 Dl
+22 14 Dl
+-22 -36 Dl
+1591 MX
+0 -230 Dl
+1152 0 Dl
+0 230 Dl
+-1152 0 Dl
+3 Dt
+-1 Ds
+12 s
+755 1922(Polysilicon)N
+1216(is)X
+1308(drawn)X
+1576(in)X
+1679(red,)X
+1854(and)X
+2021(can)X
+2183(be)X
+2302(referred)X
+2635(to)X
+2737(in)X
+2839(Magic)X
+3112(as)X
+3219(either)X
+3 f
+3466(polysilicon)X
+1 f
+3931(or)X
+3 f
+555 2034(red)N
+1 f
+694(.)X
+766(It)X
+849(has)X
+1001(a)X
+1068(minimum)X
+1467(width)X
+1710(of)X
+1814(2)X
+1886(units)X
+2097(and)X
+2260(a)X
+2327(minimum)X
+2726(spacing)X
+3044(of)X
+3148(2)X
+3220(units.)X
+3 f
+555 2258(2.3.)N
+747(Diffusion)X
+1 f
+10 s
+2887 2519(2)N
+2196 2807(3)N
+2858 2579 MXY
+0 -188 Dl
+2167 2924 MXY
+0 -302 Dl
+2858 2600 MXY
+-21 -36 Dl
+21 15 Dl
+22 -15 Dl
+-22 36 Dl
+2167 2946 MXY
+-21 -36 Dl
+21 14 Dl
+22 -14 Dl
+-22 36 Dl
+2858 2370 MXY
+-21 36 Dl
+21 -15 Dl
+22 15 Dl
+-22 -36 Dl
+2167 2600 MXY
+-21 36 Dl
+21 -14 Dl
+22 14 Dl
+-22 -36 Dl
+1 Dt
+1591 3061 MXY
+115 115 Dl
+1591 2946 MXY
+231 230 Dl
+1706 2946 MXY
+231 230 Dl
+1822 2946 MXY
+230 230 Dl
+1937 2946 MXY
+230 230 Dl
+2052 2946 MXY
+230 230 Dl
+2167 2946 MXY
+231 230 Dl
+2282 2946 MXY
+231 230 Dl
+2398 2946 MXY
+230 230 Dl
+2513 2946 MXY
+230 230 Dl
+2628 2946 MXY
+115 115 Dl
+3 Dt
+1591 3176 MXY
+0 -230 Dl
+1152 0 Dl
+0 230 Dl
+-1152 0 Dl
+1 Dt
+2485 MY
+115 115 Dl
+1591 2370 MXY
+231 230 Dl
+1706 2370 MXY
+231 230 Dl
+1822 2370 MXY
+230 230 Dl
+1937 2370 MXY
+230 230 Dl
+2052 2370 MXY
+230 230 Dl
+2167 2370 MXY
+231 230 Dl
+2282 2370 MXY
+231 230 Dl
+2398 2370 MXY
+230 230 Dl
+2513 2370 MXY
+230 230 Dl
+2628 2370 MXY
+115 115 Dl
+3 Dt
+1591 2600 MXY
+0 -230 Dl
+1152 0 Dl
+0 230 Dl
+-1152 0 Dl
+3 Dt
+-1 Ds
+12 s
+755 3383(Diffusion)N
+1154(is)X
+1249(drawn)X
+1520(in)X
+1626(green,)X
+1895(and)X
+2065(can)X
+2230(be)X
+2352(referred)X
+2688(to)X
+2794(in)X
+2900(Magic)X
+3177(as)X
+3288(either)X
+3 f
+3539(diffusion)X
+1 f
+3931(or)X
+3 f
+555 3495(green)N
+1 f
+785(.)X
+857(It)X
+940(has)X
+1092(a)X
+1159(minimum)X
+1558(width)X
+1801(of)X
+1905(2)X
+1977(units)X
+2188(and)X
+2351(a)X
+2418(minimum)X
+2817(spacing)X
+3135(of)X
+3239(3)X
+3311(units.)X
+3 f
+555 3719(2.4.)N
+747(Contacts)X
+1133(to)X
+1237(Metal)X
+1 f
+10 s
+2429 3831(4)N
+2719 4716(4)N
+2719 4135(4)N
+2299 3852 MXY
+301 0 Dl
+2615 MX
+-26 -16 Dl
+11 16 Dl
+-11 15 Dl
+26 -15 Dl
+2283 MX
+26 15 Dl
+-10 -15 Dl
+10 -16 Dl
+-26 16 Dl
+2299 4931 MXY
+301 0 Dl
+2615 MX
+-26 -15 Dl
+11 15 Dl
+-11 16 Dl
+26 -16 Dl
+2283 MX
+26 16 Dl
+-10 -16 Dl
+10 -15 Dl
+-26 15 Dl
+2698 4532 MXY
+0 300 Dl
+3950 MY
+0 301 Dl
+4848 MY
+-15 -26 Dl
+15 10 Dl
+16 -10 Dl
+-16 26 Dl
+4267 MY
+-15 -26 Dl
+15 10 Dl
+16 -10 Dl
+-16 26 Dl
+4516 MY
+-15 26 Dl
+15 -10 Dl
+16 10 Dl
+-16 -26 Dl
+3935 MY
+-15 26 Dl
+15 -11 Dl
+16 11 Dl
+-16 -26 Dl
+1 Dt
+1785 4765 MXY
+83 83 Dl
+1785 4682 MXY
+166 166 Dl
+1868 4682 MXY
+166 166 Dl
+1951 4682 MXY
+166 166 Dl
+2034 4682 MXY
+166 166 Dl
+2117 4682 MXY
+166 166 Dl
+2200 4682 MXY
+166 166 Dl
+2283 4682 MXY
+166 166 Dl
+2283 4599 MXY
+249 249 Dl
+2366 4516 MXY
+249 249 Dl
+2449 4516 MXY
+166 166 Dl
+2532 4516 MXY
+83 83 Dl
+2532 4267 MXY
+83 -83 Dl
+2449 4267 MXY
+166 -166 Dl
+2366 4267 MXY
+249 -249 Dl
+2283 4184 MXY
+249 -249 Dl
+2283 4101 MXY
+166 -166 Dl
+2200 4101 MXY
+166 -166 Dl
+2117 4101 MXY
+166 -166 Dl
+2034 4101 MXY
+166 -166 Dl
+1951 4101 MXY
+166 -166 Dl
+1868 4101 MXY
+166 -166 Dl
+1785 4101 MXY
+166 -166 Dl
+1785 4018 MXY
+83 -83 Dl
+3 Dt
+1785 4848 MXY
+0 -166 Dl
+498 0 Dl
+0 166 Dl
+-498 0 Dl
+4101 MY
+0 -166 Dl
+498 0 Dl
+0 166 Dl
+-498 0 Dl
+5 Dt
+2615 4516 MXY
+0 -249 Dl
+2366 4516 MXY
+0 -249 Dl
+2283 4848 MXY
+332 -332 Dl
+2283 MX
+332 332 Dl
+2283 3935 MXY
+332 332 Dl
+2283 MX
+332 -332 Dl
+2283 4516 MXY
+0 332 Dl
+332 0 Dl
+0 -332 Dl
+-332 0 Dl
+3935 MY
+0 332 Dl
+332 0 Dl
+0 -332 Dl
+-332 0 Dl
+1785 3914(polysilicon)N
+1785 4661(diffusion)N
+2429 5020(4)N
+3 Dt
+-1 Ds
+12 s
+755 5190(Contacts)N
+1135(between)X
+1499(metal)X
+1757(and)X
+1939(polysilicon,)X
+2434(and)X
+2615(between)X
+2978(metal)X
+3235(and)X
+3416(diffusion,)X
+3829(have)X
+555 5302(similar)N
+861(forms.)X
+1170(Poly-metal)X
+1630(contacts)X
+1983(can)X
+2154(be)X
+2282(referred)X
+2624(to)X
+2736(as)X
+3 f
+2853(pmc)X
+1 f
+3066(or)X
+3 f
+3183(poly_metal_contact)X
+1 f
+3984(;)X
+555 5414(they)N
+752(are)X
+901(drawn)X
+1172(to)X
+1278(look)X
+1479(like)X
+1654(metal)X
+1899(running)X
+2228(on)X
+2354(top)X
+2507(of)X
+2617(poly,)X
+2842(with)X
+3043(an)X
+3164(``X'')X
+3391(over)X
+3592(the)X
+3740(area)X
+3931(of)X
+555 5526(the)N
+708(contact.)X
+1070(Diffusion-metal)X
+1720(contacts)X
+2071(are)X
+2224(similar,)X
+2551(except)X
+2838(that)X
+3018(they)X
+3218(look)X
+3423(like)X
+3602(metal)X
+3851(run-)X
+555 5638(ning)N
+765(on)X
+900(top)X
+1062(of)X
+1181(diffusion,)X
+1591(and)X
+1768(have)X
+1988(names)X
+3 f
+2272(dmc)X
+1 f
+2486(and)X
+3 f
+2663(diff_metal_contact)X
+1 f
+3432(.)X
+3518(Contacts)X
+3893(are)X
+555 5750(drawn)N
+831(differently)X
+1274(in)X
+1385(Magic)X
+1667(than)X
+1869(they)X
+2070(will)X
+2255(appear)X
+2547(in)X
+2657(the)X
+2810(CIF:)X
+3045(you)X
+3224(do)X
+2 f
+3355(not)X
+1 f
+3513(draw)X
+3740(the)X
+3893(via)X
+555 5862(hole.)N
+800(Instead,)X
+1133(you)X
+1308(draw)X
+1531(the)X
+1680(outer)X
+1909(area)X
+2101(of)X
+2212(the)X
+2361(metal)X
+2607(pad)X
+2777(around)X
+3075(the)X
+3224(contact,)X
+3558(which)X
+3824(must)X
+2203 6160(-)N
+2259(2)X
+2331(-)X
+
+3 p
+%%Page: 3 3
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(be)N
+678(at)X
+780(least)X
+989(4)X
+1069(units)X
+1287(on)X
+1414(each)X
+1622(side.)X
+1856(Magic)X
+2133(will)X
+2314(\256ll)X
+2452(in)X
+2558(the)X
+2707(appropriate)X
+3177(via)X
+3326(when)X
+3565(CIF)X
+3745(is)X
+3840(gen-)X
+555 800(erated.)N
+871(If)X
+967(you)X
+1142(draw)X
+1365(contacts)X
+1712(larger)X
+1968(than)X
+2165(4)X
+2244(units)X
+2462(on)X
+2589(a)X
+2663(side,)X
+2873(Magic)X
+3150(will)X
+3331(\256ll)X
+3469(in)X
+3575(as)X
+3686(many)X
+3931(2-)X
+555 912(by-2)N
+757(CIF)X
+931(via)X
+1074(holes)X
+1302(\(with)X
+1530(2-unit)X
+1785(spacings\))X
+2173(as)X
+2278(it)X
+2357(can.)X
+2564(Contacts)X
+2926(areas)X
+3149(must)X
+3361(be)X
+3477(rectangular)X
+3936(in)X
+555 1024(shape:)N
+849(contacts)X
+1189(of)X
+1293(the)X
+1435(same)X
+1657(type)X
+1847(may)X
+2037(not)X
+2184(abut.)X
+755 1164(An)N
+900(additional)X
+1314(kind)X
+1513(of)X
+1621(contact,)X
+1952(called)X
+3 f
+2211(glass_contact)X
+1 f
+2755(,)X
+2807(is)X
+2899(used)X
+3103(to)X
+3206(generate)X
+3561(holes)X
+3791(in)X
+3893(the)X
+555 1276(overglass)N
+946(layer)X
+1167(for)X
+1307(use)X
+1463(in)X
+1566(bonding)X
+1909(to)X
+2012(pads.)X
+2264(This)X
+2462(layer)X
+2682(is)X
+2773(drawn)X
+3040(as)X
+3147(gray)X
+3345(stripes)X
+3623(over)X
+3821(blue,)X
+555 1388(and)N
+718(includes)X
+1063(both)X
+1258(metal)X
+1497(and)X
+1660(the)X
+1802(overglass)X
+2189(hole.)X
+3 f
+555 1612(2.5.)N
+747(Transistors)X
+1001 2405 MXY
+0 -195 Dl
+972 0 Dl
+0 195 Dl
+-972 0 Dl
+1 Dt
+1876 2210 MXY
+97 97 Dl
+1779 2210 MXY
+194 195 Dl
+1682 2210 MXY
+194 195 Dl
+1584 2210 MXY
+195 195 Dl
+1487 2210 MXY
+195 195 Dl
+1390 2210 MXY
+194 195 Dl
+1293 2210 MXY
+194 195 Dl
+1196 2210 MXY
+194 195 Dl
+1098 2210 MXY
+195 195 Dl
+1001 2210 MXY
+195 195 Dl
+1098 MX
+-97 -98 Dl
+3 Dt
+1918 MY
+778 0 Dl
+0 681 Dl
+-195 0 Dl
+0 -486 Dl
+-583 0 Dl
+0 -195 Dl
+1 Dt
+2016 MY
+97 -98 Dl
+1001 2113 MXY
+195 -195 Dl
+1098 2113 MXY
+195 -195 Dl
+1196 2113 MXY
+194 -195 Dl
+1293 2113 MXY
+194 -195 Dl
+1390 2113 MXY
+194 -195 Dl
+1487 2113 MXY
+195 -195 Dl
+1584 2113 MXY
+195 -195 Dl
+1584 2210 MXY
+195 -194 Dl
+1584 2307 MXY
+195 -194 Dl
+1584 2405 MXY
+195 -195 Dl
+1584 2502 MXY
+195 -195 Dl
+1584 2599 MXY
+195 -194 Dl
+1682 2599 MXY
+97 -97 Dl
+1 f
+10 s
+1001 2497(Diffusion)N
+1001 1894(Polysilicon)N
+3 Dt
+904 2113 MXY
+-18 30 Dl
+18 -12 Dl
+18 12 Dl
+-18 -30 Dl
+2071 2210 MXY
+-19 30 Dl
+19 -12 Dl
+18 12 Dl
+-18 -30 Dl
+2405 MY
+-19 30 Dl
+19 -12 Dl
+18 12 Dl
+-18 -30 Dl
+-19 -31 Dl
+19 12 Dl
+18 -12 Dl
+-18 31 Dl
+2599 MY
+-19 -30 Dl
+19 12 Dl
+18 -12 Dl
+-18 30 Dl
+904 2210 MXY
+-18 -30 Dl
+18 12 Dl
+18 -12 Dl
+-18 30 Dl
+2131 MY
+0 61 Dl
+1584 2648 MXY
+31 18 Dl
+-12 -18 Dl
+12 -19 Dl
+-31 19 Dl
+1779 MX
+30 18 Dl
+-12 -18 Dl
+12 -19 Dl
+-30 19 Dl
+-31 -19 Dl
+13 19 Dl
+-13 18 Dl
+31 -18 Dl
+1973 MX
+-30 -19 Dl
+12 19 Dl
+-12 18 Dl
+30 -18 Dl
+2071 2228 MXY
+0 158 Dl
+2423 MY
+0 158 Dl
+1609 2648 MXY
+146 0 Dl
+1803 MX
+146 0 Dl
+1662 2740(2)N
+1856(2)X
+2095 2341(2)N
+2095 2536(2)N
+840 2195(1)N
+1803 2186 MXY
+35 -9 Dl
+-22 -4 Dl
+-4 -22 Dl
+-9 35 Dl
+1816 2173 MXY
+84 -84 Dl
+1925 2064(Efet)N
+2079(or)X
+2166(Dfet)X
+2557 2113 MXY
+0 -195 Dl
+972 0 Dl
+0 195 Dl
+-972 0 Dl
+1 Dt
+2016 MY
+97 -98 Dl
+2557 2113 MXY
+194 -195 Dl
+2654 2113 MXY
+194 -195 Dl
+2751 2113 MXY
+194 -195 Dl
+2848 2113 MXY
+195 -195 Dl
+2945 2113 MXY
+195 -195 Dl
+3043 2113 MXY
+194 -195 Dl
+3140 2113 MXY
+194 -195 Dl
+3237 2113 MXY
+195 -195 Dl
+3334 2113 MXY
+195 -195 Dl
+3432 2113 MXY
+97 -97 Dl
+3 Dt
+2557 2599 MXY
+0 -194 Dl
+972 0 Dl
+0 194 Dl
+-972 0 Dl
+1 Dt
+2502 MY
+97 -97 Dl
+2557 2599 MXY
+194 -194 Dl
+2654 2599 MXY
+194 -194 Dl
+2751 2599 MXY
+194 -194 Dl
+2848 2599 MXY
+195 -194 Dl
+2945 2599 MXY
+195 -194 Dl
+3043 2599 MXY
+194 -194 Dl
+3140 2599 MXY
+194 -194 Dl
+3237 2599 MXY
+195 -194 Dl
+3334 2599 MXY
+195 -194 Dl
+3432 2599 MXY
+97 -97 Dl
+3 Dt
+3140 2793 MXY
+0 -1069 Dl
+194 0 Dl
+0 1069 Dl
+-194 0 Dl
+1 Dt
+3334 1821 MXY
+-97 -97 Dl
+3334 1918 MXY
+-194 -194 Dl
+3334 2016 MXY
+-194 -195 Dl
+3334 2113 MXY
+-194 -195 Dl
+3334 2210 MXY
+-194 -194 Dl
+3334 2307 MXY
+-194 -194 Dl
+3334 2405 MXY
+-194 -195 Dl
+3334 2502 MXY
+-194 -195 Dl
+3334 2599 MXY
+-194 -194 Dl
+3334 2696 MXY
+-194 -194 Dl
+3334 2793 MXY
+-194 -194 Dl
+3237 2793 MXY
+-97 -97 Dl
+3 Dt
+3116 2623 MXY
+-35 9 Dl
+22 4 Dl
+4 22 Dl
+9 -35 Dl
+3103 2636 MXY
+-85 84 Dl
+3116 1894 MXY
+-9 -34 Dl
+-4 21 Dl
+-22 5 Dl
+35 8 Dl
+3103 1881 MXY
+-85 -84 Dl
+2574 1773(Dfet)N
+2737(or)X
+2824(Dcap)X
+2860 2813(Efet)N
+3626 2405 MXY
+-18 -31 Dl
+18 12 Dl
+18 -12 Dl
+-18 31 Dl
+2113 MY
+-18 30 Dl
+18 -12 Dl
+18 12 Dl
+-18 -30 Dl
+2131 MY
+0 255 Dl
+3650 2293(3)N
+1 Dt
+3140 2016 MXY
+3140 2016 moveto
+ 3204.67 2016 3269.33 2016 3334 2016 curveto
+Dstroke
+3237 2113 MXY
+3237 2113 moveto
+ 3237 2048 3237 1983 3237 1918 curveto
+Dstroke
+3 Dt
+-1 Ds
+12 s
+755 3000(There)N
+1038(are)X
+1214(three)X
+1465(transistor)X
+1881(structures)X
+2313(in)X
+2445(the)X
+2620(NMOS)X
+2953(technology.)X
+3486(Enhancement)X
+555 3112(transistors)N
+986(are)X
+1140(known)X
+1437(by)X
+1569(the)X
+1723(names)X
+3 f
+2005(efet)X
+1 f
+2191(and)X
+3 f
+2366(enhancement_fet)X
+1 f
+3065(,)X
+3125(and)X
+3300(are)X
+3454(drawn)X
+3730(to)X
+3840(look)X
+555 3224(like)N
+731(red)X
+885(over)X
+1087(green,)X
+1356(with)X
+1558(green)X
+1802(stripes.)X
+2131(You)X
+2326(get)X
+2474(efet)X
+2649 0.2813(automatically)AX
+3205(when)X
+3443(you)X
+3617(paint)X
+3840(poly)X
+555 3336(over)N
+767(diffusion)X
+1155(or)X
+1276(vice)X
+1478(versa.)X
+1770(Depletion)X
+2191(transistors)X
+2627(are)X
+2786(known)X
+3088(by)X
+3225(the)X
+3384(names)X
+3 f
+3671(dfet)X
+1 f
+3872(and)X
+3 f
+555 3448(depletion_fet)N
+1 f
+1089(,)X
+1143(and)X
+1312(are)X
+1460(drawn)X
+1730(the)X
+1878(same)X
+2106(way,)X
+2320(except)X
+2602(with)X
+2803(yellow)X
+3095(stripes.)X
+3424(A)X
+3523(third)X
+3735(type)X
+3931(of)X
+555 3560(material)N
+900(is)X
+992(called)X
+3 f
+1251(depletion_capacitor)X
+1 f
+2091(or)X
+3 f
+2199(dcap)X
+1 f
+2396(.)X
+2472(It)X
+2559(is)X
+2651(displayed)X
+3048(with)X
+3247(yellow)X
+3536(crosses)X
+3840(over)X
+555 3672(the)N
+702(transistor)X
+1089(area,)X
+1303(and)X
+1471(is)X
+1564(identical)X
+1926(to)X
+2030(dfet)X
+2209(except)X
+2490(that)X
+2664(there)X
+2886(are)X
+3033(no)X
+3158(overhang)X
+3545(design)X
+3824(rules)X
+555 3784(for)N
+696(it)X
+779(since)X
+1006(it)X
+1089(is)X
+1182(assumed)X
+1542(to)X
+1645(be)X
+1764(used)X
+1968(only)X
+2167(as)X
+2275(a)X
+2346(capacitor.)X
+2776(You)X
+2969(do)X
+3093(not)X
+3244(drawn)X
+3512(any)X
+3679(implants)X
+555 3896(in)N
+670(Magic,)X
+980(but)X
+1143(just)X
+1322(use)X
+1490(a)X
+1573(different)X
+1944(material)X
+2300(for)X
+2451(the)X
+2608(transistor.)X
+3053(Magic)X
+3338(will)X
+3527(generate)X
+3893(the)X
+555 4008(implants)N
+922 0.2596(automatically.)AX
+1531(All)X
+1689(transistors)X
+2119(must)X
+2341(be)X
+2467(at)X
+2572(least)X
+2784(2)X
+2867(units)X
+3089(on)X
+3220(each)X
+3432(side,)X
+3645(and)X
+3818(there)X
+555 4120(must)N
+774(be)X
+897(a)X
+971(poly)X
+1173(or)X
+1284(diffusion)X
+1662(overhang)X
+2051(for)X
+2194(2)X
+2273(units)X
+2491(on)X
+2618(each)X
+2826(side)X
+3012(of)X
+3123(efet)X
+3299(or)X
+3410(dfet)X
+3591(\(this)X
+3793(is)X
+3888(not)X
+555 4232(required)N
+914(for)X
+1064(dcap\).)X
+1364(Poly)X
+1578(must)X
+1803(be)X
+1932(separated)X
+2334(from)X
+2558(diffusion)X
+2942(by)X
+3075(at)X
+3182(least)X
+3396(one)X
+3572(unit)X
+3759(except)X
+555 4344(where)N
+817(it)X
+898(is)X
+989(forming)X
+1326(a)X
+1396(transistor.)X
+1829(Dfet)X
+2027(and)X
+2193(dcap)X
+2402(must)X
+2616(be)X
+2734(at)X
+2831(least)X
+3035(3)X
+3110(units)X
+3323(from)X
+3536(efet)X
+3707(in)X
+3808(order)X
+555 4456(to)N
+654(keep)X
+860(the)X
+1002(implant)X
+1321(from)X
+1532(contaminating)X
+2108(the)X
+2250(enhancement)X
+2783(transistor.)X
+2203 6160(-)N
+2259(3)X
+2331(-)X
+
+4 p
+%%Page: 4 4
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+3 f
+555 688(2.6.)N
+747(Buried)X
+1054(Contacts)X
+1 f
+10 s
+1994 1347(3)N
+1971 1435 MXY
+0 -245 Dl
+1173 MY
+-17 29 Dl
+17 -12 Dl
+18 12 Dl
+-18 -29 Dl
+1453 MY
+18 -29 Dl
+-18 11 Dl
+-17 -11 Dl
+17 29 Dl
+2012 963(Poly)N
+1 Dt
+2064 1173 MXY
+94 -93 Dl
+1971 1173 MXY
+187 -187 Dl
+1971 1080 MXY
+93 -94 Dl
+3 Dt
+1971 1173 MXY
+0 -187 Dl
+187 0 Dl
+0 187 Dl
+-187 0 Dl
+1131 1640 MXY
+0 -187 Dl
+747 0 Dl
+0 187 Dl
+-747 0 Dl
+1691 MX
+0 -654 Dl
+187 0 Dl
+0 654 Dl
+-187 0 Dl
+1 Dt
+1131 1546 MXY
+93 -93 Dl
+1131 1640 MXY
+187 -187 Dl
+1224 1640 MXY
+187 -187 Dl
+1318 1640 MXY
+186 -187 Dl
+1411 1640 MXY
+187 -187 Dl
+1504 1640 MXY
+187 -187 Dl
+1598 1640 MXY
+186 -187 Dl
+1691 1640 MXY
+187 -187 Dl
+1784 1640 MXY
+94 -94 Dl
+1784 986 MXY
+94 94 Dl
+1173 MY
+-187 -187 Dl
+1878 1266 MXY
+-187 -186 Dl
+1878 1360 MXY
+-187 -187 Dl
+1878 1453 MXY
+-187 -187 Dl
+1878 1546 MXY
+-187 -186 Dl
+1878 1640 MXY
+-187 -187 Dl
+1784 1640 MXY
+-93 -94 Dl
+5 Dt
+1714 1523 MXY
+0 -47 Dl
+47 0 Dl
+0 47 Dl
+-47 0 Dl
+1808 MX
+0 -47 Dl
+46 0 Dl
+0 47 Dl
+-46 0 Dl
+1616 MY
+0 -46 Dl
+46 0 Dl
+0 46 Dl
+-46 0 Dl
+1714 MX
+0 -46 Dl
+47 0 Dl
+0 46 Dl
+-47 0 Dl
+1131 1731(Polysilicon)N
+1571 963(Diffusion)N
+3 Dt
+1691 1733 MXY
+29 17 Dl
+-11 -17 Dl
+11 -18 Dl
+-29 18 Dl
+1878 MX
+-29 -18 Dl
+11 18 Dl
+-11 17 Dl
+29 -17 Dl
+1971 1453 MXY
+-17 29 Dl
+17 -12 Dl
+18 12 Dl
+-18 -29 Dl
+1640 MY
+18 -30 Dl
+-18 12 Dl
+-17 -12 Dl
+17 30 Dl
+1709 1733 MXY
+151 0 Dl
+1971 1470 MXY
+0 152 Dl
+1994 1580(2)N
+1764 1824(2)N
+2904 1826 MXY
+0 -1026 Dl
+187 0 Dl
+0 1026 Dl
+-187 0 Dl
+1 Dt
+2998 800 MXY
+93 93 Dl
+1173 MY
+-187 -187 Dl
+3091 1266 MXY
+-187 -186 Dl
+3091 1360 MXY
+-187 -187 Dl
+3091 1453 MXY
+-187 -187 Dl
+3091 1546 MXY
+-187 -186 Dl
+3091 1640 MXY
+-187 -187 Dl
+3091 1733 MXY
+-187 -187 Dl
+3091 1826 MXY
+-187 -186 Dl
+2998 1826 MXY
+-94 -93 Dl
+5 Dt
+2928 1523 MXY
+0 -47 Dl
+46 0 Dl
+0 47 Dl
+-46 0 Dl
+3021 MX
+0 -47 Dl
+47 0 Dl
+0 47 Dl
+-47 0 Dl
+2928 1616 MXY
+0 -46 Dl
+46 0 Dl
+0 46 Dl
+-46 0 Dl
+3021 MX
+0 -46 Dl
+47 0 Dl
+0 46 Dl
+-47 0 Dl
+2928 1710 MXY
+0 -47 Dl
+46 0 Dl
+0 47 Dl
+-46 0 Dl
+3021 MX
+0 -47 Dl
+47 0 Dl
+0 47 Dl
+-47 0 Dl
+1 Dt
+2718 1733 MXY
+0 -747 Dl
+560 0 Dl
+0 747 Dl
+-560 0 Dl
+3091 1080 MXY
+-187 -187 Dl
+3091 986 MXY
+-187 -186 Dl
+3 Dt
+1453 MY
+187 0 Dl
+1 Dt
+2718 1080 MXY
+93 -94 Dl
+2718 1173 MXY
+186 -187 Dl
+2718 1266 MXY
+280 -280 Dl
+2718 1360 MXY
+373 -374 Dl
+2718 1453 MXY
+466 -467 Dl
+2718 1546 MXY
+560 -560 Dl
+2718 1640 MXY
+560 -560 Dl
+2718 1733 MXY
+560 -560 Dl
+2811 1733 MXY
+467 -467 Dl
+1360 MY
+-374 373 Dl
+2998 MX
+280 -280 Dl
+3091 1733 MXY
+187 -187 Dl
+3184 1733 MXY
+94 -93 Dl
+2904 1080 MXY
+187 0 Dl
+2904 1173 MXY
+187 0 Dl
+2904 1266 MXY
+187 0 Dl
+2904 1360 MXY
+187 0 Dl
+2998 1453 MXY
+0 -467 Dl
+3 Dt
+3114 963 MXY
+33 -8 Dl
+-20 -4 Dl
+-4 -21 Dl
+-9 33 Dl
+3127 951 MXY
+81 -81 Dl
+3231 846(Dfet)N
+3371 1733 MXY
+17 -29 Dl
+-17 11 Dl
+-18 -11 Dl
+18 29 Dl
+1453 MY
+-18 29 Dl
+18 -12 Dl
+17 12 Dl
+-17 -29 Dl
+1470 MY
+0 245 Dl
+3394 1627(3)N
+3 Dt
+-1 Ds
+12 s
+755 2033(Buried)N
+1059(contacts)X
+1417(go)X
+1555(by)X
+1693(the)X
+1853(names)X
+3 f
+2141(bc)X
+1 f
+2279(and)X
+3 f
+2460(buried_contact)X
+1 f
+3079(.)X
+3169(They)X
+3409(are)X
+3569(drawn)X
+3851(in)X
+3968(a)X
+555 2145(brownish)N
+942(color)X
+1170(\(the)X
+1350(same)X
+1578(as)X
+1688(transistors\),)X
+2168(except)X
+2449(with)X
+2649(solid)X
+2865(black)X
+3103(squares)X
+3420(over)X
+3620(their)X
+3826(area.)X
+555 2257(As)N
+691(with)X
+892(other)X
+1120(contacts,)X
+1490(you)X
+1663(draw)X
+1884(just)X
+2052(the)X
+2199(area)X
+2389(where)X
+2653(the)X
+2800(two)X
+2973(connecting)X
+3425(materials)X
+3808(\(poly)X
+555 2369(and)N
+730(diffusion\))X
+1145(overlap;)X
+1521(Magic)X
+1803(will)X
+1988(generate)X
+2350(the)X
+2503(CIF)X
+2687(buried)X
+2968(window,)X
+3336(which)X
+3606(is)X
+3705(actually)X
+555 2481(larger)N
+810(than)X
+1006(the)X
+1154(overlap)X
+1473(area.)X
+1712(Buried)X
+2004(contacts)X
+2350(come)X
+2589(in)X
+2694(two)X
+2868(forms.)X
+3170(The)X
+3350(normal)X
+3653(form)X
+3870(is)X
+3963(2)X
+555 2593(units)N
+773(on)X
+900(a)X
+974(side,)X
+1183(and)X
+1352(no)X
+1478(poly)X
+1679(or)X
+1789(diffusion)X
+2166(overhang)X
+2554(is)X
+2648(required.)X
+3047(The)X
+3227(second)X
+3524(form)X
+3741(is)X
+3835(used)X
+555 2705(only)N
+753(next)X
+946(to)X
+1048(depletion)X
+1434(transistors,)X
+1880(and)X
+2046(is)X
+2137(a)X
+2207(3-by-2)X
+2490(structure)X
+2854(abutting)X
+3197(the)X
+3342(depletion)X
+3728(transis-)X
+555 2817(tor.)N
+739(This)X
+939(form)X
+1155(is)X
+1248(a)X
+1320(little)X
+1527(controversial,)X
+2082(since)X
+2308(it)X
+2390(results)X
+2669(in)X
+2772 0.1801(larger-than-normal)AX
+3528(variations)X
+3936(in)X
+555 2929(the)N
+706(size)X
+889(of)X
+1002(the)X
+1153(depletion)X
+1545(transistor.)X
+1983(As)X
+2121(a)X
+2196(consequence,)X
+2744(Magic)X
+3022(reports)X
+3321(design-rule)X
+3786(viola-)X
+555 3041(tions)N
+766(wherever)X
+1148(buried)X
+1418(contacts)X
+1758(abut)X
+1948(depletion)X
+2331(transistors)X
+2750(less)X
+2918(than)X
+3108(4)X
+3180(units)X
+3391(long.)X
+3634(In)X
+3738(butting)X
+555 3153(bc-dfet)N
+852(structure,)X
+1237(you)X
+1405(should)X
+1685(measure)X
+2030(the)X
+2172(transistor)X
+2554(length)X
+2819(from)X
+3030(the)X
+3172(bc-dfet)X
+3469(boundary.)X
+755 3293(WARNING:)N
+1302(there)X
+1528(is)X
+1625(one)X
+1797(additional)X
+2216(rule)X
+2399(for)X
+2544(buried)X
+2823(contacts)X
+3172(that)X
+3349(is)X
+3445(NOT)X
+3674(enforced)X
+555 3405(by)N
+682(Magic.)X
+1007(Where)X
+1295(diffusion)X
+1672(enters)X
+1932(a)X
+2005(buried)X
+2281(contact,)X
+2614(there)X
+2837(must)X
+3054(be)X
+3175(no)X
+3301(unrelated)X
+3690(polysili-)X
+555 3517(con)N
+733(for)X
+884(3)X
+971(units)X
+1197(on)X
+1332(that)X
+1516(side)X
+1710(of)X
+1829(the)X
+1986(buried)X
+2271(contact.)X
+2637(This)X
+2847(rule)X
+3036(is)X
+3138(necessary)X
+3550(because)X
+3893(the)X
+555 3629(buried)N
+826(window)X
+1159(extends)X
+1477(outward)X
+1816(from)X
+2027(the)X
+2169(buried)X
+2439(contact)X
+2742(by)X
+2862(one)X
+3025(unit)X
+3199(on)X
+3319(the)X
+3461(diffusion)X
+3832(side,)X
+555 3741(and)N
+727(polysilicon)X
+1188(must)X
+1408(be)X
+1532(far)X
+1672(enough)X
+1988(away)X
+2224(to)X
+2332(avoid)X
+2579(shorting)X
+2926(to)X
+3033(the)X
+3183(diffusion)X
+3562(through)X
+3893(the)X
+555 3853(buried)N
+827(window.)X
+1210(Unfortunately,)X
+1800(there)X
+2019(is)X
+2109(no)X
+2231(way)X
+2417(to)X
+2518(check)X
+2768(this)X
+2932(rule)X
+3107(in)X
+3207(Magic)X
+3478(without)X
+3797(being)X
+555 3965(extremely)N
+970(conservative)X
+1486(\(the)X
+1665(rule)X
+1844(would)X
+2113(have)X
+2324(to)X
+2428(require)X
+2730(no)X
+2855(poly)X
+3055(whatsoever)X
+3522(on)X
+3646(the)X
+3792(diffu-)X
+555 4077(sion)N
+743(side,)X
+950(even)X
+1160(if)X
+1247(the)X
+1393(poly)X
+1592(was)X
+1769(connected)X
+2188(to)X
+2291(the)X
+2437(buried)X
+2711(contact\).)X
+3097(So,)X
+3249(for)X
+3388(now,)X
+3604(this)X
+3770(rule)X
+3947(is)X
+555 4189(not)N
+702(checked.)X
+1090(Be)X
+1221(careful!)X
+2203 6160(-)N
+2259(4)X
+2331(-)X
+
+5 p
+%%Page: 5 5
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+3 f
+555 688(2.7.)N
+747(Transistor)X
+1203(Spacings)X
+1 f
+10 s
+2984 800(Diffusion)N
+1019 1585 MXY
+0 -217 Dl
+541 0 Dl
+0 217 Dl
+-541 0 Dl
+5 Dt
+1560 1801 MXY
+0 -433 Dl
+433 0 Dl
+0 433 Dl
+-433 0 Dl
+1236 1260 MXY
+0 -433 Dl
+432 0 Dl
+0 433 Dl
+-432 0 Dl
+3 Dt
+1801 MY
+0 -541 Dl
+216 0 Dl
+0 541 Dl
+-216 0 Dl
+1 Dt
+1019 1476 MXY
+108 -108 Dl
+1019 1585 MXY
+217 -217 Dl
+1127 1585 MXY
+217 -217 Dl
+1236 1585 MXY
+216 -217 Dl
+1344 1585 MXY
+216 -217 Dl
+1452 1585 MXY
+216 -217 Dl
+1560 1585 MXY
+216 -217 Dl
+1801 MY
+217 -216 Dl
+1560 1693 MXY
+325 -325 Dl
+1668 1801 MXY
+325 -325 Dl
+1885 1801 MXY
+108 -108 Dl
+1236 MX
+108 108 Dl
+1452 MX
+-216 -216 Dl
+1452 1693 MXY
+-216 -217 Dl
+1452 1585 MXY
+-216 -217 Dl
+1452 1476 MXY
+-216 -216 Dl
+1452 1368 MXY
+-216 -216 Dl
+1452 1260 MXY
+-216 -216 Dl
+1668 MX
+-216 -217 Dl
+1668 936 MXY
+-108 -109 Dl
+1668 1152 MXY
+-324 -325 Dl
+1560 1260 MXY
+-324 -324 Dl
+5 Dt
+1260 MY
+432 -433 Dl
+1560 1801 MXY
+433 -433 Dl
+1801 MY
+-433 -433 Dl
+1668 1260 MXY
+-432 -433 Dl
+1668 2125 MXY
+0 -324 Dl
+325 0 Dl
+0 324 Dl
+-325 0 Dl
+1152 MY
+0 -325 Dl
+325 0 Dl
+0 325 Dl
+-325 0 Dl
+3 Dt
+911 1260 MXY
+-20 34 Dl
+20 -14 Dl
+20 14 Dl
+-20 -34 Dl
+1368 MY
+20 -34 Dl
+-20 14 Dl
+-20 -14 Dl
+20 34 Dl
+1452 1909 MXY
+34 20 Dl
+-14 -20 Dl
+14 -20 Dl
+-34 20 Dl
+1560 MX
+-34 -20 Dl
+14 20 Dl
+-14 20 Dl
+34 -20 Dl
+911 1280 MXY
+0 68 Dl
+1472 1909 MXY
+68 0 Dl
+844 1348(1)N
+1486 2004(1)N
+1208 1612 MXY
+-38 9 Dl
+24 5 Dl
+5 24 Dl
+9 -38 Dl
+1194 1626 MXY
+-94 94 Dl
+939 1815(Efet)N
+930 1896(Dfet)N
+903 1977(Dcap)N
+2534 1909 MXY
+0 -216 Dl
+757 0 Dl
+0 216 Dl
+-757 0 Dl
+3074 MX
+0 -1082 Dl
+217 0 Dl
+0 1082 Dl
+-217 0 Dl
+2534 1260 MXY
+0 -216 Dl
+973 0 Dl
+0 216 Dl
+-973 0 Dl
+1 Dt
+1152 MY
+108 -108 Dl
+2534 1260 MXY
+216 -216 Dl
+2642 1260 MXY
+216 -216 Dl
+2750 1260 MXY
+216 -216 Dl
+2858 1260 MXY
+216 -216 Dl
+2966 1260 MXY
+217 -216 Dl
+3074 1260 MXY
+217 -216 Dl
+3183 1260 MXY
+216 -216 Dl
+3291 1260 MXY
+216 -216 Dl
+3399 1260 MXY
+108 -108 Dl
+2534 1801 MXY
+108 -108 Dl
+2534 1909 MXY
+216 -216 Dl
+2642 1909 MXY
+216 -216 Dl
+2750 1909 MXY
+216 -216 Dl
+2858 1909 MXY
+216 -216 Dl
+2966 1909 MXY
+217 -216 Dl
+3074 1909 MXY
+217 -216 Dl
+3183 1909 MXY
+108 -108 Dl
+3183 827 MXY
+108 109 Dl
+3074 827 MXY
+217 217 Dl
+3074 936 MXY
+217 216 Dl
+3074 1044 MXY
+217 216 Dl
+3074 1152 MXY
+217 216 Dl
+3074 1260 MXY
+217 216 Dl
+3074 1368 MXY
+217 217 Dl
+3074 1476 MXY
+217 217 Dl
+3074 1585 MXY
+217 216 Dl
+3074 1693 MXY
+217 216 Dl
+3183 MX
+-109 -108 Dl
+5 Dt
+3101 1882 MXY
+0 -54 Dl
+55 0 Dl
+0 54 Dl
+-55 0 Dl
+3210 MX
+0 -54 Dl
+54 0 Dl
+0 54 Dl
+-54 0 Dl
+1774 MY
+0 -54 Dl
+54 0 Dl
+0 54 Dl
+-54 0 Dl
+3101 MX
+0 -54 Dl
+55 0 Dl
+0 54 Dl
+-55 0 Dl
+3 Dt
+3615 1260 MXY
+-20 34 Dl
+20 -14 Dl
+21 14 Dl
+-21 -34 Dl
+1693 MY
+21 -34 Dl
+-21 14 Dl
+-20 -14 Dl
+20 34 Dl
+1673 MY
+0 -393 Dl
+3642 1510(4)N
+3318 1017 MXY
+38 -10 Dl
+-24 -5 Dl
+-5 -24 Dl
+-9 39 Dl
+3332 1002 MXY
+94 -93 Dl
+3453 882(Efet)N
+3 Dt
+-1 Ds
+12 s
+755 2332(Transistors)N
+1207(must)X
+1419(be)X
+1535(spaced)X
+1822(at)X
+1917(least)X
+2119(1)X
+2191(unit)X
+2365(from)X
+2576(any)X
+2739(contact)X
+3042(to)X
+3141(metal,)X
+3404(in)X
+3503(order)X
+3730(to)X
+3829(keep)X
+555 2444(the)N
+708(contact)X
+1022(from)X
+1243(shorting)X
+1592(the)X
+1744(transistor.)X
+2184(In)X
+2298(addition,)X
+2672(buried)X
+2952(contacts)X
+3302(must)X
+3523(be)X
+3648(at)X
+3752(least)X
+3963(4)X
+555 2556(units)N
+776(from)X
+997(enhancement)X
+1540(transistors)X
+1969(in)X
+2078(the)X
+2230(diffusion)X
+2611(direction.)X
+3036(This)X
+3241(rule)X
+3425(applies)X
+3732(only)X
+3936(to)X
+555 2668(the)N
+697(side)X
+876(of)X
+980(buried)X
+1250(contact)X
+1553(where)X
+1812(diffusion)X
+2183(leaves)X
+2448(the)X
+2590(contact.)X
+3 f
+555 2892(2.8.)N
+747(Hierarchical)X
+1291(Constraints)X
+1 f
+755 3032(The)N
+936(design-rule)X
+1400(checker)X
+1731(enforces)X
+2088(several)X
+2392(constraints)X
+2840(on)X
+2967(how)X
+3162(subcells)X
+3502(may)X
+3698(overlap.)X
+555 3144(The)N
+736(general)X
+1051(rule)X
+1232(is)X
+1327(that)X
+1503(overlaps)X
+1860(may)X
+2057(be)X
+2179(used)X
+2386(to)X
+2491(connect)X
+2821(portions)X
+3166(of)X
+3276(cells,)X
+3507(but)X
+3660(the)X
+3808(over-)X
+555 3256(laps)N
+741(must)X
+959(not)X
+1113(change)X
+1416(the)X
+1564(structure)X
+1931(of)X
+2041(the)X
+2189(circuit.)X
+2514(Thus,)X
+2760(for)X
+2902(example,)X
+3283(it)X
+3367(is)X
+3461(acceptable)X
+3899(for)X
+555 3368(poly)N
+755(in)X
+859(one)X
+1027(cell)X
+1196(to)X
+1300(overlap)X
+1618(poly-metal)X
+2065(contact)X
+2373(in)X
+2477(another)X
+2795(cell,)X
+2987(but)X
+3138(it)X
+3220(is)X
+3312(not)X
+3463(acceptable)X
+3899(for)X
+555 3480(poly)N
+750(in)X
+849(one)X
+1012(cell)X
+1176(to)X
+1275(overlap)X
+1588(diffusion)X
+1959(in)X
+2058(another)X
+2371(\(thereby)X
+2716(forming)X
+3050(a)X
+3117(transistor\).)X
+755 3620(For)N
+914(contacts,)X
+1280(there)X
+1499(are)X
+1643(additional)X
+2055(restrictions.)X
+2556(A)X
+2650(contact)X
+2954(in)X
+3054(one)X
+3218(cell)X
+3383(may)X
+3574(not)X
+3722(overlap)X
+555 3732(a)N
+641(contact)X
+963(in)X
+1081(any)X
+1263(other)X
+1504(cell)X
+1686(unless)X
+1968(the)X
+2128(two)X
+2314(contacts)X
+2672(have)X
+2896(same)X
+3136(type)X
+3344(and)X
+3525(they)X
+3733(occupy)X
+555 3844(exactly)N
+860(the)X
+1004(same)X
+1228(area.)X
+1463(Partial)X
+1741(overlaps)X
+2093(are)X
+2237(not)X
+2386(permitted,)X
+2806(nor)X
+2960(are)X
+3104(abutting)X
+3446(contacts)X
+3788(of)X
+3893(the)X
+555 3956(same)N
+783(type)X
+979(\(contacts)X
+1357(of)X
+1467(different)X
+1829(types)X
+2062(may)X
+2258(abut,)X
+2478(as)X
+2588(long)X
+2789(as)X
+2899(the)X
+3047(abutment)X
+3436(doesn't)X
+3748(violate)X
+555 4068(any)N
+723(other)X
+950(design)X
+1230(rules\).)X
+1526(The)X
+1705(contact)X
+2013(restrictions)X
+2470(are)X
+2617(necessary)X
+3020(to)X
+3124(guarantee)X
+3527(that)X
+3700(CIF)X
+3877(can)X
+555 4180(be)N
+670(generated)X
+1069(correctly)X
+1436(in)X
+1535(a)X
+1602(hierarchical)X
+2082(fashion.)X
+3 f
+555 4516(3.)N
+675(Routing)X
+1 f
+755 4656(If)N
+847(you)X
+1019(use)X
+1175(Magic's)X
+1518(automatic)X
+1927(routing)X
+2233(tools)X
+2447(on)X
+2570(an)X
+2688(NMOS)X
+2991(design,)X
+3293(the)X
+3438(routing)X
+3743(will)X
+3920(be)X
+555 4768(run)N
+710(in)X
+812(metal)X
+1054(and)X
+1220(polysilicon,)X
+1699(with)X
+1897(metal)X
+2138(as)X
+2244(the)X
+2388(primary)X
+2719(layer.)X
+2986(The)X
+3162(routing)X
+3466(will)X
+3642(be)X
+3759(placed)X
+555 4880(on)N
+675(a)X
+742(7-unit)X
+996(grid.)X
+3 f
+555 5216(4.)N
+675(Reading)X
+1040(and)X
+1218(Writing)X
+1568(CIF)X
+1 f
+755 5356(There)N
+1011(is)X
+1106(only)X
+1308(one)X
+1478(CIF)X
+1658(output)X
+1935(style)X
+2148(available)X
+2528(in)X
+2634(the)X
+2783(NMOS)X
+3090(technology:)X
+3 f
+3575(lambda=2)X
+1 f
+3987(.)X
+555 5468(The)N
+729(CIF)X
+902(layers)X
+1156(in)X
+1255(this)X
+1418(style,)X
+1648(and)X
+1811(their)X
+2012(meanings,)X
+2429(are:)X
+2203 6160(-)N
+2259(5)X
+2331(-)X
+
+6 p
+%%Page: 6 6
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+10 f
+1095 592(i)N
+1119(iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii)X
+1 f
+1143 704(Name)N
+1517(Meaning)X
+10 f
+1095 720(i)N
+1119(iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii)X
+1 f
+1143 832(NP)N
+1517(polysilicon)X
+1143 944(ND)N
+1517(diffusion)X
+1143 1056(NM)N
+1517(metal)X
+1517 1168(depletion)N
+1900(implant:)X
+2246(generated)X
+2645(around)X
+2936(depletion)X
+1143 1224(NI)N
+1517 1280(transistors)N
+1936(and)X
+2099(depletion)X
+2482(contacts)X
+1517 1392(contact)N
+1820(via:)X
+2013(generated)X
+2412(as)X
+2516(small)X
+2749(squares)X
+3061(inside)X
+1143 1448(NC)N
+1517 1504(poly-metal)N
+1959(contacts)X
+2299(and)X
+2462(diffusion-metal)X
+3080(contacts)X
+1143 1616(NB)N
+1517(buried)X
+1787(window:)X
+2147(generated)X
+2546(around)X
+2837(buried)X
+3107(contacts)X
+1143 1728(NG)N
+1517(overglass)X
+1904(via:)X
+2073(generated)X
+2472(for)X
+2608(overglass)X
+2995(contacts)X
+10 f
+1095 1744(i)N
+1119(iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii)X
+1095(c)X
+1648(c)Y
+1552(c)Y
+1456(c)Y
+1360(c)Y
+1264(c)Y
+1168(c)Y
+1072(c)Y
+976(c)Y
+880(c)Y
+784(c)Y
+688(c)Y
+3471 1744(c)N
+1648(c)Y
+1552(c)Y
+1456(c)Y
+1360(c)Y
+1264(c)Y
+1168(c)Y
+1072(c)Y
+976(c)Y
+880(c)Y
+784(c)Y
+688(c)Y
+1 f
+555 1932(To)N
+691(see)X
+843(exactly)X
+1151(where)X
+1414(each)X
+1619(CIF)X
+1796(layer)X
+2017(is)X
+2109(generated)X
+2512(for)X
+2652(a)X
+2723(particular)X
+3121(design,)X
+3424(use)X
+3580(the)X
+3 f
+3726(:cif)X
+3888(see)X
+1 f
+555 2044(command.)N
+1010(There)X
+1262(is)X
+1353(also)X
+1535(just)X
+1701(one)X
+1867(CIF)X
+2043(input)X
+2267(style.)X
+2523(It)X
+2608(is)X
+2698(called)X
+3 f
+2955(lambda=2)X
+1 f
+3393(and)X
+3558(can)X
+3718(be)X
+3835(used)X
+555 2156(to)N
+657(read)X
+850(\256les)X
+1037(written)X
+1337(by)X
+1460(Magic)X
+1733(in)X
+1835(the)X
+3 f
+1980(lambda=2)X
+1 f
+2419(style,)X
+2652(or)X
+2759(\256les)X
+2946(written)X
+3246(by)X
+3369(Caesar)X
+3658(using)X
+3893(the)X
+555 2268(standard)N
+905(NMOS)X
+1205(technology)X
+1657(with)X
+1852(a)X
+1919(scale)X
+2136(factor)X
+2385(of)X
+2489(200.)X
+3 f
+555 2492(5.)N
+675(Extraction)X
+1 f
+755 2632(Transistors)N
+1209(of)X
+1316(type)X
+3 f
+1509(efet)X
+1 f
+1686(or)X
+3 f
+1793(dfet)X
+1 f
+1980(in)X
+2082(the)X
+2226(NMOS)X
+2528(technology)X
+2982(must)X
+3195(have)X
+3403(at)X
+3499(least)X
+3702(two)X
+3872(dif-)X
+555 2744(fusion)N
+826(terminals.)X
+1264(A)X
+1364(diffusion)X
+1742(terminal)X
+2095(is)X
+2190(a)X
+2263(contiguous)X
+2715(region)X
+2991(along)X
+3235(the)X
+3383(perimeter)X
+3783(of)X
+3893(the)X
+555 2856(transistor)N
+937(channel)X
+1261(that)X
+1430(connects)X
+1791(to)X
+1890(diffusion,)X
+2285(as)X
+2389(shown)X
+2663(below:)X
+2 f
+10 s
+1611 4854(terminal)N
+1902(1)X
+2650(terminal)X
+2941(3)X
+1 Dt
+2487 4439 MXY
+12 18 Dl
+-12 -6 Dl
+-12 6 Dl
+12 -18 Dl
+0 381 Dl
+136 0 Dl
+2106 4439 MXY
+-12 18 Dl
+12 -6 Dl
+12 6 Dl
+-12 -18 Dl
+0 381 Dl
+-137 0 Dl
+2296 4330 MXY
+12 -19 Dl
+-12 7 Dl
+-12 -7 Dl
+12 19 Dl
+2131 3921(terminal)N
+2422(2)X
+2296 4330 MXY
+0 -382 Dl
+1502 3437(terminal)N
+1793(2)X
+2242 3403 MXY
+-19 -12 Dl
+7 12 Dl
+-7 12 Dl
+19 -12 Dl
+-382 0 Dl
+2432 3002(terminal)N
+2723(1)X
+2187 3131 MXY
+12 -19 Dl
+-12 7 Dl
+-12 -7 Dl
+12 19 Dl
+0 -163 Dl
+218 0 Dl
+1 f
+2814 3437(fet)N
+2569 3403 MXY
+18 12 Dl
+-6 -12 Dl
+6 -12 Dl
+-18 12 Dl
+218 0 Dl
+2705 3219(diff)N
+2569 3185 MXY
+18 12 Dl
+-6 -12 Dl
+6 -11 Dl
+-18 11 Dl
+109 0 Dl
+1582 3219(poly)N
+1860 3185 MXY
+-18 -11 Dl
+6 11 Dl
+-6 12 Dl
+18 -12 Dl
+-109 0 Dl
+2049 4984(3)N
+2109(diff)X
+2245(terminals)X
+2049 3730(2)N
+2109(diff)X
+2245(terminals)X
+1 Di
+2950 4112 MXY
+ 2950 4112 lineto
+ 2787 4112 lineto
+ 2787 4221 lineto
+ 2950 4221 lineto
+ 2950 4112 lineto
+closepath 1 2787 4112 2950 4221 Dp
+1806 MX
+ 1806 4112 lineto
+ 1642 4112 lineto
+ 1642 4221 lineto
+ 1806 4221 lineto
+ 1806 4112 lineto
+closepath 1 1642 4112 1806 4221 Dp
+2351 4766 MXY
+ 2351 4766 lineto
+ 2351 4439 lineto
+ 2569 4439 lineto
+ 2569 4221 lineto
+ 2787 4221 lineto
+ 2787 4766 lineto
+ 2351 4766 lineto
+closepath 4 2351 4221 2787 4766 DP
+1806 4221 MXY
+ 1806 4221 lineto
+ 2024 4221 lineto
+ 2024 4439 lineto
+ 2242 4439 lineto
+ 2242 4766 lineto
+ 1806 4766 lineto
+ 1806 4221 lineto
+closepath 4 1806 4221 2242 4766 Dp
+4112 MY
+ 1806 4112 lineto
+ 1806 4003 lineto
+ 2787 4003 lineto
+ 2787 4112 lineto
+ 2460 4112 lineto
+ 2460 4330 lineto
+ 2133 4330 lineto
+ 2133 4112 lineto
+ 1806 4112 lineto
+closepath 4 1806 4003 2787 4330 DP
+5 Dt
+2242 4766 MXY
+0 -327 Dl
+-218 0 Dl
+0 -218 Dl
+-218 0 Dl
+2787 MX
+-218 0 Dl
+0 218 Dl
+-218 0 Dl
+0 327 Dl
+1806 4112 MXY
+327 0 Dl
+0 218 Dl
+327 0 Dl
+0 -218 Dl
+327 0 Dl
+1 Dt
+2351 4766 MXY
+436 0 Dl
+0 -545 Dl
+1806 MX
+0 545 Dl
+436 0 Dl
+1806 4112 MXY
+0 -109 Dl
+981 0 Dl
+0 109 Dl
+1806 MX
+ 1806 4112 lineto
+ 2133 4112 lineto
+ 2133 4330 lineto
+ 2460 4330 lineto
+ 2460 4112 lineto
+ 2787 4112 lineto
+ 2787 4221 lineto
+ 2569 4221 lineto
+ 2569 4439 lineto
+ 2351 4439 lineto
+ 2351 4766 lineto
+ 2242 4766 lineto
+ 2242 4439 lineto
+ 2024 4439 lineto
+ 2024 4221 lineto
+ 1806 4221 lineto
+ 1806 4112 lineto
+closepath 2 1806 4112 2787 4766 Dp
+2024 3131 MXY
+ 2024 3131 lineto
+ 2351 3131 lineto
+ 2351 3349 lineto
+ 2569 3349 lineto
+ 2569 3458 lineto
+ 2242 3458 lineto
+ 2242 3240 lineto
+ 2024 3240 lineto
+ 2024 3131 lineto
+closepath 2 2024 3131 2569 3458 Dp
+5 Dt
+327 0 Dl
+0 218 Dl
+218 0 Dl
+2024 3240 MXY
+218 0 Dl
+0 218 Dl
+327 0 Dl
+1 Dt
+3349 MY
+ 2569 3349 lineto
+ 2732 3349 lineto
+ 2732 3458 lineto
+ 2569 3458 lineto
+ 2569 3349 lineto
+closepath 1 2569 3349 2732 3458 Dp
+1860 3131 MXY
+ 1860 3131 lineto
+ 2024 3131 lineto
+ 2024 3240 lineto
+ 1860 3240 lineto
+ 1860 3131 lineto
+closepath 1 1860 3131 2024 3240 Dp
+2024 MX
+ 2024 3131 lineto
+ 2024 3022 lineto
+ 2569 3022 lineto
+ 2569 3349 lineto
+ 2351 3349 lineto
+ 2351 3131 lineto
+ 2024 3131 lineto
+closepath 4 2024 3022 2569 3349 DP
+0 -109 Dl
+545 0 Dl
+0 327 Dl
+3458 MY
+0 109 Dl
+-545 0 Dl
+0 -327 Dl
+ 2024 3240 lineto
+ 2024 3567 lineto
+ 2569 3567 lineto
+ 2569 3458 lineto
+ 2242 3458 lineto
+ 2242 3240 lineto
+ 2024 3240 lineto
+closepath 4 2024 3240 2569 3567 DP
+3 Dt
+-1 Ds
+12 s
+555 5191(A)N
+649(transistor)X
+1032(may)X
+1223(have)X
+1430(more)X
+1653(than)X
+1844(two)X
+2013(diffusion)X
+2385(terminals,)X
+2793(in)X
+2893(which)X
+3152(case)X
+3342(it)X
+3420(is)X
+3508(modeled)X
+3864(as)X
+3968(a)X
+555 5303(collection)N
+971(of)X
+1085(two-terminal)X
+1617(transistors.)X
+2094(If)X
+2192(only)X
+2397(one)X
+2570(diffusion)X
+2951(terminal)X
+3307(is)X
+3405(present,)X
+3741(the)X
+3893(the)X
+555 5415(extractor)N
+929(\257ags)X
+1141(this)X
+1310(as)X
+1420(an)X
+1541(error)X
+1758(and)X
+1927(outputs)X
+2240(a)X
+2313(transistor)X
+2701(with)X
+2902(the)X
+3050(source)X
+3331(and)X
+3500(drain)X
+3728(shorted)X
+555 5527(together.)N
+755 5667(Transistors)N
+1222(of)X
+1342(the)X
+1500(special)X
+1808(type)X
+3 f
+2014(dcap)X
+1 f
+2251(may)X
+2457(have)X
+2679(as)X
+2799(few)X
+2982(as)X
+3101(one)X
+3279(diffusion)X
+3665(terminal.)X
+555 5779(Although)N
+947(their)X
+1152(normal)X
+1453(use)X
+1609(is)X
+1701(as)X
+1809(capacitors,)X
+2252(the)X
+2398(extractor)X
+2769(will)X
+2947(output)X
+3221(them)X
+3442(as)X
+3550(though)X
+3845(they)X
+2203 6160(-)N
+2259(6)X
+2331(-)X
+
+7 p
+%%Page: 7 7
+12 s 12 xH 0 xS 1 f
+555 400(Magic)N
+825(Technology)X
+1309(Manual)X
+1627(#1:)X
+1774(NMOS)X
+3239(September)X
+3675(19,)X
+3819(1990)X
+555 688(were)N
+772(a)X
+3 f
+845(dfet)X
+1 f
+1005(.)X
+1083(It)X
+1172(is)X
+1266(up)X
+1392(to)X
+1497(simulation)X
+1933(programs)X
+2325(to)X
+2429(compute)X
+2790(the)X
+2937 0.3250(capacitance)AX
+3417(of)X
+3526(a)X
+3 f
+3598(dcap)X
+1 f
+3824(from)X
+555 800(the)N
+697(area)X
+882(and)X
+1045(perimeter)X
+1439(of)X
+1543(its)X
+1658(channel.)X
+755 940(The)N
+944(NMOS)X
+1259(technology)X
+1726(\256le)X
+1887(currently)X
+2273(contains)X
+2632(little)X
+2848(information)X
+3341(on)X
+3475(parasitic)X
+3840(cou-)X
+555 1052(pling)N
+791(capacitances.)X
+1364(As)X
+1507(a)X
+1587(result,)X
+1862(overlap)X
+2188 0.2955(capacitance,)AX
+2700(and)X
+2876(sidewall)X
+3234(overlap)X
+3560 0.3250(capacitance)AX
+555 1164(will)N
+729(always)X
+1020(be)X
+1135(zero.)X
+2203 6160(-)N
+2259(7)X
+2331(-)X
+
+7 p
+%%Trailer
+xt
+
+xs

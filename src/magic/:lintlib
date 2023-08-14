@@ -1,0 +1,29 @@
+#! /bin/csh	-f
+
+# Script used to lint a module and, if desired, install a lint library.
+#
+# The reason for using a script is so that  system maintainers 
+# can easily eliminate Magic's use of lint, or change its operation.
+#
+# rcsid $Header: :lintlib,v 1.4 89/10/04 17:31:37 mayo Exp $
+
+# Usage:
+#	:lint module-name {list of files}
+#
+# Example: (while in a router module's subdirectory)
+#	../:lint router *.[ch] ../lib/lint/database.ln ../lib/lint/utils.ln
+#
+
+set MODULE=$1
+set DFLAGS=`cat ../misc/DFLAGS`
+shift 
+set SRCS= ($argv)
+
+rm -f ../lib/lint/${MODULE}.ln
+# don't lint!
+exit 0
+
+lint -I. -I../include -u -x -o ${MODULE} ${DFLAGS} ${SRCS} 
+mv llib-l${MODULE}.ln ../lib/lint/${MODULE}.ln
+
+exit 0

@@ -1,0 +1,748 @@
+.rm CM
+.nr PS 12
+.ps 12
+.nr VS 14
+.vs 14
+.\" sccsid "@(#)maint1	4.3 (Berkeley) 11/30/85"
+.de (C
+.nr PS -2
+.nr VS -2
+.nr LL 5.5i
+.IP
+..
+.de )C
+.sp .5c
+.nr PS +2
+.nr VS +2
+.nr LL 6i
+..
+.tr ~\(ap
+.DS C
+.LG
+.LG
+.sp |2c
+\fBMagic Maintainer's Manual #1: Hints for System Maintainers\fR
+.rm CH
+.ds LH Magic Maintainer's Manual #1: Hints for System Maintainers
+.ds RH \*(DY
+.ds CF - % -
+.sp 1c
+.NL
+\fIJohn Ousterhout\fR
+\fIWalter Scott\fR
+.sp 1c
+Computer Science Division
+Electrical Engineering and Computer Sciences
+University of California
+Berkeley, CA  94720
+
+\fI(Updated by others, too.)\fR
+
+.SM
+This tutorial corresponds to Magic version 6.
+
+
+.DE
+.SM
+.LP
+\fBTutorials to read first:\fR
+.IP
+All of them.
+.DE
+.LP
+\fBCommands covered in this tutorial:\fR
+.IP
+:*profile, :*runstats, :*seeflags, :*watch
+.LP
+\fBMacros covered in this tutorial:\fR
+.IP
+None.
+.br
+.NL
+.sp 1c
+.NH 1
+Introduction
+.PP
+This document provides some information to help would-be
+Magic maintainers learn about the system.  It is not at all
+complete, and like most infrequently-used documentation,
+will probably become less and less correct over time as
+the system evolves but this tutorial doesn't.  So, take
+what you read here with a grain of salt.  We believe that
+everything in this tutorial was up-to-date as of the
+1990 DECWRL/Livermore Magic release.  Before doing anything
+to the internals of Magic, you should read at least the
+first, and perhaps all four, of the papers on Magic that
+appeared together in the \fI1984 Design Automation Conference\fR.
+In addition, the following portions of magic have their own papers:
+.IP "extractor" 20
+\fI1985 Design Automation Conference\fR, page 286.
+.IP "channel router" 20
+\fI1985 Chapel Hill Conference on VLSI\fR, page 145.
+.IP "irouter and mzrouter" 20
+\fI1988 Design Automation Conference\fR, page 672.
+.IP "resistance extractor" 20
+\fI1987 Design Automation Conference\fR, page 570.
+.NH 1
+Installing Magic
+.PP
+If you've received Magic on the 1990 DECWRL/Livermore Magic
+tape, then it shouldn't take much work to get it running.
+You should first pick a location for Magic's directory tree.  Normally ~cad is
+chosen, but you might want to pick some other location to start.  If you
+do pick another location, set your shell environment variable \fBCAD_HOME\fR
+to that location and mentally translate the ~cad references
+in this document to the location you chose.
+After reading the tape in,
+there will be a DECstation 3100 binary version of Magic in ~cad/bin and a
+set of library subdirectories in ~cad/lib/magic.  If this isn't
+so, then at the very least you'll need to get a Magic system
+library set up in ~cad/lib/magic/sys:  this directory contains
+information like technology files and colormaps and Magic can't
+run at all without it.
+.PP
+If you're running on a DECstation 3100 you shouldn't need to do anything
+besides what's mentioned above.  Just run X11 and then run Magic.  If you
+are running on some other workstation, you'll need to read the next section
+on how to make a new binary.
+The rest of this section concerns serial-line displays, so if you are using
+any sort of workstation with a built-in display there is no need to read the
+next couple of paragraphs.
+.PP
+If you're running on a mainframe with a serial-line color display, you'll
+probably need to do some additional setup.  If the display is
+an AED512 or similar display, it will be attached to the mainframe
+via an RS232 port.  Magic needs to be able to read from this port,
+and there are two ways to do this.  The first is simply to have
+no login process for that port and have your system administrator
+change the protection to allow all processes to read from the
+port and write to it.  The second way is to have users log in
+on the display and run a process that changes the protection of
+the display.  There is a program called Sleeper that we distribute
+with Magic;  if it's run from an AED port it will set everything
+up so Magic can use the port.  Sleeper is clumsy to use, so we
+recommend that you use the first solution (no login process).
+.PP
+When you're running on mainframes,
+Magic will need to know which color display port to use from
+each terminal port.  Users can type this information as
+command-line switches but it's clumsy.  To simplify things,
+Magic checks the file \fB~cad/lib/displays\fR when it starts
+up.  The displays file tells which color display port to use
+for which text terminal port and also tells what kind of
+display is attached.  Once this file is set up, users
+can run Magic without worrying about the system configuration.
+See the manual page for \fIdisplays\fR\|(5).
+.PP
+One last note: if you're running on an AED display, you'll
+need to set communication switches 3-4-5 to up-down-up.
+.NH 1
+Source Directory Structure
+.PP
+There are approximately 45 source subdirectories in Magic.
+Most of these consist of modules of source code for the system,
+for example \fBdatabase\fR, \fBmain\fR, and \fButils\fR.
+See Section 4 of this document for brief descriptions of
+what's in each source directory.  Besides the source code,
+the other subdirectories are:
+.IP \fBdoc\fR 20
+Contains sources for all the documentation, including \fIman\fR
+pages, tutorials, and maintenance manuals.
+Subdirectories of \fBdoc\fR, e.g. \fBdoc/scmos\fR,
+contain the technology manuals.
+The Makefile in each directory can be used to run
+off the documentation.  The tutorials, maintenance manuals,
+and technology manuals all use the
+Berkeley Grn/Ditroff package, which means that you can't run them
+off without Grn/Ditroff unless you change the sources.
+.IP \fBinclude\fR 20
+Contains installed (i.e. ``safe'') versions of all the
+header files (*.h) from all the modules.
+.IP \fBlib\fR 20
+Contains installed (i.e. ``safe'') versions of each of the
+compiled and linked modules (*.o).
+.IP \fBinstalled\fR 20
+Most sites don't use this directory.  
+If you want it to be used, you can modify the script
+\fB~cad/src/magic/:instclean\fR.
+If used, it contains one subdirectory for each of the source code directories.
+Each subdirectory contains ``safe'' versions of the source files
+for that module.  These files correspond to the
+installed \fB.o\fR files in \fBlib\fR.  
+.IP \fBmagic\fR 20
+This directory is where the modules of Magic are combined together
+to form an executable version of the system.
+.IP \fBcontributed\fR 20
+This directory contains Magic source code or programs that were contributed
+by other people.  None of it has been tested by any member of the Magic team.
+.IP \fBcadlib\fR 20
+This is a symbolic link to the directory where Magic stores
+cell libraries and official installed versions of technology files
+and color maps.  Normally, \fBcadlib\fR is a symbolic link to
+\fB~cad/lib/magic\fR.
+.PP
+Magic is a relatively large system:  there are around 575 source files,
+250,000 lines of C code.
+In order to make all
+of this manageable, we've organized the sources in a two-level
+structure.  Each module has its own subdirectory, and you can
+make changes to the module and recompile it by working
+within that subdirectory.  In addition to the information in
+the subdirectory, there is an ``installed'' version of each
+module, which consists of the files in the \fBlib\fR, \fBinclude\fR,
+and \fBinstalled\fR subdirectories.  The installed version of each
+module is supposed to be stable and reliable.  At Berkeley,
+when a module is changed it is tested carefully without
+re-installing it, and is only re-installed when it is in good
+condition.  Note that ``installed'' doesn't mean that Magic
+users see the module;  it only means that other Magic
+maintainers will see it.  Each of the makefiles invokes the script
+\fB:instclean\fR to do the module installation.  This optionally will
+copy files to the installed directory.
+.PP
+By keeping modules separate, it's possible for several maintainers
+to work at once as long as they are modifying different source
+subdirectories.  Each maintainer works with the uninstalled version
+of a module, and links that with the installed versions of all
+other modules.  Thus, for example, one maintainer can modify
+\fBdatabase/DBcell.c\fR and another can modify
+\fBdbwind/DBWundo.c\fR at the same time.
+.NH 1
+Making Magic
+.PP
+The top-level Makefile (~cad/src/magic/Makefile) provides many options.
+Before using the Makefile, be sure to set your CAD_HOME shell environment
+variable to the location of your top-level cad directory (if it is not 
+the standard ~cad).
+.PP
+The most useful Makefile options are:
+.RS
+.IP "\fBmake config\fR" 20
+Configure the Magic system for a particular type of display or operating
+system.  This just runs the :config shell script to set up a couple of
+files.  The curious may examine the script directly.  If your configuration
+isn't handled by this script, then you can use it simply as a guide as to
+what to do.  Much of the configuration is done with compilation flags.  See
+a later section of this manual for a full listing of them.
+.IP "\fBmake magic\fR" 20
+Make a version of Magic.  All sub-modules are remade, if needed, 
+and then the final magic binary is produced.
+.IP "\fBmake everything\fR" 20
+Same as "make magic".  Both options make auxilary programs like ext2sim.
+.IP "\fBmake force\fR" 20
+Force recompilation.  Like a "make everything", except that object files
+are first removed to force recompilation.
+.IP "\fBmake clean\fR" 20
+Delete files that can be remade, such as binaries.
+.IP "\fBmake install\fR" 20
+Install the Magic binaries in ~cad (or $CAD_HOME if you have that set).
+.RE
+.PP
+Putting together a runnable Magic system proceeds in two steps
+after a source file has been modified.  First, the source file
+is compiled, and all the files in its module are linked together
+into a single file \fIxyz\fB.o\fR, where \fIxyz\fR is the name of
+the module.  Then all of the modules are linked together to
+form an executable version of Magic.
+The command \fBmake\fR in each source directory
+will compile and link the module locally;  \fBmake install\fR
+will compile and link it, and also install it in the \fBinclude\fR,
+\fBlib\fR, and \fBinstalled\fR directories.  
+All makefiles are set up to use the compiler flags found 
+in \fB~cad/src/magic/misc/DFLAGS\fR and \fB~cad/src/magic/misc/CFLAGS\fR.
+A list of flags appears later in this manual.
+.PP
+The command \fBmake\fR
+in the subdirectory \fBmagic\fR will produce a runnable version
+of Magic in that directory, using the installed versions of all
+modules.  To work with the uninstalled version of a module,
+create another subdirectory identical to \fBmagic\fR, and
+modify the Makefile so that it uses uninstalled versions of the
+relevant modules.  For example, the Magic team uses subdirectories
+\fBhamachitest\fR, \fBmayotest\fR, \fBmhatest\fR, \fBoustertest\fR, and \fBwsstest\fR
+that we use to test new versions of modules before installing them.
+If you want to remake the entire system, type ``make magic'' in
+the top-level directory (\fB~cad/src/magic\fR).
+.PP
+One last thing -- there are some customizations you may want to make to 
+Magic.  If magic core dumps, it sends mail to somebody.  That somebody is set
+in the MAIL_COMMAND definition in the file misc/niceabort.c.  You may want
+to change it.  Also in the same file is CRASHDIR which says where core
+dumps should be placed.  Paths used by magic are located in misc/paths.h.
+You shouldn't need to change them, though, because the CAD_HOME shell 
+environment variable controls what Magic uses for the location of ~cad.
+.NH 1
+Summary of Magic Modules
+.PP
+This section contains brief summaries of what is in
+each of the Magic source subdirectories.
+.IP \fBcalma\fR 20
+Contains code to read and write Calma Stream-format files.  It uses many
+of the procedures in the \fBcif\fR module.
+.IP \fBcif\fR 20
+Contains code to process the CIF sections of technology
+files, and to generate CIF files from Magic.
+.IP \fBcmwind\fR 20
+Contains code to implement special windows for editing color maps.
+.IP \fBcommands\fR 20
+The procedures in this module contain the top-level command
+routines for layout commands (commands that are
+valid in all windows are handled in the \fBwindows\fR module).
+These routines generally just parse the commands, check for
+errors, and call other routines to carry out the actions.
+.IP \fBdatabase\fR 20
+This is the largest and most important Magic module.  It
+implements the hierarchical corner-stitched database, and
+reads and writes Magic files.
+.IP \fBdbwind\fR 20
+Provides display functions specific to layout windows, including managing
+the box, redisplaying layout, and displaying highlights and feedback.
+.IP \fBdebug\fR 20
+There's not much in this module, just a few routines used for
+debugging purposes.
+.IP \fBdrc\fR 20
+This module contains the incremental design-rule checker.  It
+contains code to read the \fBdrc\fR sections of technology files,
+record areas to be rechecked, and recheck those areas in
+a hierarchical fashion.  
+.IP \fBext2sim\fR 20
+The \fBext2sim\fR directory isn't part of Magic itself.  It's
+a self-contained program that flattens the hierarchical \fB.ext\fR
+files generated by Magic's extractor into a single file in \fB.sim\fR
+format.  See the manual page \fBext2sim\|(1)\fR.
+.IP \fBext2spice\fR 20
+This is another self-contained program.  It converts \fB.ext\fR
+files into single file in spice format.  
+See the manual page \fBext2spice\|(1)\fR.
+.IP \fBextflat\fR 20
+Contains code that is used by the \fBextract\fR module and the \fBext2...\fR
+programs.  The module produces a library that is linked in with the above
+programs.
+.IP \fBextract\fR 20
+Contains code to read the \fBextract\fR sections of technology files,
+and to generate hierarchical circuit descriptions (\fB.ext\fR files)
+from Magic layouts.
+.IP \fBfsleeper\fR 20
+Like \fBext2sim\fR, this directory is a self-contained program
+that allows a graphics terminal attached to one machine to be
+used with Magic running on a different machine.
+See the manual page \fBfsleeper\|(1)\fR.
+.IP \fBgarouter\fR 20
+Contains the gate array router from Lawrence Livermore National Labs.
+.IP \fBgcr\fR 20
+Contains the channel router, which is an extension of Rivest's
+greedy router that can handle switchboxes and obstacles in the
+channels.
+.IP \fBgraphics\fR 20
+This is the lowest-level graphics module.  It contains driver
+routines for X11 as well as less-used drivers for the AED family of 
+displays and for Sun Windows.
+The code here does basic clipping and drawing.
+If you want to make Magic run on a new kind of display, this
+is the only module that should have to change.
+.IP \fBgrouter\fR 20
+The files in this module implement the global router, which
+computes the sequence of channels that each net is to pass
+through.
+.IP \fBirouter\fR 20
+Contains the interactive router written by Michael Arnold at Lawrence
+Livermore National Labs.  This router allows the user to route nets
+interactively,  using special hint layers to control the routing.
+.IP \fBmacros\fR 20
+Implements simple keyboard macros.
+.IP \fBmagicusage\fR 20
+Like \fBext2sim\fR, this
+is also a self-contained program.  It searches through a layout
+to find all the files that are used in it.  See \fBmagicusage\fR\|(1).
+.IP \fBmain\fR 20
+This module contains the main program for Magic, which parses
+command-line parameters, initializes the world, and then transfers
+control to \fBtextio\fR.
+.IP \fBmisc\fR 20
+A few small things that didn't belong anyplace else.
+.IP \fBmpack\fR 20
+Contains routines that implement the Tpack tile-packing
+interface using the Magic database.  (not supported)
+.IP \fBmzrouter\fR 20
+Contains maze routing routines that are used by the irouter and garouter
+modules.
+.IP \fBnet2ir\fR 20
+Contains a program to convert a netlist into irouter commands.
+.IP \fBnetlist\fR 20
+Netlist manipulation routines.
+.IP \fBnetmenu\fR 20
+Implements netlists and the special netlist-editing windows.
+.IP \fBparser\fR 20
+Contains the code that parses command lines into arguments.
+.IP \fBplot\fR 20
+The internals of the \fB:plot\fR command.
+.IP \fBplow\fR 20
+This module contains the code to support the \fB:plow\fR
+and \fB:straighten\fR commands.
+.IP \fBprleak\fR 20
+Also not part of Magic itself.  Prleak is a self-contained program
+intended for use in debugging Magic's memory allocator.  It analyzes
+a trace of mallocs/frees to look for memory leaks.  See the
+manual page \fBprleak\|(8)\fR for information on what the
+program does.
+.IP \fBresis\fR 20
+Resis is a module that does better resistance extraction via
+the :extresis command.  Courtesy of Don Stark of Stanford.
+.IP \fBrouter\fR 20
+Contains the top-level routing code, including procedures
+to read the router sections of technology files,
+chop free space up into channels, analyze obstacles, and paint
+back the results produced by the channel router.
+.IP \fBselect\fR 20
+This module contains files that manage the selection.  The routines
+here provide facilities for making a selection, enumerating what's
+in the selection, and manipulating the selection in several ways,
+such as moving it or copying it.
+.IP \fBsignals\fR 20
+Handles signals such as the interrupt key and control-Z.
+.IP \fBsim\fR 20
+Provides an interactive interface to the simulator rsim.  Courtesy of
+Mike Chow of Stanford.
+.IP \fBtech\fR 20
+This module contains the top-level technology file reading code,
+and the current technology files.  The code does little except
+to read technology file lines, parse them into arguments, and
+pass them off to clients in other modules (such as \fBdrc\fR
+or \fBdatabase\fR).
+.IP \fBtextio\fR 20
+The top-level command interpreter.  This module grabs commands
+from the keyboard or mouse and sends them to the window module
+for processing.  Also provides routines for message and error
+printout, and to manage the prompt on the screen.
+.IP \fBtiles\fR 20
+Implements basic corner-stitched tile planes.  This module was
+separated from \fBdatabase\fR in order to allow other clients
+to use tile planes without using the other database facilities
+too.
+.IP \fBundo\fR 20
+The \fBundo\fR module provides the overall framework for undo
+and redo operations, in that it stores lists of actions.  However,
+all the specific actions are managed by clients such as \fBdatabase\fR
+or \fBnetmenu\fR.
+.IP \fButils\fR 20
+This module implements a whole bunch of utility procedures,
+including a geometry package for dealing with rectangles and
+points and transformations, a heap package, a hash table package,
+a stack package, a revised memory allocator, and lots of other
+stuff.
+.IP \fBwindows\fR 20
+This is the overall window manager.  It keeps track of windows
+and calls clients (like \fBdbwind\fR and \fBcmwind\fR) to process
+window-specific operations such as redisplaying or processing
+commands.  Commands that are valid in all windows, such as
+resizing or moving windows, are implemented here.
+.IP \fBwiring\fR 20
+The files in this directory implement the \fB:wire\fR command.
+There are routines to select wiring material, add wire legs,
+and place contacts.
+.NH 1
+Portability Issues
+.PP
+Magic runs on a variety of machines.  Running "make config" in the top-level
+source directory sets the compiletime options.  
+If you are porting Magic, you should modify the configuration section at the
+end of file "misc/magic.h" to suit your machine, by testing compiler flags.
+No changes should be made that would hamper Magic's operation on other machines.
+.NH 1
+Compilation Switches
+.PP
+Over the years Magic has acquired a number of compilation switches.  
+While it's undesirable to have so many, it seems unavoidable since people
+use Magic on such a wide variety of machines.
+The file ~cad/src/magic/misc/DFLAGS should contain
+the compile switches that you wish
+to use at your site.  
+All makefiles for Magic reference the common DFLAGS
+file.  The switches in this release are shown below.
+.PP
+These flags are normally setup by running the "make config" script 
+in ~cad/src/magic.  Some of them are turned on in "magic.h" when a
+particular machine configuration is detected.
+.NH 3
+Machine/OS Compiletime Options
+.LP
+The following switches should be defined automatically by the compiler.
+.RS
+.IP "vax            "
+For VAX machines.
+.IP "mips            "
+For mips processors, such as the DECstation 3100.
+.IP "MIPSEL            "
+For little-endian mips processors, such as the DECstation 3100.
+.IP "MIPSEB            "
+For big-endian mips processors.
+.IP "pyramid            "
+For Pyramid machines.
+.IP "sun            "
+For Sun machines.
+.IP "mc68000            "
+For machines which have a version of the 68000 as the processor.
+.IP "sparc            "
+Sparc-based machines.
+.IP "lint            "
+Used to bypass things that lint complains about.  Don't turn this on.  
+Lint turns it on itself.
+.RE
+.LP
+If needed, you should put the following switches in the DFLAGS file.
+.RS
+.IP "macII            "
+For the MacII.
+.IP "SUNVIEW            "
+Used when including Magic's SunView graphics drivers.
+.IP "SUN120            "
+For the Sun120 machine.
+.IP "BSD4_2            "
+Used in the utils module to patch around a broken version of flsbuf() that
+is needed in the VAX version of Unix 4.2 BSD systems.
+This is rarely needed, since almost all version of Unix now have this bug
+fixed.
+.IP "FASYNC            "
+Hack for some versions of Sun2 software (old stuff).
+.IP "NO_VARARGS            "
+Hack for machines without a VARARGS package.
+.IP "SYSV            "
+For Unix System V.  
+.RE
+.LP
+Flags defined, if needed, in "magic.h" based on other flags.
+.RS
+.IP "BIG_ENDIAN            "
+Indicates big endian byte ordering is being used.
+.IP "LITTLE_ENDIAN            "
+Indicates little endian byte ordering is being used.
+.IP "NEED_MONCNTL            "
+Hack for machines without a moncontrol procedure.
+.IP "NEED_VFPRINTF            "
+Hack for machines without a vfprintf procedure.
+.IP "SIG_RETURNS_INT            "
+Defined in magic.h for systems that expect a signal handler to return an 
+integer rather than a void.
+.RE
+.NH 3
+Graphics Driver Compiletime Options
+.RS
+.IP "X10            "
+Used in the graphics module for the X10 driver.
+.IP "X11            "
+Used in the graphics module for the X11 driver.
+.IP "OLD_R2_FONTS            "
+Used when X11 is release 2.  Magic normally assumes release 3.
+.IP "AED            "
+Used in the graphics module when compiling for AED displays.  
+.IP "GTCO            "
+Used in the graphics module when using a GTCO bitpad with an AED display.
+.RE
+.NH 3
+Compiletime Options for Module Inclusion
+.RS
+.IP "NO_CALMA            "
+Flag to eliminate the calma module, to reduce the size of Magic.
+.IP "NO_CIF            "
+Flag to eliminate the cif module, to reduce the size of Magic.
+.IP "NO_EXT            "
+Flag to eliminate the ext module, to reduce the size of Magic.
+.IP "NO_PLOT            "
+Flag to eliminate the plot module, to reduce the size of Magic.
+.IP "NO_ROUTE            "
+Flag to eliminate the router modules, to reduce the size of Magic.
+.IP "NO_SIM            "
+Flag to eliminate the sim module, to reduce the size of Magic.
+.RE
+.NH 3
+Debugging Compiletime Options
+.RS
+.IP "CELLDEBUG            "
+Debugging flag for the database module.
+.IP "COUNTWIDTHCALLS            "
+Debugging flag for the plow module.
+.IP "DEBUGWIDTH            "
+Debugging flag for the plow module.
+.IP "DRCRULESHISTO            "
+Debugging/tuning flag for the drc module.
+.IP "FREEDEBUG            "
+Memory allocation debugging flag.
+.IP "MALLOCMEASURE            "
+Memory allocation debugging flag.
+.IP "MALLOCTRACE            "
+Memory allocation debugging flag.
+.IP "NOMACROS            "
+Memory allocation debugging flag.
+.IP "PAINTDEBUG            "
+Debugging flag for the database painting routines.
+.IP "PARANOID            "
+Flag to enable consistency checking.  With a system the complexity of Magic,
+you should always leave this flag turned on.
+.RE
+.NH 1
+Technology and Other Support Files
+.PP
+Besides the source code files, there are a number of other
+files that must be managed by Magic maintainers, including
+color maps, technology files, and other stuff.  Below is
+a listing of those files and where they are located.
+.NH 2
+Technology Files
+.PP
+See ``Magic Maintainer's Manual\ #2: The Technology File'' for information on
+the contents of technology files.
+The sources for technology files are contained in the subdirectory
+\fBtech\fR, in files like \fBscmos.tech\fR and \fBnmos.tech\fR.
+The technology files that Magic actually uses at runtime are kept in the
+directory \fBcadlib/sys\fR;  \fBmake install\fR in \fBtech\fR
+will copy the sources to \fBcadlib/sys\fR.  Technology file
+formats have evolved rapidly during Magic's life, so we use
+version numbers to allow multiple formats of technology files
+to exist at once.  The installed versions of technology
+files have names like \fBnmos.tech26\fR, where \fB26\fR is a
+version number.  The current version is defined in the Makefile for \fBtech\fR,
+and should be incremented if you ever change the format of technology
+files;  if you install a new format without changing the version
+number, pre-existing versions of Magic won't be able to read the
+files.  After incrementing the version number, you'll also have
+to re-make the \fBtech\fR module since the version number is referenced
+by the code that reads the files.
+.NH 2
+Display Styles
+.PP
+The display style file sources are contained in the source directory
+\fBgraphics\fR.  See ``Magic Maintainer's Manual\ #3:  The Display Style
+and Glyph Files'' and the manual page \fIdstyle\fR\|(5)
+for a description of their contents.
+\fBMake install\fR in \fBgraphics\fR will copy the files to
+\fBcadlib/sys\fR, which is where Magic looks for them when it
+executes.
+.NH 2
+Glyph Files
+.PP
+Glyph files are described in Maintainer's Manual\ #3 and the
+manual page \fIglyphs\fR\|(5);  they define
+patterns that appear in the cursor.  The sources for glyph
+files appear in two places:  some of them are in \fBgraphics\fR,
+in files like \fBcolor.glyphs\fR, and some others are defined
+in \fBwindows/window\fIXX\fB.glyphs\fR.  When you \fBmake install\fR in
+those directories, the glyphs are copied to \fBcadlib/sys\fR,
+which is where Magic looks for them when it executes.
+.NH 2
+Color Maps
+.PP
+The color map sources are also contained in the source directory \fBgraphics\fR.
+Color maps have names like \fBmos.7bit.std.cmap\fR,
+where \fBmos\fR is the name of the technology style to which the color
+map applies,
+\fB7bit\fR is the display style,
+and \fBstd\fR is a type of monitor.
+If monitors
+have radically different phosphors, they may require different
+color maps to achieve the same affects.  Right now we only support
+the \fBstd\fR kind of monitor.  When Magic executes, it looks for
+color maps in \fBcadlib/sys\fR;  \fBmake install\fR in \fBgraphics\fR
+will copy them there.  Although color map files are textual,
+you shouldn't edit them by hand;  use Magic's color map editing
+window instead.
+
+.NH 1
+New Display Drivers
+.PP
+The most common kind of change that will be
+made to Magic is probably to adapt it for new kinds of color displays.
+Each display driver contains a standard collection of
+procedures to perform basic functions such as placing text,
+drawing filled rectangles, or changing the shape of the cursor.
+A table (defined in \fBgraphics/grMain.c\fR) holds the addresses
+of the routines for the current display driver.  At initialization
+time this table is filled in with the addresses of the routines
+for the particular display being used.  All graphics calls pass
+through the table.
+.PP
+If you have a display other than an AED or an X11 workstation, the first thing
+you should do is check the directory \fBcontributed\fR.
+Each of the subdirectories in \fBcontributed\fR contains
+additional code that was contributed by some site outside of Berkeley.  
+Each subdirectory should contain a file
+named \fBReadMe\fR (or something similar), which explains how
+to install and use the code.  If you have any troubles with
+one of the these drivers, you'll have to contact the people that
+contributed the driver;  we here at Berkeley don't know anything
+about them.  If the contributors wish to be contacted, they will
+identify themselves in the \fBReadMe\fR file.
+.PP
+If you need to build a
+new display driver, we recommend starting with the routines for
+either the AED (all the files in \fBgraphics\fR with names
+like \fBgrAed1.c\fR), or the Sun (names like \fBgrSunW1.c\fR).
+For stand-alone displays, the AED routines are probably the
+easiest to work from;  for integrated workstations with pre-existing
+window packages, the Sun routines may be easiest.
+Copy the files into a new set for your display,
+change the names of the routines, and modify them to perform
+the equivalent functions on your display.  Write an initialization
+routine like \fBaedSetDisplay\fR, and add information to the
+display type tables in \fBgraphics/grMain.c\fR.  At this point
+you should be all set.  There shouldn't be any need to modify
+anything outside of the graphics module.
+
+.NH 1
+Debugging and Wizard Commands
+.PP
+Magic seems to work fine under the latest version of dbx, such as the
+dbx found on the DECstation 3100.
+The Makefiles are set up to compile all files with the
+\fB-g\fR switch, which creates debugging information
+in \fIdbx\fR's format.  
+.PP
+Because of the size of Magic and the way Unix handles
+debugging symbols, it's slow to compile a complete
+version of Magic with debugging information for everything,
+and the executable file ends up being enormous.  To solve this
+problem the Makefiles are set up to strip off debugging
+information before installing.  Thus, you have to link with
+uninstalled versions to get debugging information.  In most
+cases, debugging information is only needed for a few modules at
+a time, namely the modules you're currently modifying.  The
+database module is set up to install with debugging symbols,
+since it seems to be involved in almost all debugging.
+.PP
+If you try to use older versions of \fIdbx\fR, you'll discover that Magic has
+too many procedures for the default table sizes;  \fIdbx\fR
+runs out of space and dies.  The solution is either to
+recompile \fIdbx\fR with larger tables or
+throw away pieces of Magic to reduce the number of procedures
+(we recommend the first alternative).
+.PP
+There are a number of commands that we implemented in Magic
+to assist in debugging.  These commands are called \fIwizard
+commands\fR, and aren't visible to normal Magic users.  They
+all start with ``\fB*\fR''.  To get terse online help for the
+wizard commands, type \fB:help wizard\fR to Magic.
+The wizard commands aren't documented very well.  Some of the
+more useful ones are:
+.IP "\fB*watch \fIplane\fR"
+This causes Magic to display on the screen the corner-stitched
+tile structure for one of the planes of the edit cell.  For
+example, \fB*watch subcell\fR will display the structure of
+the subcell tile plane, including the address of the record
+for each tile and the values of its corner stitches.
+Without this command it would have been virtually impossible
+to debug the database module.
+.IP "\fB*profile \fBon\fR|\fBoff\fR"
+If you're using the Unix profiling tools to figure out where
+the cycles are going, this command can be used to turn
+profiling off for everything except the particular operation
+you want to measure.
+This command doesn't work on many systems, because the
+operating system doesn't support selective enabling and
+disabling of profiling.
+.IP \fB*runstats\fR
+This command prints out the CPU time usage since the last invocation
+of this command, and also the total since starting Magic.
+.IP "\fB*seeflags \fIflag\fR"
+If you're working on the router, this command allows you to
+see the various channel router flags by displaying them as
+feedback areas.  The cursor should first be placed over the
+channel whose flags you want to see.

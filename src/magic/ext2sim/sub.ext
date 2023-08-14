@@ -1,0 +1,10 @@
+timestamp 539038459
+version 5.0
+tech scmos
+scale 1000 1000 150
+resistclasses 30000 80000 40000 100 105 50 5000000 5000000
+node "Vdd!" 75 60 9 0 ndc 0 0 0 0 91 40 0 0 133 66 0 0 0 0 0 0
+node "GND!" 69 56 9 16 green 0 0 0 0 84 38 0 0 133 66 0 0 0 0 0 0
+node "Phi1!" 536 23 6 13 p 193 124 0 0 0 0 0 0 133 66 0 0 0 0 0 0
+cap "Phi1!" "GND!" 1
+fet nfet 9 13 10 14 21 20 GND! "Phi1!" 6 0 "GND!" 7 0 "Vdd!" 7 0

@@ -1,0 +1,67 @@
+#/bin/csh
+
+if( -f CFLAGS ) then
+	set sflags = `awk '{ print $1 }' CFLAGS`
+else
+	set sflags = ''
+endif
+
+( cd src/utils; make )
+if( $status != 0 ) exit 1;
+	
+( cd src/irsim; make SYSF="$sflags" )
+if( $status != 0 ) exit 1;
+
+if( $?CAD_HOME == 1 ) then
+	echo 'Installing in CAD_HOME='$CAD_HOME 'instead of ~cad'
+	set cad_dir = $CAD_HOME
+else
+	echo 'Installing in ~cad'
+	set cad_dir = `echo ~cad`
+	if( $status != 0 ) exit 1
+endif
+
+if( ! -d $cad_dir ) then
+	echo 'Install directory does not exist:' $cad_dir
+	exit 1
+endif
+if( ! -w $cad_dir ) then
+	echo 'Install directory is not writeable:' $cad_dir
+	exit 1
+endif
+
+set man_dir = $cad_dir/man
+set bin_dir = $cad_dir/bin
+set doc_dir = $cad_dir/doc
+
+
+if( ! -d $bin_dir ) mkdir $bin_dir
+rm -f $bin_dir/irsim
+cp src/irsim/irsim $bin_dir
+chmod 555 $bin_dir/irsim
+
+rm -f $bin_dir/anXhelper
+cp src/ana11/anXhelper $bin_dir
+chmod 555 $bin_dir/irsim
+
+if( ! -d $man_dir ) mkdir $man_dir
+foreach mp ( man/*.? )
+        set ext = $mp:e
+        set nm = $mp:t
+        if( ! -d $man_dir/man$ext ) mkdir $man_dir/man$ext
+	rm -f $man_dir/man$ext/$nm
+        cp $mp $man_dir/man$ext/$nm
+        chmod 444 $man_dir/man$ext/$nm
+end
+
+# exit if there's no cad/doc directory
+
+if( ! -d $doc_dir ) exit 0
+
+if( ! -d $doc_dir/irsim ) mkdir $doc_dir/irsim
+
+foreach d ( man/*.doc )
+	rm $doc_dir/irsim
+        cp $d $doc_dir/irsim
+end
+chmod 444 $doc_dir/irsim/*.doc

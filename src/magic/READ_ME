@@ -1,0 +1,30 @@
+Notes to Magic maintainers:
+--------------------------
+
+    This directory contains all the sources for the Magic system and related
+    programs.  The system runs on a number of machines.  You should read the
+    Magic Maintainer's manual as well as the introduction to Magic before
+    compiling the system.  These documents are in the "doc" subdirectory in
+    ditroff/gremlin format as well as in Postscript.
+    
+    The compilation process happens in two steps.  To configure the system
+    for a particular machine, run "make config" and answer the questions.
+    This sets up compile flags in misc/CFLAGS and misc/DFLAGS.  To then
+    compile the system, type "make force".  If you are porting magic to
+    a new system, your first step should be to set up the constants at the
+    end of misc/magic.h.  If you have partially compiled magic, you can use
+    "make everything" in order to just recompile what is needed.  If there
+    are problems, however, it is best to do a "make force" to ensure that
+    everything indeed gets recompiled.
+    
+    See Maintainer's Manual #1 for more information on how the sources are
+    organized and what compile-time options are available.
+
+Utility programs and libraries (ext2sim, magicusage, prleak):
+    In addition to Magic, this directory contains several additional utility
+    programs.  These are described briefly in Maintainer's Manual #1, and
+    more fully in their respective man pages.  Each programs resides in a
+    different subdirectory of this one.  If you want to recompile any of these
+    programs, you'll need to re-make the rest of Magic, since they use modules
+    from Magic.
+

@@ -1,0 +1,23 @@
+.TH vdmpc 8
+.SH NAME
+vdmpc \- bitmap (raster image) filter for a Color Versatec (3000 series)
+.SH SYNTAX
+\fB/usr/lib/vdmpc -x\fI width\fB -y\fI length\fB -n\fI login\fB -h\fI host\fI acnt_file
+.SH DESCRIPTION
+.NXR "versatec filter"
+.NXR "color printing" "bitmap"
+.PP
+The \fBvdmpc\fR filter is a modification of the vdmp filter.  It works with
+color Versatec plotters, such as the 3000 series.
+\fIWidth\fR is the width of the plotter in pixels, taken from the \fBpx\fR
+entry in /etc/printcap.  \fILength\fR is the length of a \fB12 inch\fR plot,
+in pixels, taken from the \fBpy\fR entry in /etc/printcap.  
+12 inches was chosen because older software uses the foot
+as the accounting
+unit for roll-fed paper.
+.PP
+Vdmpc uses the vdmpc file format described in vdmpc(5).
+.SH AUTHOR
+Modifications, of original vdmp program, by Bob Mayo.
+.SH SEE ALSO
+lpr(1), vdmpc(5)

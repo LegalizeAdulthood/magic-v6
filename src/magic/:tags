@@ -1,0 +1,14 @@
+#!/bin/csh	-f
+#
+# rcsid $Header: :tags,v 1.1 89/04/03 16:15:36 mayo Exp $
+#
+
+# Create a tags file in each module directory.
+
+foreach i ($argv)
+    echo Doing tags for $i
+    pushd $i >& /dev/null
+    rm -f tags
+    ctags *.[ch]
+    popd >& /dev/null
+end

@@ -1,0 +1,335 @@
+#!/bin/csh	-f
+
+set CADDIR=`:findcad`
+cat - << CAT_EOF
+	    Welcome to Magic's configuration program.
+
+Be sure to set your CAD_HOME shell environment variable to be the 
+root of your CAD area if it isn't ~cad.  Currently, this program has
+"$CADDIR" recorded as the location of your CAD area.
+
+You can create other custom configurations yourself.  Read the
+maintainer's manuals for details.  In particular, you can have more than
+one graphics driver installed.
+ 
+We haven't been able to test all of these configurations.  If 
+you develop modifications to Magic or to this configuration program,
+please let us (magic@ucbarpa.Berkeley.EDU) know.
+-------------------------------------------------------------------------------
+Magic works with the following window configurations.  X11 is preferred.
+	1) X11
+	2) X10
+	3) SunView
+	4) Both X11 or SunView, selectable at run-time
+	5) AED graphics terminal
+
+CAT_EOF
+
+set dflags=""
+set cflags=""
+set libs=""
+set ranlib=ranlib
+set gr_srcs=(SRCS= '${BASE_SRCS}')
+set gr_objs=(OBJS= '${BASE_OBJS}')
+set gr_pobjs=(POBJS= '${BASE_POBJS}')
+set gr_hsrcs=(HELPER_SRCS=)
+set gr_hprogs=(HELPER_PROGS=)
+set gr_ins_hprogs=(INSTALL_HELPER_PROGS=)
+
+echo -n "Please select one of the above configurations by number:  "
+
+set windows=$<
+
+switch ($windows)
+case "1":
+    echo "X11 selected"
+    set dflags=("$dflags" -DX11)
+    set libs=("$libs" -lX11)
+    set usingX11
+    set gr_srcs=("$gr_srcs" '${X11_SRCS}')
+    set gr_objs=("$gr_objs" '${X11_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${X11_POBJS}')
+    set gr_hsrcs=("$gr_hsrcs" '${X11HELPER_SRCS}')
+    set gr_hprogs=("$gr_hprogs" '${X11HELP_PROG}')
+    set gr_ins_hprogs=("$gr_ins_hprogs" '${CADDIR}/bin/${X11HELP_PROG}')
+    breaksw
+case "2":
+    echo "X10 selected"
+    set dflags=("$dflags" -DX10)
+    set libs=("$libs" -lX10)
+    set gr_srcs=("$gr_srcs" '${X10_SRCS}')
+    set gr_objs=("$gr_objs" '${X10_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${X10_POBJS}')
+    set gr_hsrcs=("$gr_hsrcs" '${X10HELPER_SRCS}')
+    set gr_hprogs=("$gr_hprogs" '${X10HELP_PROG}')
+    set gr_ins_hprogs=("$gr_ins_hprogs" '${CADDIR}/bin/${X10HELP_PROG}')
+    breaksw
+case "3":
+    echo "SunView selected"
+    set dflags=("$dflags" -DSUNVIEW)
+    set libs=("$libs" -lsuntool -lsunwindow -lpixrect)
+    set gr_srcs=("$gr_srcs" '${SUN_SRCS}')
+    set gr_objs=("$gr_objs" '${SUN_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${SUN_POBJS}')
+    set gr_hsrcs=("$gr_hsrcs" '${SUNHELPER_SRCS}')
+    set gr_hprogs=("$gr_hprogs" '${SUNHELP_PROG}')
+    breaksw
+case "4":
+    echo "Both X11 and SunView selected"
+    # X11 part
+    set dflags=("$dflags" -DX11)
+    set libs=("$libs" -lX11)
+    set usingX11
+    set gr_srcs=("$gr_srcs" '${X11_SRCS}')
+    set gr_objs=("$gr_objs" '${X11_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${X11_POBJS}')
+    set gr_hsrcs=("$gr_hsrcs" '${X11HELPER_SRCS}')
+    set gr_hprogs=("$gr_hprogs" '${X11HELP_PROG}')
+    set gr_ins_hprogs=("$gr_ins_hprogs" '${CADDIR}/bin/${X11HELP_PROG}')
+    # SunView part
+    set dflags=("$dflags" -DSUNVIEW)
+    set libs=("$libs" -lsuntool -lsunwindow -lpixrect)
+    set gr_srcs=("$gr_srcs" '${SUN_SRCS}')
+    set gr_objs=("$gr_objs" '${SUN_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${SUN_POBJS}')
+    set gr_hsrcs=("$gr_hsrcs" '${SUNHELPER_SRCS}')
+    set gr_hprogs=("$gr_hprogs" '${SUNHELP_PROG}')
+    breaksw
+case "5":
+    echo "AED terminal selected"
+    set gr_srcs=("$gr_srcs" '${AED_SRCS}')
+    set gr_objs=("$gr_objs" '${AED_OBJS}')
+    set gr_pobjs=("$gr_pobjs" '${AED_POBJS}')
+    breaksw
+default:
+    echo "Unrecognized selection:  $windows"
+    echo "Exiting."
+    exit 1
+    breaksw
+endsw
+
+cat - << CAT_EOF
+
+-------------------------------------------------------------------------------
+The following operating systems are known:
+
+	1) Berkeley Unix compatibles (Ultrix, pre-4.0 SunOS, RISCos4.0, etc..)
+	2) SunOS 4.0 and later
+ 	3) Some System V Unix compatibles (A/UX, HPUX)
+
+CAT_EOF
+
+echo -n "Please select one of the above operating systems by number:  "
+
+set os=$<
+
+switch ($os)
+case "1":
+    echo 'Berkeley Unix selected ... GO BEARS\!\!\!'
+    # It's not only a good idea, it's the default!
+    breaksw
+case "2":
+    echo "Sun OS 4.0 and later selected"
+    echo "NOTE:  You might have to load the libraries libsuntool.a,"
+    echo "       libsunwindow.a, and libpixrect.a from tape if your software"
+    echo "       was pre-loaded at the factory."
+    if ($?OPENWINHOME) then
+	set OPENHOME=${OPENWINHOME}
+    else
+	set OPENHOME=""
+    endif
+    if ($?usingX11) then
+	echo "NOTE:  Since you are on a Sun using X11, we're assuming that"
+	echo "       you want to get the X11 library from either the normal library"
+	echo "       area or from the directory ${OPENHOME}/lib.  If this is not "
+	echo "       correct, edit the file $CADDIR/src/magic/magic/LIBS by"
+	echo "       hand after this script completes, or re-run this script with"
+	echo "       the environment variable OPENWINHOME set properly."
+	set libs=("-L${OPENHOME}/lib" $libs)
+    endif
+    set cflags=("$cflags" -Bstatic)
+    breaksw
+case "3":
+    echo "System V selected"
+    echo "NOTE:  Magic is NOT System-V compliant.  But it is good enough for"
+    echo "       machines such as some HP machines and the MacII."
+    set dflags=("$dflags" -DSYSV)
+    set ranlib=/bin/true
+    breaksw
+default:
+    echo "Unrecognized selection:  $os"
+    echo "Exiting."
+    exit 2
+    breaksw
+endsw
+
+cat - << CAT_EOF
+
+-------------------------------------------------------------------------------
+Some machines need special compile-time switches:
+
+	1) Nothing special, not one of the ones below
+	2) HP 68000-based workstations
+ 	3) An Apple MacII
+ 	4) A MIPS workstation running RISCos4.0 or greater (not DecStations)
+
+CAT_EOF
+
+echo -n "Please select one of the above machine types by number:  "
+
+set mach=$<
+
+switch ($mach)
+case "1":
+    echo "None of the above selected -- normal compilation used."
+    set cflags=("$cflags" -g)
+    breaksw
+case "2":
+    echo "HP 68000 workstation selected"
+    set dflags=("$dflags" -Dmc68000)
+    set cflags=("$cflags" -g)
+    breaksw
+case "3":
+    echo "MacII selected"
+    set dflags=("$dflags" -DmacII)
+    set cflags=("$cflags" -B /usr/lib/big/)
+    breaksw
+case "4":
+    echo "MipsCo selected"
+    set cflags=("$cflags" -systype bsd43 -O -Olimit 3000 -signed)
+    breaksw
+default:
+    echo "Unrecognized selection:  $os"
+    echo "Exiting."
+    exit 2
+    breaksw
+endsw
+
+cat - << CAT_EOF
+
+-------------------------------------------------------------------------------
+Sometimes is it handy to eliminate modules from Magic, to make it smaller.
+The following modules are optional:
+    CALMA - module to read and write GDS-II format
+    CIF - module to read and write CIF
+    PLOT - plotting code
+    ROUTE - a whole bunch of routing tools
+    SIM - an interface to RSIM
+
+You may need to update your system wide ".magic" file to eliminate use of these
+modules.  (Look at "~cad/lib/magic/sys/.magic".)
+CAT_EOF
+
+echo -n "Include CALMA module? [yes]  "
+set calma=$<
+if ($calma == "") then 
+    set calma="yes"
+endif
+if ($calma != "no" && $calma != "n" && $calma != "yes" && $calma != "y") then
+    echo Unrecognized answer:  $calma
+    echo "Exiting."
+    exit 5
+endif
+if ($calma == "n" || $calma == "no") then
+    set dflags=("$dflags" -DNO_CALMA)
+endif
+
+echo -n "Include CIF module? [yes]  "
+set cif=$<
+if ($cif == "") then 
+    set cif="yes"
+endif
+if ($cif != "no" && $cif != "n" && $cif != "yes" && $cif != "y") then
+    echo Unrecognized answer:  $cif
+    echo "Exiting."
+    exit 5
+endif
+if ($cif == "n" || $cif == "no") then
+    set dflags=("$dflags" -DNO_CIF)
+endif
+
+echo -n "Include PLOT module? [yes]  "
+set plot=$<
+if ($plot == "") then 
+    set plot="yes"
+endif
+if ($plot != "no" && $plot != "n" && $plot != "yes" && $plot != "y") then
+    echo Unrecognized answer:  $plot
+    echo "Exiting."
+    exit 5
+endif
+if ($plot == "n" || $plot == "no") then
+    set dflags=("$dflags" -DNO_PLOT)
+endif
+
+echo -n "Include ROUTE module? [yes]  "
+set route=$<
+if ($route == "") then 
+    set route="yes"
+endif
+if ($route != "no" && $route != "n" && $route != "yes" && $route != "y") then
+    echo Unrecognized answer:  $route
+    echo "Exiting."
+    exit 5
+endif
+if ($route == "n" || $route == "no") then
+    set dflags=("$dflags" -DNO_ROUTE)
+endif
+
+echo -n "Include SIM module? [yes]  "
+set sim=$<
+if ($sim == "") then 
+    set sim="yes"
+endif
+if ($sim != "no" && $sim != "n" && $sim != "yes" && $sim != "y") then
+    echo Unrecognized answer:  $sim
+    echo "Exiting."
+    exit 5
+endif
+if ($sim == "n" || $sim == "no") then
+    set dflags=("$dflags" -DNO_SIM)
+endif
+
+cat - << CAT_EOF
+-------------------------------------------------------------------------------
+Updating the graphics Makefile...
+CAT_EOF
+rm -f graphics/Makefile.sav
+mv graphics/Makefile graphics/Makefile.sav
+sed -e "s|^SRCS=.*|${gr_srcs}|" -e "s|^OBJS=.*|${gr_objs}|" \
+-e "s|^POBJS=.*|${gr_pobjs}|" -e "s|^HELPER_SRCS=.*|${gr_hsrcs}|" \
+-e "s|^HELPER_PROGS=.*|${gr_hprogs}|" \
+-e "s|^INSTALL_HELPER_PROGS=.*|${gr_ins_hprogs}|" < graphics/Makefile.sav > graphics/Makefile
+ 
+echo "Updating the DFLAGS and LIBS files..."
+set libs=("$libs" -lm)
+set dflags=("$dflags" -DPARANOID)
+rm -f magic/LIBS.sav misc/DFLAGS.sav misc/CFLAGS.sav :ranlib.sav
+mv magic/LIBS magic/LIBS.sav
+echo $libs > magic/LIBS
+mv misc/DFLAGS misc/DFLAGS.sav
+echo $dflags > misc/DFLAGS
+mv misc/CFLAGS misc/CFLAGS.sav
+echo $cflags > misc/CFLAGS
+mv :ranlib :ranlib.sav
+echo "echo $ranlib" > :ranlib
+chmod +x :ranlib
+
+
+cat - << CAT_EOF
+
+Configuration completed.  The following files were changed:
+
+	graphics/Makefile  (old version in graphics/Makefile.sav)
+	misc/DFLAGS  (old version in misc/DFLAGS.sav)
+	misc/CFLAGS  (old version in misc/CFLAGS.sav)
+	magic/LIBS (old version may be found in magic/LIB.sav)
+	:ranlib (old version may be found in /:ranlib.sav)
+
+You will need to force a recompilation of Magic using "make force".
+A magic binary should appear in the magic subdirectory.  If you are using X, 
+a binary for X10helper or X11helper should appear in the graphics subdirectory.
+After this, a "make install" will move these binaries to the bin subdirectory
+in your cad area ($CADDIR), as well as install 
+files in your lib area.
+CAT_EOF

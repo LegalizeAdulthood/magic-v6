@@ -1,0 +1,39 @@
+#! /bin/csh	-f
+
+# Script used during the installation of a module.  When a module is installed,
+# we:
+#    1) Keep the old *.o files around for debugging purposes.  
+#    2) Copy the sources to the installed directory so we have a stable version
+#
+# Some sites may not want to do this, since it takes up time and lots of disk
+# space.  Those sites can modify this file.  The DO_CLEAN flag says if
+# we should clean out old .o files upon installation, and the SAVE_SRC flag
+# says if we should save the sources to the installed directory.
+#
+# rcsid $Header: :instclean,v 1.1 89/04/03 16:15:28 mayo Exp $
+
+# Usage:
+#	:instclean module-name files
+#
+# Example: (while in a router module's subdirectory)
+#	../:instclean router *.[ch] Makefile
+#
+
+set SAVE_SRC=NO
+set DO_CLEAN=NO
+
+set module=$1
+shift
+set files=(${argv})
+
+if (${SAVE_SRC} == "YES") then
+    pushd ../installed/${module}
+	rm -f ${files}
+    popd
+    cp ${files} ../installed/${module}
+endif
+
+if (${DO_CLEAN} == "YES") then
+    make clean
+endif
+

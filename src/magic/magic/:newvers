@@ -1,0 +1,18 @@
+#!/bin/csh -f
+# rcsid "$Header: :newvers,v 1.8 90/08/28 19:06:10 mayo Exp $"
+
+# update version number
+mv version version.tmp
+awk '{version = $1 + 1; } \
+END { printf "%d\n", version; }' < version.tmp > version
+chmod +w version.tmp >& /dev/null
+rm version.tmp
+
+# update string in magicTop.c
+mv magicTop.c magicTop.c.tmp
+fgrep -v 'char *MagicVersion' < magicTop.c.tmp > magicTop.c
+chmod +w magicTop.c.tmp >& /dev/null
+rm magicTop.c.tmp
+echo 'char *MagicVersion = "Magic -' "Version 6.`cat version` - Last updated `date`" ' \n";' >> magicTop.c
+
+

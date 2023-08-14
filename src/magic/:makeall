@@ -1,0 +1,17 @@
+#!/bin/csh -f
+#
+# :makeall name modules
+#
+# rcsid $Header: :makeall,v 1.1 89/04/03 16:15:28 mayo Exp $
+#
+
+set name=$argv[1]
+foreach mod ( $argv[2-] )
+	echo ' '
+	echo ------- Doing $mod -------
+	echo -n "pushd "
+	pushd $mod
+	make -k $name
+	echo -n "popd "
+	popd
+end
